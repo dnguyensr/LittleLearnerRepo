@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Learner Keys</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Comic Sans MS', 'Chalkboard', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        #key-display {
+            font-size: 15vw;
+            font-weight: bold;
+            color: white;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            animation: pop 0.2s ease-out;
+            z-index: 10;
+            position: relative;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .flying-key {
+            position: fixed;
+            font-size: 10vw;
+            font-weight: bold;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            pointer-events: none;
+            z-index: 5;
+            opacity: 1;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-up 2s ease-out forwards;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-300px) scale(0.5);
+            }
+        }
+
+        .star {
+            position: absolute;
+            pointer-events: none;
+            font-size: 3rem;
+            animation: star-burst 1s ease-out forwards;
+        }
+
+        @keyframes star-burst {
+            0% {
+                opacity: 1;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(180deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) rotate(360deg);
+            }
+        }
+
+        #instructions {
+            position: fixed;
+            bottom: 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .top-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .top-btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .top-btn:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.05);
+        }
+
+        .top-btn.active {
+            background: rgba(76, 175, 80, 0.6);
+            border-color: #4CAF50;
+        }
+
+        .key-history {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            max-width: 300px;
+        }
+
+        .history-key {
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
+            animation: fade-in 0.3s ease;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #math-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        #math-container.active {
+            display: flex;
+        }
+
+        #math-question {
+            font-size: 2rem;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        #math-emojis {
+            font-size: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 80vw;
+        }
+
+        .emoji-group {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+        }
+
+        .math-operator {
+            font-size: 5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #math-answer-display {
+            font-size: 10vw;
+            font-weight: bold;
+            color: white;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            min-height: 1.2em;
+        }
+
+
+        #word-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        #word-container.active {
+            display: flex;
+        }
+
+        #target-word {
+            display: flex;
+            gap: 10px;
+            font-size: 8vw;
+            font-weight: bold;
+        }
+
+        .letter-box {
+            padding: 20px 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            border: 4px solid transparent;
+        }
+
+        .letter-box.current {
+            border-color: #FFD700;
+            background: rgba(255,215,0,0.3);
+            animation: pulse 1s infinite;
+        }
+
+        .letter-box.completed {
+            background: rgba(76,175,80,0.5);
+            border-color: #4CAF50;
+            transform: scale(1.1);
+        }
+
+        .letter-box.wrong {
+            animation: shake 0.5s ease;
+            background: rgba(244,67,54,0.5);
+            border-color: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        #word-emoji {
+            font-size: 15vw;
+            line-height: 1;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        #word-prompt {
+            font-size: 2rem;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #score-display {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        #score-display.active {
+            display: block;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            50% { transform: scale(1.3) rotate(5deg); }
+            75% { transform: scale(1.2) rotate(-5deg); }
+            100% { transform: scale(1); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.6s ease;
+        }
+
+        #app-title {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            font-size: 1.8rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            z-index: 50;
+        }
+
+        #tagline {
+            position: fixed;
+            top: 110px;
+            left: 20px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-buttons">
+        <button id="freeplay-btn" class="top-btn active">🎮 Free Play</button>
+        <button id="math-btn" class="top-btn">🔢 Math</button>
+        <button id="mode-btn" class="top-btn">📚 Words</button>
+        <button id="fullscreen-btn" class="top-btn">🖥️ Fullscreen</button>
+    </div>
+    <div id="score-display">⭐ Score: <span id="word-count">0</span></div>
+    <div class="key-history" id="key-history"></div>
+    <div id="key-display">Press any key!</div>
+    <div id="word-container">
+        <div id="word-emoji"></div>
+        <div id="word-prompt">Type this word:</div>
+        <div id="target-word"></div>
+    </div>
+    <div id="math-container">
+        <div id="math-question"></div>
+        <div id="math-emojis"></div>
+        <div id="math-answer-display">?</div>
+    </div>
+    <h1 id="app-title">🎹 Little Learner Keys</h1>
+    <p id="tagline">The marginally educational keyboard smasher</p>
+    <p id="instructions">Click anywhere first, then smash the keyboard! 🎉</p>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const keyDisplay = document.getElementById('key-display');
+        const keyHistory = document.getElementById('key-history');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const modeBtn = document.getElementById('mode-btn');
+        const mathBtn = document.getElementById('math-btn');
+        const freeplayBtn = document.getElementById('freeplay-btn');
+        const wordContainer = document.getElementById('word-container');
+        const mathContainer = document.getElementById('math-container');
+        const targetWordEl = document.getElementById('target-word');
+        const wordEmojiEl = document.getElementById('word-emoji');
+        const mathQuestion = document.getElementById('math-question');
+        const mathEmojis = document.getElementById('math-emojis');
+        const mathAnswerDisplay = document.getElementById('math-answer-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const wordCountEl = document.getElementById('word-count');
+        const instructions = document.getElementById('instructions');
+
+        let currentMode = 'free';
+        let learnMode = false;
+        let mathMode = false;
+        let currentWord = '';
+        let currentEmoji = '';
+        let currentLetterIndex = 0;
+        let wordsCompleted = 0;
+        
+        let currentMathProblem = null;
+        let mathAnswer = '';
+
+        const mathItems = [
+            { emoji: '🍎', name: 'APPLES', singular: 'APPLE', isFood: true, eater: '🐴', eaterName: 'HORSE' },
+            { emoji: '🍌', name: 'BANANAS', singular: 'BANANA', isFood: true, eater: '🐵', eaterName: 'MONKEY' },
+            { emoji: '🍪', name: 'COOKIES', singular: 'COOKIE', isFood: true, eater: '👧', eaterName: 'GIRL' },
+            { emoji: '🧀', name: 'CHEESE', singular: 'CHEESE', isFood: true, eater: '🐭', eaterName: 'MOUSE' },
+            { emoji: '🥕', name: 'CARROTS', singular: 'CARROT', isFood: true, eater: '🐰', eaterName: 'BUNNY' },
+            { emoji: '🐟', name: 'FISH', singular: 'FISH', isFood: true, eater: '🐱', eaterName: 'CAT' },
+            { emoji: '🦴', name: 'BONES', singular: 'BONE', isFood: true, eater: '🐕', eaterName: 'DOG' },
+            { emoji: '🍯', name: 'HONEY POTS', singular: 'HONEY', isFood: true, eater: '🐻', eaterName: 'BEAR' },
+            { emoji: '⭐', name: 'STARS', singular: 'STAR', isFood: false },
+            { emoji: '❤️', name: 'HEARTS', singular: 'HEART', isFood: false },
+            { emoji: '🎈', name: 'BALLOONS', singular: 'BALLOON', isFood: false },
+            { emoji: '🌸', name: 'FLOWERS', singular: 'FLOWER', isFood: false },
+            { emoji: '🦋', name: 'BUTTERFLIES', singular: 'BUTTERFLY', isFood: false },
+            { emoji: '🐸', name: 'FROGS', singular: 'FROG', isFood: false },
+            { emoji: '🐢', name: 'TURTLES', singular: 'TURTLE', isFood: false },
+            { emoji: '🎁', name: 'GIFTS', singular: 'GIFT', isFood: false }
+        ];
+
+        const easyWords = [
+            { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐕' }, { word: 'SUN', emoji: '☀️' },
+            { word: 'MOM', emoji: '👩' }, { word: 'DAD', emoji: '👨' }, { word: 'BIG', emoji: '🦣' },
+            { word: 'RED', emoji: '🔴' }, { word: 'HAT', emoji: '🎩' }, { word: 'CUP', emoji: '🥤' },
+            { word: 'BUS', emoji: '🚌' }, { word: 'PIG', emoji: '🐷' }, { word: 'COW', emoji: '🐄' },
+            { word: 'HEN', emoji: '🐔' }, { word: 'BEE', emoji: '🐝' }, { word: 'ANT', emoji: '🐜' },
+            { word: 'BAT', emoji: '🦇' }, { word: 'RAT', emoji: '🐀' }, { word: 'FOX', emoji: '🦊' },
+            { word: 'OWL', emoji: '🦉' }, { word: 'EGG', emoji: '🥚' }, { word: 'BOX', emoji: '📦' },
+            { word: 'TOY', emoji: '🧸' }, { word: 'BOY', emoji: '👦' }, { word: 'BAG', emoji: '👜' },
+            { word: 'BED', emoji: '🛏️' }, { word: 'RUN', emoji: '🏃' }, { word: 'CHAIR', emoji: '🪑' },
+            { word: 'EAT', emoji: '🍽️' }, { word: 'SEE', emoji: '👀' }, { word: 'GO', emoji: '🚗' },
+            { word: 'ARM', emoji: '💪' }, { word: 'POP', emoji: '🎈' }, { word: 'NET', emoji: '🥅' },
+            { word: 'NO', emoji: '❌' }, { word: 'YES', emoji: '👍' }, { word: 'HELLO', emoji: '👋' },
+            { word: 'BYE', emoji: '👋' }, { word: 'ONE', emoji: '1️⃣' }, { word: 'TWO', emoji: '2️⃣' },
+            { word: 'TEN', emoji: '🔟' }, { word: 'BALL', emoji: '⚽' }, { word: 'CAKE', emoji: '🎂' },
+            { word: 'FISH', emoji: '🐟' }, { word: 'FROG', emoji: '🐸' }, { word: 'DUCK', emoji: '🦆' },
+            { word: 'BIRD', emoji: '🐦' }, { word: 'TREE', emoji: '🌳' }, { word: 'STAR', emoji: '⭐' },
+            { word: 'MOON', emoji: '🌙' }, { word: 'BOOK', emoji: '📖' }, { word: 'DOOR', emoji: '🚪' },
+            { word: 'HAND', emoji: '✋' }, { word: 'FEET', emoji: '🦶' }, { word: 'NOSE', emoji: '👃' },
+            { word: 'EYES', emoji: '👁️' }, { word: 'BEAR', emoji: '🐻' }, { word: 'LION', emoji: '🦁' },
+            { word: 'JUMP', emoji: '🦘' }, { word: 'PLAY', emoji: '🎮' }, { word: 'LOVE', emoji: '❤️' },
+            { word: 'APPLE', emoji: '🍎' }, { word: 'BABY', emoji: '👶' }, { word: 'BELL', emoji: '🔔' },
+            { word: 'BIKE', emoji: '🚲' }, { word: 'BOAT', emoji: '⛵' }, { word: 'BONE', emoji: '🦴' },
+            { word: 'BOWL', emoji: '🥣' }, { word: 'BREAD', emoji: '🍞' }, { word: 'BUG', emoji: '🐛' },
+            { word: 'BUNNY', emoji: '🐰' }, { word: 'CANDY', emoji: '🍬' }, { word: 'CAR', emoji: '🚗' },
+            { word: 'CHEESE', emoji: '🧀' }, { word: 'CLOCK', emoji: '🕐' }, { word: 'CLOUD', emoji: '☁️' },
+            { word: 'CORN', emoji: '🌽' }, { word: 'CRAB', emoji: '🦀' }, { word: 'CRY', emoji: '😢' },
+            { word: 'DINO', emoji: '🦕' }, { word: 'DRUM', emoji: '🥁' }, { word: 'EAR', emoji: '👂' },
+            { word: 'FACE', emoji: '😊' }, { word: 'FIRE', emoji: '🔥' }, { word: 'FLAG', emoji: '🚩' },
+            { word: 'FLY', emoji: '🪰' }, { word: 'HAMBURGER', emoji: '🍔' }, { word: 'FOOT', emoji: '🦶' },
+            { word: 'GIFT', emoji: '🎁' }, { word: 'GIRL', emoji: '👧' }, { word: 'GOAT', emoji: '🐐' },
+            { word: 'GRAPE', emoji: '🍇' }, { word: 'HAPPY', emoji: '😄' }, { word: 'HEART', emoji: '💖' },
+            { word: 'HOME', emoji: '🏠' }, { word: 'HORSE', emoji: '🐴' }, { word: 'HOT', emoji: '🌡️' },
+            { word: 'ICE', emoji: '🧊' }, { word: 'JAM', emoji: '🫙' }, { word: 'KEY', emoji: '🔑' },
+            { word: 'KING', emoji: '👑' }, { word: 'KITE', emoji: '🪁' }, { word: 'LEAF', emoji: '🍃' },
+            { word: 'LEG', emoji: '🦵' }, { word: 'LEMON', emoji: '🍋' }, { word: 'LIGHT', emoji: '💡' },
+            { word: 'MILK', emoji: '🥛' }, { word: 'MONKEY', emoji: '🐵' }, { word: 'MOUSE', emoji: '🐭' },
+            { word: 'MUSIC', emoji: '🎵' }, { word: 'NIGHT', emoji: '🌃' }, { word: 'NOSE', emoji: '👃' },
+            { word: 'OCEAN', emoji: '🌊' }, { word: 'ORANGE', emoji: '🍊' }, { word: 'PANDA', emoji: '🐼' },
+            { word: 'PARK', emoji: '🏞️' }, { word: 'PEN', emoji: '🖊️' }, { word: 'PIZZA', emoji: '🍕' },
+            { word: 'PLANT', emoji: '🌱' }, { word: 'QUEEN', emoji: '👸' }, { word: 'RAIN', emoji: '🌧️' },
+            { word: 'RING', emoji: '💍' }, { word: 'ROBOT', emoji: '🤖' }, { word: 'ROCK', emoji: '🪨' },
+            { word: 'ROSE', emoji: '🌹' }, { word: 'SAD', emoji: '😢' }, { word: 'SAND', emoji: '🏖️' },
+            { word: 'SHARK', emoji: '🦈' }, { word: 'SHEEP', emoji: '🐑' }, { word: 'SHIP', emoji: '🚢' },
+            { word: 'SHOE', emoji: '👟' }, { word: 'SLEEP', emoji: '😴' }, { word: 'SMILE', emoji: '😊' },
+            { word: 'SNAIL', emoji: '🐌' }, { word: 'SNAKE', emoji: '🐍' }, { word: 'SNOW', emoji: '❄️' },
+            { word: 'SOCK', emoji: '🧦' }, { word: 'SOUP', emoji: '🍲' }, { word: 'SPOON', emoji: '🥄' },
+            { word: 'SWIM', emoji: '🏊' }, { word: 'TACO', emoji: '🌮' }, { word: 'TIGER', emoji: '🐯' },
+            { word: 'TRAIN', emoji: '🚂' }, { word: 'TRUCK', emoji: '🚚' }, { word: 'TURTLE', emoji: '🐢' },
+            { word: 'WATER', emoji: '💧' }, { word: 'WHALE', emoji: '🐳' }, { word: 'WOLF', emoji: '🐺' },
+            { word: 'WORM', emoji: '🪱' }, { word: 'ZEBRA', emoji: '🦓' }, { word: 'ZOO', emoji: '🦒' },
+            { word: 'BANANA', emoji: '🍌' }, { word: 'CARROT', emoji: '🥕' }, { word: 'COOKIE', emoji: '🍪' },
+            { word: 'HONEY', emoji: '🍯' }, { word: 'BALLOON', emoji: '🎈' }, { word: 'FLOWER', emoji: '🌸' },
+            { word: 'BUTTERFLY', emoji: '🦋' }
+        ];
+
+        const colors = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+            'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)'
+        ];
+
+        const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🎊', '🎈', '🎁', '❤️', '💜', '💙', '💚', '💛', '🧡'];
+
+        const keyToNote = {};
+        const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99];
+        let noteIndex = 0;
+
+        function getFrequencyForKey(key) {
+            if (!keyToNote[key]) {
+                keyToNote[key] = notes[noteIndex % notes.length];
+                noteIndex++;
+            }
+            return keyToNote[key];
+        }
+
+        function playDrumSound(type) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+            
+            if (type === 'kick') {
+                osc.frequency.setValueAtTime(150, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioContext.currentTime + 0.1);
+                gain.gain.setValueAtTime(1, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'snare') {
+                const noise = audioContext.createBufferSource();
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseBuffer.length; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = noiseBuffer;
+                filter.type = 'highpass';
+                filter.frequency.value = 1000;
+                gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioContext.destination);
+                noise.start(audioContext.currentTime);
+            } else if (type === 'hihat') {
+                const noise = audioContext.createBufferSource();
+                const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseBuffer.length; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                noise.buffer = noiseBuffer;
+                filter.type = 'highpass';
+                filter.frequency.value = 5000;
+                gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioContext.destination);
+                noise.start(audioContext.currentTime);
+            } else if (type === 'tom') {
+                osc.frequency.setValueAtTime(200 + Math.random() * 100, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 0.2);
+            }
+        }
+
+        function playSound(key) {
+            if (currentMode === 'free' && /^F([1-9]|1[0-2])$/i.test(key)) {
+                const fNum = parseInt(key.substring(1));
+                const drumTypes = ['kick', 'snare', 'hihat', 'tom'];
+                const index = (fNum - 1) % drumTypes.length;
+                playDrumSound(drumTypes[index]);
+                return;
+            }
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            const frequency = getFrequencyForKey(key);
+            oscillator.frequency.value = frequency;
+            oscillator.type = ['sine', 'square', 'triangle'][Math.floor(Math.random() * 3)];
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.style.width = Math.random() * 100 + 50 + 'px';
+            bubble.style.height = bubble.style.width;
+            bubble.style.left = Math.random() * window.innerWidth + 'px';
+            bubble.style.top = Math.random() * window.innerHeight + 'px';
+            bubble.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            document.body.appendChild(bubble);
+            setTimeout(() => bubble.remove(), 2000);
+        }
+
+        function createStar(x, y) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            star.style.left = x + 'px';
+            star.style.top = y + 'px';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1000);
+        }
+
+        function createFlyingKey(key) {
+            const flyingKey = document.createElement('div');
+            flyingKey.className = 'flying-key';
+            flyingKey.textContent = key;
+            
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            flyingKey.style.left = centerX + 'px';
+            flyingKey.style.top = centerY + 'px';
+            flyingKey.style.transform = 'translate(-50%, -50%)';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.max(window.innerWidth, window.innerHeight);
+            const destX = Math.cos(angle) * distance;
+            const destY = Math.sin(angle) * distance;
+            const rotation = (Math.random() - 0.5) * 720;
+            
+            flyingKey.style.setProperty('--dest-x', destX + 'px');
+            flyingKey.style.setProperty('--dest-y', destY + 'px');
+            flyingKey.style.setProperty('--rotation', rotation + 'deg');
+            
+            const hue = Math.random() * 360;
+            flyingKey.style.color = `hsl(${hue}, 80%, 70%)`;
+            
+            flyingKey.animate([
+                { 
+                    transform: 'translate(-50%, -50%) scale(1) rotate(0deg)',
+                    opacity: 1
+                },
+                { 
+                    transform: `translate(calc(-50% + ${destX}px), calc(-50% + ${destY}px)) scale(0.3) rotate(${rotation}deg)`,
+                    opacity: 0
+                }
+            ], {
+                duration: 1500,
+                easing: 'ease-out',
+                fill: 'forwards'
+            });
+            
+            document.body.appendChild(flyingKey);
+            setTimeout(() => flyingKey.remove(), 1500);
+        }
+
+        function updateKeyHistory(key) {
+            const historyKey = document.createElement('div');
+            historyKey.className = 'history-key';
+            historyKey.textContent = key;
+            keyHistory.insertBefore(historyKey, keyHistory.firstChild);
+            
+            while (keyHistory.children.length > 8) {
+                keyHistory.removeChild(keyHistory.lastChild);
+            }
+        }
+
+        function pickNewWord() {
+            const wordObj = easyWords[Math.floor(Math.random() * easyWords.length)];
+            currentWord = wordObj.word;
+            currentEmoji = wordObj.emoji;
+            currentLetterIndex = 0;
+            wordEmojiEl.textContent = currentEmoji;
+            renderWord();
+        }
+
+        function renderWord() {
+            targetWordEl.innerHTML = '';
+            for (let i = 0; i < currentWord.length; i++) {
+                const letterBox = document.createElement('div');
+                letterBox.className = 'letter-box';
+                letterBox.textContent = currentWord[i];
+                if (i < currentLetterIndex) {
+                    letterBox.classList.add('completed');
+                } else if (i === currentLetterIndex) {
+                    letterBox.classList.add('current');
+                }
+                targetWordEl.appendChild(letterBox);
+            }
+        }
+
+        function playSuccessSound() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = 523.25;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.3);
+            
+            setTimeout(() => {
+                const osc2 = audioContext.createOscillator();
+                const gain2 = audioContext.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioContext.destination);
+                osc2.frequency.value = 659.25;
+                osc2.type = 'sine';
+                gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                osc2.start(audioContext.currentTime);
+                osc2.stop(audioContext.currentTime + 0.3);
+            }, 150);
+            
+            setTimeout(() => {
+                const osc3 = audioContext.createOscillator();
+                const gain3 = audioContext.createGain();
+                osc3.connect(gain3);
+                gain3.connect(audioContext.destination);
+                osc3.frequency.value = 783.99;
+                osc3.type = 'sine';
+                gain3.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gain3.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                osc3.start(audioContext.currentTime);
+                osc3.stop(audioContext.currentTime + 0.5);
+            }, 300);
+        }
+
+        function playWrongSound() {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = 200;
+            osc.type = 'sawtooth';
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.2);
+        }
+
+        function celebrateWordComplete() {
+            wordsCompleted++;
+            wordCountEl.textContent = wordsCompleted;
+            
+            playSuccessSound();
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createStar(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight
+                    );
+                    createBubble();
+                }, i * 50);
+            }
+            
+            targetWordEl.classList.add('celebrate');
+            setTimeout(() => {
+                targetWordEl.classList.remove('celebrate');
+                pickNewWord();
+            }, 1000);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            learnMode = mode === 'words';
+            mathMode = mode === 'math';
+            
+            keyDisplay.style.display = mode === 'free' ? 'block' : 'none';
+            wordContainer.classList.toggle('active', mode === 'words');
+            mathContainer.classList.toggle('active', mode === 'math');
+            scoreDisplay.classList.toggle('active', mode !== 'free');
+            keyHistory.style.display = mode === 'free' ? 'flex' : 'none';
+            
+            freeplayBtn.classList.toggle('active', mode === 'free');
+            modeBtn.classList.toggle('active', mode === 'words');
+            mathBtn.classList.toggle('active', mode === 'math');
+            
+            if (mode === 'words') {
+                instructions.textContent = 'Type the letters to spell the word! 📝';
+                pickNewWord();
+            } else if (mode === 'math') {
+                instructions.textContent = 'Type the number answer! 🔢';
+                generateMathProblem();
+            } else {
+                instructions.textContent = 'Smash the keyboard! � F1-F12 keys = 🥁 Drums!';
+            }
+        }
+
+        function toggleLearnMode() {
+            setMode(currentMode === 'words' ? 'free' : 'words');
+        }
+
+        function toggleMathMode() {
+            setMode(currentMode === 'math' ? 'free' : 'math');
+        }
+
+        function generateMathProblem() {
+            const item = mathItems[Math.floor(Math.random() * mathItems.length)];
+            const isSubtraction = item.isFood && Math.random() > 0.75;
+            
+            let num1, num2, answer, questionText, emojiDisplay;
+            
+            if (isSubtraction) {
+                num1 = Math.floor(Math.random() * 8) + 2;
+                num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+                answer = num1 - num2;
+                
+                const eatenName = num2 === 1 ? item.singular : item.name;
+                questionText = `${item.eater} ${item.eaterName} eats ${num2} ${eatenName}!<br>How many ${item.name} are left?`;
+                
+                let emojis = '';
+                emojis += `<div class="emoji-group">`;
+                for (let i = 0; i < num1; i++) {
+                    emojis += item.emoji;
+                }
+                emojis += `</div>`;
+                emojis += `<span class="math-operator">−</span>`;
+                emojis += `<div class="emoji-group">`;
+                emojis += `${item.eater}`;
+                for (let i = 0; i < num2; i++) {
+                    emojis += item.emoji;
+                }
+                emojis += `</div>`;
+                emojiDisplay = emojis;
+            } else {
+                num1 = Math.floor(Math.random() * 5) + 1;
+                num2 = Math.floor(Math.random() * 5) + 1;
+                answer = num1 + num2;
+                
+                questionText = `Count all the ${item.name}!<br>How many ${item.name} are there?`;
+                
+                let emojis = '';
+                emojis += `<div class="emoji-group">`;
+                for (let i = 0; i < num1; i++) {
+                    emojis += item.emoji;
+                }
+                emojis += `</div>`;
+                emojis += `<span class="math-operator">+</span>`;
+                emojis += `<div class="emoji-group">`;
+                for (let i = 0; i < num2; i++) {
+                    emojis += item.emoji;
+                }
+                emojis += `</div>`;
+                emojiDisplay = emojis;
+            }
+            
+            currentMathProblem = {
+                answer: answer,
+                isSubtraction: isSubtraction,
+                item: item
+            };
+            mathAnswer = '';
+            
+            mathQuestion.innerHTML = questionText;
+            mathEmojis.innerHTML = emojiDisplay;
+            mathAnswerDisplay.textContent = '?';
+        }
+
+        function checkMathAnswer(digit) {
+            mathAnswer += digit;
+            mathAnswerDisplay.textContent = mathAnswer;
+            
+            if (parseInt(mathAnswer) === currentMathProblem.answer) {
+                celebrateMathCorrect();
+            } else if (mathAnswer.length >= String(currentMathProblem.answer).length) {
+                mathAnswerDisplay.style.color = '#ff6b6b';
+                playWrongSound();
+                setTimeout(() => {
+                    mathAnswer = '';
+                    mathAnswerDisplay.textContent = '?';
+                    mathAnswerDisplay.style.color = 'white';
+                }, 800);
+            }
+        }
+
+        function celebrateMathCorrect() {
+            wordsCompleted++;
+            wordCountEl.textContent = wordsCompleted;
+            
+            playSuccessSound();
+            mathAnswerDisplay.style.color = '#4CAF50';
+            
+            if (currentMathProblem.isSubtraction) {
+                let resultEmojis = '';
+                for (let i = 0; i < currentMathProblem.answer; i++) {
+                    resultEmojis += currentMathProblem.item.emoji;
+                }
+                mathEmojis.innerHTML = `<div class="emoji-group">${resultEmojis || '(none left!)'}</div>`;
+                mathQuestion.innerHTML = `${currentMathProblem.answer} ${currentMathProblem.answer === 1 ? currentMathProblem.item.singular : currentMathProblem.item.name} left! 🎉`;
+            }
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createStar(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight
+                    );
+                    createBubble();
+                }, i * 50);
+            }
+            
+            setTimeout(() => {
+                mathAnswerDisplay.style.color = 'white';
+                generateMathProblem();
+            }, 1500);
+        }
+
+        function getDisplayKey(e) {
+            if (e.key === ' ') return '␣';
+            if (e.key === 'Enter') return '↵';
+            if (e.key === 'Escape') return 'ESC';
+            if (e.key === 'Backspace') return '⌫';
+            if (e.key === 'Tab') return '⇥';
+            if (e.key === 'ArrowUp') return '↑';
+            if (e.key === 'ArrowDown') return '↓';
+            if (e.key === 'ArrowLeft') return '←';
+            if (e.key === 'ArrowRight') return '→';
+            if (e.key === 'Shift') return '⇧';
+            if (e.key === 'Control') return 'Ctrl';
+            if (e.key === 'Alt') return 'Alt';
+            if (e.key === 'Meta' || e.key === 'OS') return '⊞';
+            if (e.key === 'CapsLock') return 'Caps';
+            if (e.key === 'F1') return 'F1';
+            if (e.key === 'F2') return 'F2';
+            if (e.key === 'F3') return 'F3';
+            if (e.key === 'F4') return 'F4';
+            if (e.key === 'F5') return 'F5';
+            if (e.key === 'F6') return 'F6';
+            if (e.key === 'F7') return 'F7';
+            if (e.key === 'F8') return 'F8';
+            if (e.key === 'F9') return 'F9';
+            if (e.key === 'F10') return 'F10';
+            if (e.key === 'F11') return 'F11';
+            if (e.key === 'F12') return 'F12';
+            if (e.key === 'Insert') return 'Ins';
+            if (e.key === 'Delete') return 'Del';
+            if (e.key === 'Home') return 'Home';
+            if (e.key === 'End') return 'End';
+            if (e.key === 'PageUp') return 'PgUp';
+            if (e.key === 'PageDown') return 'PgDn';
+            if (e.key === 'PrintScreen') return 'PrtSc';
+            if (e.key === 'ScrollLock') return 'ScrLk';
+            if (e.key === 'Pause') return 'Pause';
+            if (e.key === 'NumLock') return 'NumLk';
+            if (e.key.length === 1) return e.key.toUpperCase();
+            return e.key;
+        }
+
+        let previousKey = null;
+
+        function handleKeyDown(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            const displayKey = getDisplayKey(e);
+            const pressedKey = e.key.toUpperCase();
+            
+            if (mathMode) {
+                if (/[0-9]/.test(e.key)) {
+                    playSound(e.key);
+                    document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    createBubble();
+                    createStar(Math.random() * window.innerWidth, Math.random() * window.innerHeight);
+                    checkMathAnswer(e.key);
+                }
+                return false;
+            }
+            
+            if (learnMode) {
+                if (pressedKey.length === 1 && /[A-Z]/.test(pressedKey)) {
+                    const expectedLetter = currentWord[currentLetterIndex];
+                    const letterBoxes = targetWordEl.children;
+                    
+                    if (pressedKey === expectedLetter) {
+                        letterBoxes[currentLetterIndex].classList.remove('current');
+                        letterBoxes[currentLetterIndex].classList.add('completed');
+                        currentLetterIndex++;
+                        
+                        playSound(e.key);
+                        document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        for (let i = 0; i < 2; i++) {
+                            createBubble();
+                            createStar(
+                                Math.random() * window.innerWidth,
+                                Math.random() * window.innerHeight
+                            );
+                        }
+                        
+                        if (currentLetterIndex >= currentWord.length) {
+                            celebrateWordComplete();
+                        } else {
+                            letterBoxes[currentLetterIndex].classList.add('current');
+                        }
+                    } else {
+                        letterBoxes[currentLetterIndex].classList.add('wrong');
+                        playWrongSound();
+                        setTimeout(() => {
+                            letterBoxes[currentLetterIndex].classList.remove('wrong');
+                        }, 500);
+                    }
+                }
+                return false;
+            }
+            
+            if (previousKey && previousKey !== 'Press any key!') {
+                createFlyingKey(previousKey);
+            }
+            previousKey = displayKey;
+            
+            keyDisplay.textContent = displayKey;
+            keyDisplay.style.animation = 'none';
+            keyDisplay.offsetHeight;
+            keyDisplay.style.animation = 'pop 0.2s ease-out';
+            
+            document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            playSound(e.key);
+            
+            for (let i = 0; i < 3; i++) {
+                createBubble();
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                createStar(
+                    Math.random() * window.innerWidth,
+                    Math.random() * window.innerHeight
+                );
+            }
+            
+            updateKeyHistory(displayKey);
+            
+            return false;
+        }
+
+        function handleKeyUp(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            return false;
+        }
+
+        function handleKeyPress(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            return false;
+        }
+
+        document.addEventListener('keydown', handleKeyDown, true);
+        document.addEventListener('keyup', handleKeyUp, true);
+        document.addEventListener('keypress', handleKeyPress, true);
+        window.addEventListener('keydown', handleKeyDown, true);
+        window.addEventListener('keyup', handleKeyUp, true);
+        window.addEventListener('keypress', handleKeyPress, true);
+
+        window.addEventListener('beforeunload', function(e) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        });
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        fullscreenBtn.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        freeplayBtn.addEventListener('click', () => setMode('free'));
+        modeBtn.addEventListener('click', toggleLearnMode);
+        mathBtn.addEventListener('click', toggleMathMode);
+
+        document.addEventListener('click', function() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+
+        window.addEventListener('blur', function() {
+            window.focus();
+        });
+    </script>
+</body>
+</html>
