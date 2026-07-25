@@ -42,7 +42,22 @@ const oskLayouts = {
     ]
 };
 
-export function buildOsk(layoutName) {
+// Set the on-screen keyboard for the active mode; null hides it entirely
+// (for modes that provide their own touch surface, like the piano).
+export function setOskLayout(layoutName) {
+    if (!layoutName) {
+        oskEl.innerHTML = '';
+        oskEl.classList.remove('visible');
+        oskEl.setAttribute('aria-hidden', 'true');
+        keyboardBtn.style.display = 'none';
+        return;
+    }
+    keyboardBtn.style.display = '';
+    buildOsk(layoutName);
+    updateOskVisibility();
+}
+
+function buildOsk(layoutName) {
     const layout = oskLayouts[layoutName] || oskLayouts.qwerty;
     oskEl.classList.toggle('numpad', layoutName === 'numpad');
     oskEl.innerHTML = '';
@@ -109,6 +124,19 @@ function handleKeyDown(e) {
     return false;
 }
 
+function handleKeyUp(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    const mode = getActiveMode();
+    if (mode && mode.onKeyUp) {
+        mode.onKeyUp(e.key);
+    }
+
+    return false;
+}
+
 function swallowKeyEvent(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -120,10 +148,10 @@ export function initInput(activeModeGetter) {
     getActiveMode = activeModeGetter;
 
     document.addEventListener('keydown', handleKeyDown, true);
-    document.addEventListener('keyup', swallowKeyEvent, true);
+    document.addEventListener('keyup', handleKeyUp, true);
     document.addEventListener('keypress', swallowKeyEvent, true);
     window.addEventListener('keydown', handleKeyDown, true);
-    window.addEventListener('keyup', swallowKeyEvent, true);
+    window.addEventListener('keyup', handleKeyUp, true);
     window.addEventListener('keypress', swallowKeyEvent, true);
 
     oskEl.addEventListener('pointerdown', function(e) {

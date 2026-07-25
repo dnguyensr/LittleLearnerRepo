@@ -11,6 +11,10 @@ export function unlockAudio() {
     }
 }
 
+export function getAudioState() {
+    return audioContext.state;
+}
+
 function getFrequencyForKey(key) {
     if (!keyToNote[key]) {
         keyToNote[key] = notes[noteIndex % notes.length];
@@ -38,64 +42,6 @@ export function playTone(frequency) {
 
 export function playKeyTone(key) {
     playTone(getFrequencyForKey(key));
-}
-
-export function playDrum(type) {
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-
-    if (type === 'kick') {
-        osc.frequency.setValueAtTime(150, audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, audioContext.currentTime + 0.1);
-        gain.gain.setValueAtTime(1, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-        osc.start(audioContext.currentTime);
-        osc.stop(audioContext.currentTime + 0.3);
-    } else if (type === 'snare') {
-        const noise = audioContext.createBufferSource();
-        const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.2, audioContext.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < noiseBuffer.length; i++) {
-            output[i] = Math.random() * 2 - 1;
-        }
-        noise.buffer = noiseBuffer;
-        filter.type = 'highpass';
-        filter.frequency.value = 1000;
-        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioContext.destination);
-        noise.start(audioContext.currentTime);
-    } else if (type === 'hihat') {
-        const noise = audioContext.createBufferSource();
-        const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < noiseBuffer.length; i++) {
-            output[i] = Math.random() * 2 - 1;
-        }
-        noise.buffer = noiseBuffer;
-        filter.type = 'highpass';
-        filter.frequency.value = 5000;
-        gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(audioContext.destination);
-        noise.start(audioContext.currentTime);
-    } else if (type === 'tom') {
-        osc.frequency.setValueAtTime(200 + Math.random() * 100, audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.5, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-        osc.start(audioContext.currentTime);
-        osc.stop(audioContext.currentTime + 0.2);
-    }
 }
 
 function playChimeNote(frequency, duration) {
@@ -128,4 +74,99 @@ export function playWrongSound() {
     gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
     osc.start(audioContext.currentTime);
     osc.stop(audioContext.currentTime + 0.2);
+}
+
+/* ---------- Piano voice ---------- */
+
+const MAX_PIANO_VOICES = 10;
+const activePianoNotes = new Map();
+let pianoMaster = null;
+
+export function midiToFreq(midi) {
+    return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function getPianoMaster() {
+    if (!pianoMaster) {
+        pianoMaster = audioContext.createGain();
+        pianoMaster.gain.value = 0.6;
+        pianoMaster.connect(audioContext.destination);
+    }
+    return pianoMaster;
+}
+
+// Fixed piano-ish timbre: layered partials with a fast attack, a natural
+// decay toward a quiet sustain while held, and a short release on key-up.
+const pianoPartials = [
+    { mult: 1, type: 'triangle', gain: 1.0, detune: 0 },
+    { mult: 2, type: 'sine', gain: 0.35, detune: 3 },
+    { mult: 3, type: 'sine', gain: 0.12, detune: -4 }
+];
+
+export function startPianoNote(midi) {
+    unlockAudio();
+
+    if (activePianoNotes.has(midi)) {
+        stopPianoNote(midi, true);
+    }
+    if (activePianoNotes.size >= MAX_PIANO_VOICES) {
+        stopPianoNote(activePianoNotes.keys().next().value, true);
+    }
+
+    const t = audioContext.currentTime;
+    const freq = midiToFreq(midi);
+
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = Math.min(freq * 6, 9000);
+    filter.Q.value = 0.5;
+    gain.connect(filter);
+    filter.connect(getPianoMaster());
+
+    const oscs = [];
+    for (const partial of pianoPartials) {
+        const osc = audioContext.createOscillator();
+        osc.type = partial.type;
+        osc.frequency.value = freq * partial.mult;
+        osc.detune.value = partial.detune;
+        const partialGain = audioContext.createGain();
+        partialGain.gain.value = partial.gain;
+        osc.connect(partialGain);
+        partialGain.connect(gain);
+        osc.start(t);
+        oscs.push(osc);
+    }
+
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.25, t + 0.008);
+    gain.gain.setTargetAtTime(0.05, t + 0.008, 0.9);
+
+    activePianoNotes.set(midi, { oscs, gain });
+}
+
+export function stopPianoNote(midi, immediate = false) {
+    const voice = activePianoNotes.get(midi);
+    if (!voice) return;
+    activePianoNotes.delete(midi);
+
+    const t = audioContext.currentTime;
+    const param = voice.gain.gain;
+    if (param.cancelAndHoldAtTime) {
+        param.cancelAndHoldAtTime(t);
+    } else {
+        param.cancelScheduledValues(t);
+    }
+    param.setTargetAtTime(0.0001, t, immediate ? 0.02 : 0.09);
+
+    const stopAt = t + (immediate ? 0.15 : 0.6);
+    for (const osc of voice.oscs) {
+        osc.stop(stopAt);
+    }
+}
+
+export function stopAllPianoNotes() {
+    for (const midi of [...activePianoNotes.keys()]) {
+        stopPianoNote(midi);
+    }
 }

@@ -1,11 +1,9 @@
-import { playKeyTone, playTone, playDrum, notes } from '../audio.js';
+import { playKeyTone, playTone, notes } from '../audio.js';
 import { randomBackground, createBubble, createStar, randomStar, createFlyingKey, setScoreVisible } from '../effects.js';
 import { displayLabel } from '../input.js';
 
 const keyDisplay = document.getElementById('key-display');
 const keyHistory = document.getElementById('key-history');
-
-const drumTypes = ['kick', 'snare', 'hihat', 'tom'];
 
 let previousKey = null;
 
@@ -20,22 +18,12 @@ function updateKeyHistory(key) {
     }
 }
 
-function playFreePlaySound(key) {
-    const fKeyMatch = /^F([1-9]|1[0-2])$/i.exec(key);
-    if (fKeyMatch) {
-        const fNum = parseInt(fKeyMatch[1]);
-        playDrum(drumTypes[(fNum - 1) % drumTypes.length]);
-    } else {
-        playKeyTone(key);
-    }
-}
-
 export const freeplayMode = {
     id: 'free',
     label: 'Free Play',
     icon: '🎮',
     oskLayout: 'qwerty',
-    instructions: 'Tap the screen or smash the keyboard! 🎉 F1-F12 = 🥁 Drums!',
+    instructions: 'Tap the screen or smash the keyboard! 🎉',
 
     activate() {
         keyDisplay.style.display = 'block';
@@ -62,7 +50,7 @@ export const freeplayMode = {
         keyDisplay.style.animation = 'pop 0.2s ease-out';
 
         randomBackground();
-        playFreePlaySound(key);
+        playKeyTone(key);
 
         for (let i = 0; i < 3; i++) {
             createBubble();

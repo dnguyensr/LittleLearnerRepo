@@ -1,10 +1,11 @@
-import { initInput, buildOsk } from './input.js';
+import { initInput, setOskLayout } from './input.js';
 import { unlockAudio } from './audio.js';
 import { freeplayMode } from './modes/freeplay.js';
+import { pianoMode } from './modes/piano.js';
 import { mathMode } from './modes/math.js';
 import { wordsMode } from './modes/words.js';
 
-const modes = [freeplayMode, mathMode, wordsMode];
+const modes = [freeplayMode, pianoMode, mathMode, wordsMode];
 const defaultModeId = 'free';
 
 const instructions = document.getElementById('instructions');
@@ -31,7 +32,7 @@ function setMode(id) {
     }
 
     instructions.textContent = mode.instructions;
-    buildOsk(mode.oskLayout);
+    setOskLayout(mode.oskLayout);
 }
 
 function buildModeButtons() {

@@ -6,12 +6,21 @@ Little Learner Keys is a GitHub Pages web app for toddlers (pre-K–1st grade) w
 
 ## Development
 
-The app is plain HTML/CSS/JS with ES modules — no build step. Because browsers block ES modules over `file://`, run a local static server from the repo root:
+The app is plain HTML/CSS/JS with ES modules — no build step, and npm is dev tooling only. Because browsers block ES modules over `file://`, run the local static server from the repo root:
 
 ```sh
-python -m http.server 8000
-# or
-npx serve
+npm run serve
 ```
 
-Then open `http://localhost:8000/`. Deployment is automatic: GitHub Pages serves `index.html` straight from the `main` branch.
+Then open `http://localhost:8123/`. Deployment is automatic: GitHub Pages serves `index.html` straight from the `main` branch.
+
+## Testing
+
+```sh
+npm install
+npx playwright install chromium   # once (CI also installs webkit)
+npm test                          # E2E + axe accessibility scans
+npm run test:ui                   # Playwright UI mode
+```
+
+Tests run on desktop Chromium/WebKit plus Pixel 7 and iPhone 14 emulation; run a subset locally with `npx playwright test --project=chromium --project=mobile-chrome`. CI (GitHub Actions) runs the full matrix on pushes and PRs to `main`.
