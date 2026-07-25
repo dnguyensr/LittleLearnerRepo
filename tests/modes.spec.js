@@ -4,7 +4,7 @@ const { gotoApp, ensureOskVisible } = require('./helpers');
 test.describe('Mode switching', () => {
     test('mode buttons are generated for every mode', async ({ page }) => {
         await gotoApp(page);
-        for (const id of ['free-btn', 'piano-btn', 'math-btn', 'words-btn']) {
+        for (const id of ['free-btn', 'piano-btn', 'letters-btn', 'numbers-btn', 'math-btn', 'words-btn']) {
             await expect(page.locator(`#${id}`)).toBeVisible();
         }
         await expect(page.locator('#free-btn')).toHaveAttribute('aria-pressed', 'true');
@@ -45,7 +45,7 @@ test.describe('Mode switching', () => {
 
         await page.locator('#math-btn').click();
         await expect(page.locator('#osk')).toHaveClass(/numpad/);
-        await expect(page.locator('.osk-key')).toHaveCount(11);
+        await expect(page.locator('.osk-key')).toHaveCount(12);
     });
 
     test('score is shown in math/words and hidden in free play', async ({ page }) => {

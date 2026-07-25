@@ -12,7 +12,7 @@ async function scan(page) {
 }
 
 test.describe('Accessibility (axe)', () => {
-    for (const mode of ['free', 'piano', 'math', 'words']) {
+    for (const mode of ['free', 'piano', 'letters', 'numbers', 'math', 'words']) {
         test(`${mode} mode has no serious/critical violations`, async ({ page }) => {
             await gotoApp(page);
             await page.locator(`#${mode}-btn`).click();

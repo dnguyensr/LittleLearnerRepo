@@ -38,7 +38,7 @@ const oskLayouts = {
         ['1', '2', '3'],
         ['4', '5', '6'],
         ['7', '8', '9'],
-        ['Backspace', '0']
+        ['Backspace', '0', 'Enter']
     ]
 };
 
@@ -78,6 +78,11 @@ function buildOsk(layoutName) {
             if (key === 'Backspace') {
                 btn.setAttribute('aria-label', 'Backspace');
             }
+            if (key === 'Enter') {
+                btn.textContent = '✓';
+                btn.classList.add('confirm');
+                btn.setAttribute('aria-label', 'Check answer');
+            }
             rowEl.appendChild(btn);
         }
         oskEl.appendChild(rowEl);
@@ -89,6 +94,22 @@ function updateOskVisibility() {
     oskEl.setAttribute('aria-hidden', String(!keyboardVisible));
     keyboardBtn.classList.toggle('active', keyboardVisible);
     keyboardBtn.setAttribute('aria-pressed', String(keyboardVisible));
+}
+
+// Highlight a key as a hint for the learner: subtle by default,
+// strong (pulsing) after repeated misses. Pass null to clear.
+export function setOskHint(key, strong = false) {
+    for (const el of oskEl.querySelectorAll('.osk-key.hint, .osk-key.hint-strong')) {
+        el.classList.remove('hint', 'hint-strong');
+    }
+    if (!key) return;
+    let btn = null;
+    try {
+        btn = oskEl.querySelector(`[data-key="${CSS.escape(key)}"]`);
+    } catch (err) { /* ignore */ }
+    if (btn) {
+        btn.classList.add(strong ? 'hint-strong' : 'hint');
+    }
 }
 
 export function flashOskKey(key) {

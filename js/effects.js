@@ -18,6 +18,18 @@ const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🎊', '🎈', '🎁', '�
 const scoreDisplay = document.getElementById('score-display');
 const scoreCountEl = document.getElementById('word-count');
 let score = 0;
+let scoreStorageKey = null;
+
+// Each scoring mode keeps its own persistent score in localStorage.
+export function setScoreMode(modeId) {
+    scoreStorageKey = `lls-score-${modeId}`;
+    try {
+        score = Number(localStorage.getItem(scoreStorageKey)) || 0;
+    } catch (err) {
+        score = 0;
+    }
+    scoreCountEl.textContent = score;
+}
 
 export function randomBackground() {
     document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
@@ -98,6 +110,11 @@ export function setScoreVisible(visible) {
 export function celebrate() {
     score++;
     scoreCountEl.textContent = score;
+    if (scoreStorageKey) {
+        try {
+            localStorage.setItem(scoreStorageKey, String(score));
+        } catch (err) { /* ignore */ }
+    }
 
     playSuccessSound();
 

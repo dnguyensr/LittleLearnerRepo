@@ -1,11 +1,15 @@
 import { initInput, setOskLayout } from './input.js';
 import { unlockAudio } from './audio.js';
+import { cancelSpeech } from './speech.js';
+import { initSettingsUI } from './settings.js';
 import { freeplayMode } from './modes/freeplay.js';
 import { pianoMode } from './modes/piano.js';
+import { lettersMode } from './modes/letters.js';
+import { numbersMode } from './modes/numbers.js';
 import { mathMode } from './modes/math.js';
 import { wordsMode } from './modes/words.js';
 
-const modes = [freeplayMode, pianoMode, mathMode, wordsMode];
+const modes = [freeplayMode, pianoMode, lettersMode, numbersMode, mathMode, wordsMode];
 const defaultModeId = 'free';
 
 const instructions = document.getElementById('instructions');
@@ -23,7 +27,10 @@ function setMode(id) {
     if (activeMode) {
         activeMode.deactivate();
     }
+    cancelSpeech();
     activeMode = mode;
+    // Build the OSK first: activate() may set hints on its keys
+    setOskLayout(mode.oskLayout);
     mode.activate();
 
     for (const m of modes) {
@@ -32,7 +39,6 @@ function setMode(id) {
     }
 
     instructions.textContent = mode.instructions;
-    setOskLayout(mode.oskLayout);
 }
 
 function buildModeButtons() {
@@ -78,5 +84,6 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 
 buildModeButtons();
 initInput(() => activeMode);
+initSettingsUI();
 setMode(defaultModeId);
 unlockAudio();

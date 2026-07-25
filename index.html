@@ -15,6 +15,7 @@
         <div class="top-buttons">
             <button id="keyboard-btn" type="button" class="top-btn" aria-pressed="false" aria-label="Toggle on-screen keyboard">⌨️<span class="btn-label"> Keyboard</span></button>
             <button id="fullscreen-btn" type="button" class="top-btn" aria-label="Fullscreen">🖥️<span class="btn-label"> Fullscreen</span></button>
+            <button id="settings-btn" type="button" class="top-btn" aria-label="Parent settings (press and hold)">⚙️</button>
         </div>
     </header>
 
@@ -30,16 +31,45 @@
         <div id="math-container">
             <div id="math-question"></div>
             <div id="math-emojis"></div>
+            <div id="math-equation"></div>
             <div id="math-answer-display">?</div>
+            <button id="math-speak-btn" type="button" class="speak-btn" aria-label="Read the problem aloud">🔊</button>
         </div>
         <div id="piano-container">
             <div id="piano"></div>
+        </div>
+        <div id="letters-container">
+            <div id="letter-display">ABC</div>
+            <div id="letter-example">Press a letter!</div>
+        </div>
+        <div id="numbers-container">
+            <div id="number-display">123</div>
+            <div id="number-objects"></div>
         </div>
     </main>
 
     <p id="instructions">Tap the screen or smash the keyboard! 🎉</p>
 
     <div id="osk" aria-hidden="true"></div>
+
+    <div id="settings-panel" hidden>
+        <div id="settings-card" role="dialog" aria-label="Parent settings">
+            <h2>Grown-Ups Only 🔒</h2>
+            <p class="settings-note">Opened by holding the ⚙️ button.</p>
+            <label class="settings-row"><input type="checkbox" id="set-speech"> Speech sounds</label>
+            <label class="settings-row"><input type="checkbox" id="set-phonics"> Letter sounds (phonics) instead of names</label>
+            <label class="settings-row">Math level
+                <select id="set-math-tier">
+                    <option value="auto">Auto (grows with practice)</option>
+                    <option value="1">1 — Counting</option>
+                    <option value="2">2 — Adding to 10</option>
+                    <option value="3">3 — Taking away</option>
+                    <option value="4">4 — Big kid math</option>
+                </select>
+            </label>
+            <button id="settings-close" type="button" class="top-btn">Done</button>
+        </div>
+    </div>
 
     <script type="module" src="./js/main.js"></script>
 </body>
