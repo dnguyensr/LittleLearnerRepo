@@ -2,6 +2,8 @@
 
 Goal: `index.html` stays the single GitHub Pages entry point, but the ~1,000 lines of inline CSS/JS move into supporting files loaded as plain ES modules. No build step, no bundler — push to `main` and Pages serves it.
 
+> **Status (2026-07-25):** implemented. `index.html` is now ~45 lines of markup; all CSS/JS lives in `css/` and `js/`. Smoke-tested headlessly via a local server + Edge (all modes exercised).
+
 ## Target layout
 
 ```text
@@ -21,20 +23,22 @@ js/data/math-items.js   # mathItems list
 
 ## Checklist
 
-- [ ] Extract all CSS from the `<style>` block into `css/styles.css`; link it from `index.html`.
-- [ ] Move the word list and math items into `js/data/` modules exporting plain arrays.
-- [ ] Move audio code into `js/audio.js`: context creation, unlock-on-gesture, `playTone`, `playSuccessSound`, `playWrongSound`. (Drum code is deleted in P3 — keep it here untouched for now.)
-- [ ] Move effects into `js/effects.js`: `createBubble`, `createStar`, `createFlyingKey`, plus a shared `celebrate()` that both Math and Words currently duplicate.
-- [ ] Introduce a mode-registry pattern in `js/main.js`: each mode module exports `{ id, label, icon, activate(), deactivate(), onKey(key) }`. Replace the `currentMode` / `learnMode` / `mathMode` boolean tangle and the hand-written `setMode` toggling with a loop over registered modes.
-- [ ] Mode buttons in the top bar are generated from the registry (so P3/P4 modes are one-line additions).
-- [ ] `js/input.js` owns all event listeners and forwards to the active mode's `onKey` (aligns with the P1 input abstraction — do P1 and P2 together if convenient).
-- [ ] Use **relative** paths everywhere (`./js/main.js`, `./css/styles.css`) — the Pages site is served from `/LittleLearnerRepo/`, so absolute paths break.
-- [ ] Add a note to the repo README: ES modules don't load over `file://`; develop with a local static server (`npx serve` or `python -m http.server`).
+- [x] Extract all CSS from the `<style>` block into `css/styles.css`; link it from `index.html`.
+- [x] Move the word list and math items into `js/data/` modules exporting plain arrays (`js/data/words.js`, `js/data/math-items.js`; duplicate NOSE entry removed while extracting).
+- [x] Move audio code into `js/audio.js`: context creation, unlock-on-gesture, `playTone`/`playKeyTone`, `playSuccessSound`, `playWrongSound`. (Drum code kept as `playDrum` — deleted in P3.)
+- [x] Move effects into `js/effects.js`: `createBubble`, `createStar`, `createFlyingKey`, plus a shared `celebrate()` (dedupes the Math/Words celebration code and owns the score display).
+- [x] Introduce a mode-registry pattern: each mode module exports `{ id, label, icon, oskLayout, instructions, activate(), deactivate(), onKey(key, source), onTap?(x, y) }`; `js/main.js` drives activation. The `currentMode`/`learnMode`/`mathMode` boolean tangle is gone.
+- [x] Mode buttons in the top bar are generated from the registry (so P3/P4 modes are one-line additions).
+- [x] `js/input.js` owns all event listeners (physical keys, on-screen keyboard, tap-anywhere) and forwards to the active mode's `onKey`/`onTap`.
+- [x] Use **relative** paths everywhere (`./js/main.js`, `./css/styles.css`) — the Pages site is served from `/LittleLearnerRepo/`, so absolute paths break.
+- [x] Add a note to the repo README: ES modules don't load over `file://`; develop with a local static server.
 
 ## Behavior-preserving smoke checklist (run before and after)
 
-- [ ] Free Play: press letters/numbers → big key display, tone, background change, bubbles/stars, flying previous key, history updates (max 8).
-- [ ] Words: correct letter advances with green box + effects, wrong letter shakes red + buzz, completing a word celebrates and picks a new one, score increments.
-- [ ] Math: number keys build the answer, correct answer celebrates and (for subtraction) shows the remaining emojis, wrong full-length answer flashes red and resets.
-- [ ] Mode buttons toggle correctly; Fullscreen works; audio resumes after first click/tap.
-- [ ] Site works when served from a subpath (simulate GitHub Pages project path).
+Verified headlessly (local server + headless Edge driving synthetic events); worth one manual pass in a real browser for sound/visuals:
+
+- [x] Free Play: press letters/numbers → big key display, tone, background change, bubbles/stars, flying previous key, history updates (max 8).
+- [x] Words: correct letter advances with green box + effects, wrong letter shakes red + buzz, completing a word celebrates and picks a new one, score increments.
+- [x] Math: number keys build the answer (backspace edits it), correct answer celebrates, wrong full-length answer flashes red and resets.
+- [x] Mode buttons toggle correctly; on-screen keyboard swaps QWERTY ↔ numpad per mode; audio resumes after first click/tap.
+- [x] Site works when served from a subpath (relative paths only; module URLs resolve against the page URL).

@@ -1,0 +1,435 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+html, body {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Comic Sans MS', 'Chalkboard', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: background 0.3s ease;
+}
+
+button {
+    font-family: inherit;
+    touch-action: manipulation;
+}
+
+/* ---------- Header ---------- */
+
+#top-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+    z-index: 100;
+}
+
+#title-block {
+    min-width: 0;
+}
+
+#app-title {
+    font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    white-space: nowrap;
+}
+
+#tagline {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    font-style: italic;
+}
+
+.top-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.top-btn {
+    padding: 10px 16px;
+    min-height: 48px;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid white;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.top-btn:hover {
+    background: rgba(255,255,255,0.4);
+    transform: scale(1.05);
+}
+
+.top-btn.active {
+    background: rgba(76, 175, 80, 0.6);
+    border-color: #4CAF50;
+}
+
+/* ---------- Play area ---------- */
+
+#play-area {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+}
+
+#key-display {
+    font-size: min(15vw, 30vh);
+    font-weight: bold;
+    color: white;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+    animation: pop 0.2s ease-out;
+    z-index: 10;
+    position: relative;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.flying-key {
+    position: fixed;
+    font-size: 10vw;
+    font-weight: bold;
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+    pointer-events: none;
+    z-index: 5;
+    opacity: 1;
+}
+
+.bubble {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float-up 2s ease-out forwards;
+}
+
+@keyframes float-up {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-300px) scale(0.5);
+    }
+}
+
+.star {
+    position: fixed;
+    pointer-events: none;
+    font-size: 3rem;
+    animation: star-burst 1s ease-out forwards;
+}
+
+@keyframes star-burst {
+    0% {
+        opacity: 1;
+        transform: scale(0) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5) rotate(180deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(360deg);
+    }
+}
+
+#instructions {
+    padding: 6px 12px;
+    color: rgba(255,255,255,0.7);
+    font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+    text-align: center;
+}
+
+.key-history {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-width: 300px;
+    z-index: 20;
+}
+
+.history-key {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 1.3rem;
+    animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+#score-display {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 1.5rem;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 20;
+}
+
+#score-display.active {
+    display: block;
+}
+
+/* ---------- Math mode ---------- */
+
+#math-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 10;
+    padding: 0 10px;
+}
+
+#math-container.active {
+    display: flex;
+}
+
+#math-question {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    color: rgba(255,255,255,0.9);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+#math-emojis {
+    font-size: clamp(1.8rem, 6vw, 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 20px);
+    flex-wrap: wrap;
+    max-width: 92vw;
+}
+
+.emoji-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    padding: clamp(8px, 2vw, 15px);
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+}
+
+.math-operator {
+    font-size: clamp(2.2rem, 7vw, 5rem);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+#math-answer-display {
+    font-size: min(10vw, 18vh);
+    font-weight: bold;
+    color: white;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+    min-height: 1.2em;
+}
+
+/* ---------- Words mode ---------- */
+
+#word-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 10;
+    padding: 0 10px;
+}
+
+#word-container.active {
+    display: flex;
+}
+
+#target-word {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 95vw;
+    font-size: min(8vw, 12vh);
+    font-weight: bold;
+}
+
+.letter-box {
+    padding: clamp(8px, 2vw, 20px) clamp(12px, 3vw, 30px);
+    background: rgba(255,255,255,0.2);
+    border-radius: 15px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    border: 4px solid transparent;
+}
+
+.letter-box.current {
+    border-color: #FFD700;
+    background: rgba(255,215,0,0.3);
+    animation: pulse 1s infinite;
+}
+
+.letter-box.completed {
+    background: rgba(76,175,80,0.5);
+    border-color: #4CAF50;
+    transform: scale(1.1);
+}
+
+.letter-box.wrong {
+    animation: shake 0.5s ease;
+    background: rgba(244,67,54,0.5);
+    border-color: #f44336;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-10px); }
+    40%, 80% { transform: translateX(10px); }
+}
+
+#word-emoji {
+    font-size: min(15vw, 22vh);
+    line-height: 1;
+    animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+#word-prompt {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    color: rgba(255,255,255,0.9);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+@keyframes celebrate {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2) rotate(-5deg); }
+    50% { transform: scale(1.3) rotate(5deg); }
+    75% { transform: scale(1.2) rotate(-5deg); }
+    100% { transform: scale(1); }
+}
+
+.celebrate {
+    animation: celebrate 0.6s ease;
+}
+
+/* ---------- On-screen keyboard ---------- */
+
+#osk {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(0,0,0,0.15);
+    z-index: 90;
+}
+
+#osk.visible {
+    display: flex;
+}
+
+.osk-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.osk-key {
+    flex: 1;
+    min-width: 0;
+    max-width: 72px;
+    height: clamp(48px, 7vh, 60px);
+    font-size: clamp(1rem, 3.5vw, 1.4rem);
+    font-weight: bold;
+    color: white;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.osk-key.pressed {
+    background: rgba(255,255,255,0.7);
+    color: #764ba2;
+    transform: scale(0.94);
+}
+
+.osk-key.wide {
+    max-width: 360px;
+    flex: 6;
+}
+
+#osk.numpad .osk-key {
+    max-width: 110px;
+    height: clamp(52px, 8vh, 68px);
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 640px) {
+    #tagline {
+        display: none;
+    }
+
+    .btn-label {
+        display: none;
+    }
+
+    .top-btn {
+        padding: 10px 14px;
+    }
+
+    .key-history {
+        display: none !important;
+    }
+}
