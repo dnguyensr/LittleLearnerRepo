@@ -219,16 +219,6 @@ test.describe('Math Lab — method selection', () => {
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', /maketen|hops/);
     });
 
-    test('Singapore and Mix stay disabled until their phases land', async ({ page }) => {
-        await seedSettings(page, { betaModes: true });
-        await gotoApp(page);
-        await page.locator('#settings-btn').dispatchEvent('pointerdown', { pointerId: 1 });
-        await expect(page.locator('#settings-panel')).toBeVisible();
-        // toBeDisabled() doesn't apply to <option>; assert the property itself
-        const option = value => page.locator(`#set-math-method option[value="${value}"]`);
-        await expect(option('classical')).toHaveJSProperty('disabled', false);
-        await expect(option('commoncore')).toHaveJSProperty('disabled', false);
-        await expect(option('singapore')).toHaveJSProperty('disabled', true);
-        await expect(option('mix')).toHaveJSProperty('disabled', true);
-    });
+    // Which methods are selectable is asserted once, in
+    // tests/mathlab-singapore.spec.js — the spec for the last one to land.
 });

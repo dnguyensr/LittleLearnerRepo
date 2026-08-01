@@ -296,3 +296,130 @@ export function snapTen(wrap) {
     wrap.querySelector('.btb-rods').appendChild(rod);
     return true;
 }
+
+/* ---------- Dot card ---------- */
+
+/**
+ * The pictorial step between real objects and a bare numeral: the same
+ * quantity as plain dots. Dots are `.tap-item`s inside a `.tap-counter`, so
+ * handleCounterTap() and countAloud() work on them unchanged.
+ */
+export function dotCard(count) {
+    const card = el('div', 'dot-card tap-counter');
+    for (let i = 0; i < count; i++) {
+        const dot = tapButton('dot tap-item', '');
+        dot.setAttribute('aria-label', `Dot ${i + 1}`);
+        card.appendChild(dot);
+    }
+    return card;
+}
+
+export function numeralCard(value) {
+    return el('div', 'numeral-card', String(value));
+}
+
+/* ---------- Number bond ---------- */
+
+function bondNode(value, className) {
+    const known = value !== null && value !== undefined;
+    const node = el(className.includes('nb-part') ? 'button' : 'div', `nb-node ${className}`);
+    if (node instanceof HTMLButtonElement) node.type = 'button';
+    if (known) {
+        node.textContent = String(value);
+    } else {
+        // The unknown node carries the shell's answer slot, so the child's
+        // typing lands inside the bond instead of in a box underneath it.
+        const slot = el('span', 'nb-slot', '?');
+        slot.dataset.slot = 'total';
+        node.appendChild(slot);
+    }
+    return node;
+}
+
+/**
+ * A part-whole number bond. Pass null for whichever value is unknown; that
+ * node becomes the answer slot.
+ *
+ * @param {number|null} whole
+ * @param {(number|null)[]} parts
+ */
+export function numberBond(whole, parts) {
+    const bond = el('div', 'number-bond');
+    bond.appendChild(bondNode(whole, 'nb-whole'));
+    bond.appendChild(el('div', 'nb-branches', '<span></span><span></span>'));
+
+    const partRow = el('div', 'nb-parts');
+    parts.forEach((value, i) => {
+        const node = bondNode(value, 'nb-part');
+        node.dataset.part = String(i);
+        if (value !== null) node.setAttribute('aria-label', `Part ${value}. Tap to break it up.`);
+        partRow.appendChild(node);
+    });
+    bond.appendChild(partRow);
+
+    return bond;
+}
+
+/**
+ * Break a part into two, which is how make-a-ten is taught: 8 + 5 becomes
+ * 8 + 2 + 3 so the 2 can complete the ten. Returns false if it already split.
+ */
+export function splitPart(bond, index, first, second) {
+    const part = bond.querySelector(`.nb-part[data-part="${index}"]`);
+    if (!part || part.classList.contains('split')) return false;
+
+    part.classList.add('split');
+    const kids = el('div', 'nb-split');
+    kids.appendChild(el('span', 'nb-node nb-subpart', String(first)));
+    kids.appendChild(el('span', 'nb-node nb-subpart', String(second)));
+    part.appendChild(kids);
+    return true;
+}
+
+/* ---------- Bar model ---------- */
+
+/**
+ * A part-whole bar. Segments are sized by their value so the picture stays
+ * proportional, which is the point of the model.
+ *
+ * @param {{ value: number, covered?: boolean, slot?: boolean, label?: string }[]} segments
+ * @param {{ brace?: string|null }} [options]
+ */
+export function barModel(segments, { brace = null } = {}) {
+    const model = el('div', 'bar-model');
+    const bar = el('div', 'bm-bar');
+
+    segments.forEach((segment, i) => {
+        const seg = el('div', 'bm-seg');
+        seg.style.flexGrow = String(Math.max(1, segment.value));
+        seg.dataset.segment = String(i);
+        if (segment.covered) {
+            seg.classList.add('covered');
+            seg.textContent = '?';
+            seg.dataset.value = String(segment.value);
+        } else {
+            seg.textContent = segment.label ?? String(segment.value);
+        }
+        if (segment.slot) {
+            seg.textContent = '';
+            const slot = el('span', 'bm-slot', '?');
+            slot.dataset.slot = 'total';
+            seg.appendChild(slot);
+        }
+        bar.appendChild(seg);
+    });
+
+    model.appendChild(bar);
+    if (brace !== null) model.appendChild(el('div', 'bm-brace', brace));
+    return model;
+}
+
+// Uncover a hidden segment, showing the value it was hiding.
+export function revealSegment(model, index) {
+    const seg = model.querySelector(`.bm-seg[data-segment="${index}"].covered`);
+    if (!seg) return false;
+    seg.classList.remove('covered');
+    seg.classList.add('revealed');
+    seg.textContent = seg.dataset.value;
+    return true;
+}

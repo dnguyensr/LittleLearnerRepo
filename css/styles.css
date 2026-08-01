@@ -746,6 +746,235 @@ button {
     box-shadow: 0 0 8px rgba(255,255,255,0.8);
 }
 
+/* ---------- Singapore manipulatives ---------- */
+
+/* Dot card: the pictorial step between real objects and a bare numeral. */
+.dot-card {
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    justify-content: center;
+    gap: clamp(6px, 1.6vw, 12px);
+    padding: clamp(8px, 2vw, 16px);
+    background: rgba(255,255,255,0.9);
+    border-radius: 16px;
+}
+
+.dot {
+    width: clamp(20px, min(5vw, 4vh), 34px);
+    height: clamp(20px, min(5vw, 4vh), 34px);
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #4a3f8f;
+    cursor: pointer;
+}
+
+.dot.counted {
+    background: #e8890c;
+    transform: scale(1.2);
+}
+
+.numeral-card {
+    font-size: clamp(3rem, min(16vw, 14vh), 7rem);
+    font-weight: bold;
+    line-height: 1;
+    color: #4a3f8f;
+    background: rgba(255,255,255,0.9);
+    border-radius: 16px;
+    padding: clamp(4px, 1.5vw, 16px) clamp(16px, 5vw, 40px);
+}
+
+/* Number bond: whole on top, parts below, joined by two strokes. */
+.number-bond {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.nb-node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: clamp(46px, min(12vw, 9vh), 76px);
+    min-height: clamp(46px, min(12vw, 9vh), 76px);
+    padding: 4px;
+    font: inherit;
+    font-size: clamp(1.2rem, min(4.5vw, 3.6vh), 2.1rem);
+    font-weight: bold;
+    color: white;
+    background: rgba(0,0,0,0.25);
+    border: 3px solid white;
+    border-radius: 50%;
+}
+
+.nb-part {
+    cursor: pointer;
+}
+
+.nb-slot {
+    color: #ffe680;
+}
+
+.nb-slot.done {
+    color: #7CFF9B;
+}
+
+.nb-branches {
+    display: flex;
+    justify-content: center;
+    gap: clamp(30px, 9vw, 60px);
+    height: clamp(16px, 3.5vh, 28px);
+}
+
+.nb-branches span {
+    width: 3px;
+    background: white;
+    border-radius: 2px;
+}
+
+.nb-branches span:first-child {
+    transform: rotate(28deg);
+}
+
+.nb-branches span:last-child {
+    transform: rotate(-28deg);
+}
+
+.nb-parts {
+    display: flex;
+    gap: clamp(12px, 4vw, 32px);
+}
+
+/* A split part keeps its circle and grows two smaller ones underneath. */
+.nb-part.split {
+    flex-direction: column;
+    border-radius: 24px;
+    gap: 4px;
+    padding: 6px;
+}
+
+.nb-split {
+    display: flex;
+    gap: 6px;
+    animation: nb-grow 0.45s ease-out;
+}
+
+.nb-subpart {
+    min-width: clamp(30px, 8vw, 46px);
+    min-height: clamp(30px, 8vw, 46px);
+    font-size: 0.75em;
+    background: rgba(255, 230, 128, 0.35);
+    border-width: 2px;
+}
+
+@keyframes nb-grow {
+    from { transform: scale(0.3) translateY(-40%); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+/* Bar model: segments sized by value, so the picture stays proportional. */
+.bar-model {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    width: min(88vw, 460px);
+}
+
+.bm-bar {
+    display: flex;
+    gap: 3px;
+    height: clamp(38px, min(9vw, 7vh), 58px);
+}
+
+.bm-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-basis: 0;
+    min-width: 2.2em;
+    border: 3px solid white;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.28);
+    color: white;
+    font-weight: bold;
+    font-size: clamp(0.95rem, min(3.4vw, 2.6vh), 1.5rem);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.bm-seg.covered {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.3) 0 8px,
+        rgba(0,0,0,0.15) 8px 16px
+    );
+    color: #ffe680;
+}
+
+.bm-seg.revealed {
+    background: rgba(124, 255, 155, 0.4);
+    animation: bm-reveal 0.5s ease-out;
+}
+
+.bm-slot {
+    color: #ffe680;
+}
+
+.bm-slot.done {
+    color: #7CFF9B;
+}
+
+@keyframes bm-reveal {
+    from { transform: scaleX(0.6); opacity: 0.3; }
+    to { transform: none; opacity: 1; }
+}
+
+.bm-brace {
+    text-align: center;
+    color: rgba(255,255,255,0.9);
+    font-size: clamp(0.8rem, min(2.6vw, 2vh), 1.1rem);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.sg-bars {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 1.5vh, 14px);
+}
+
+.sg-controls {
+    display: flex;
+    gap: 12px;
+}
+
+/* A combine button turns into its own result chip once tapped. */
+.sg-combine {
+    min-width: 96px;
+    min-height: 48px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    background: rgba(255,255,255,0.25);
+    border: 2px solid white;
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+.sg-combine.used {
+    background: rgba(124, 255, 155, 0.35);
+    border-color: #7CFF9B;
+    cursor: default;
+    animation: nb-grow 0.4s ease-out;
+}
+
 /* Beta modes get a badge so parents can tell them apart at a glance. */
 .top-btn.beta {
     border-style: dashed;

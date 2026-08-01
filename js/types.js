@@ -69,11 +69,15 @@
  * @typedef {object} MathMethod
  * @property {string} id
  * @property {string} label
- * @property {(problem: Problem, container: HTMLElement) => void} render
+ * @property {(problem: Problem, container: HTMLElement, session: Session) => void} render
  * @property {(problem: Problem) => AnswerStep[]} steps
  * @property {(problem: Problem, container: HTMLElement, stillValid: () => boolean) => void} hint
  * @property {(target: HTMLElement, problem: Problem, container: HTMLElement) => void} [onTap]
  * @property {(step: AnswerStep, problem: Problem, container: HTMLElement) => number} [onStepDone]
+ *   Called whenever a step is answered correctly, including the last one. The
+ *   returned pause (ms) is only honoured between steps. Use it to animate what
+ *   the correct answer means — a carry flying to the tens column, a covered bar
+ *   segment being revealed.
  * @property {(problem: Problem) => string|null} [celebrationText]
  * @property {(problem: Problem, container: HTMLElement) => Question} [question]
  *   Overrides Problem.questionText/speakText. Called after render, so it can
@@ -86,6 +90,14 @@
  * @typedef {object} Question
  * @property {string} html   shown above the manipulative; may contain HTML
  * @property {string} speak  plain text spoken when the problem appears
+ */
+
+/**
+ * How far into this sitting the child is. Singapore's concrete → pictorial →
+ * abstract rotation needs it; the other methods ignore it.
+ *
+ * @typedef {object} Session
+ * @property {number} correct  correct answers so far this session
  */
 
 /**

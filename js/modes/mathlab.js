@@ -7,6 +7,7 @@ import { handleCounterTap } from '../math/manipulatives.js';
 import { closestEl } from '../dom.js';
 import { classicalMethod } from '../math/classical.js';
 import { commonCoreMethod } from '../math/common-core.js';
+import { singaporeMethod } from '../math/singapore.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
 /** @typedef {import('../types.js').MathMethod} MathMethod */
@@ -24,12 +25,11 @@ const answerDisplay = document.getElementById('mathlab-answer-display');
 const promptEl = document.getElementById('mathlab-prompt');
 const speakBtn = document.getElementById('mathlab-speak-btn');
 
-// Singapore lands in Phase D; its settings option stays disabled until it's
-// here, as does `mix` (Phase E).
 /** @type {Record<string, MathMethod>} */
 const methods = {
     classical: classicalMethod,
-    commoncore: commonCoreMethod
+    commoncore: commonCoreMethod,
+    singapore: singaporeMethod
 };
 
 /** @type {Problem|null} */
@@ -86,7 +86,7 @@ function newProblem() {
     locked = false;
 
     // render first: a method's question may depend on which variant it drew
-    method.render(problem, workspaceEl);
+    method.render(problem, workspaceEl, { correct: correctThisSession });
     question = method.question
         ? method.question(problem, workspaceEl)
         : { html: problem.questionText, speak: problem.speakText };
@@ -139,10 +139,14 @@ function finish() {
     celebrate();
     speak(`${problem.answer}! Great job!`, { interrupt: true });
 
-    if (!markStepDone(currentStep())) {
+    const step = currentStep();
+    if (!markStepDone(step)) {
         answerDisplay.textContent = String(problem.answer);
         answerDisplay.style.color = '#4CAF50';
     }
+    // The last step gets onStepDone too, so a method can animate what the
+    // answer means (uncovering a bar segment) rather than only what comes next.
+    if (method.onStepDone) method.onStepDone(step, problem, workspaceEl);
     promptEl.textContent = '';
 
     const token = hintToken;

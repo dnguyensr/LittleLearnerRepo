@@ -14,7 +14,7 @@ async function scan(page) {
 test.describe('Accessibility (axe)', () => {
     // Math Lab is scanned once per teaching method: each renders a completely
     // different set of controls.
-    for (const method of ['classical', 'commoncore']) {
+    for (const method of ['classical', 'commoncore', 'singapore']) {
         test(`math lab (${method}) has no serious/critical violations`, async ({ page }) => {
             await seedSettings(page, { betaModes: true, mathMethod: method });
             await gotoApp(page);
