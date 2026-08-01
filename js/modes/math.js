@@ -1,7 +1,7 @@
 import { mathItems } from '../data/math-items.js';
 import { playKeyTone, playWrongSound } from '../audio.js';
 import { randomBackground, createBubble, randomStar, celebrate, setScoreVisible, setScoreMode } from '../effects.js';
-import { speak, cancelSpeech } from '../speech.js';
+import { speak, speakEach, cancelSpeech } from '../speech.js';
 import { getSetting } from '../settings.js';
 
 /** @typedef {import('../types.js').Mode} Mode */
@@ -148,13 +148,17 @@ function showHint() {
         countTargets = firstGroup.slice(hint.take);
     }
 
-    countTargets.forEach((span, i) => {
-        setTimeout(() => {
-            if (token !== hintToken) return;
-            span.classList.add('counted');
-            speak(String(i + 1), { interrupt: true });
-        }, 600 + i * 600);
+    // Queued, not interrupted: each object lights as its number is spoken, and
+    // the count follows the "Take away N!" line above instead of cutting it off.
+    const light = index => {
+        if (token === hintToken) countTargets[index].classList.add('counted');
+    };
+    const spoke = speakEach(countTargets.map((_, i) => String(i + 1)), {
+        onPhraseStart: light
     });
+    if (!spoke) {
+        countTargets.forEach((_, i) => setTimeout(() => light(i), 600 + i * 600));
+    }
 }
 
 function submitAnswer() {

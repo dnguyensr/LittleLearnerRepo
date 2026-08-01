@@ -104,8 +104,12 @@ export function currentVoiceName() {
     return voice ? `${voice.name} (${voice.lang})` : null;
 }
 
-export function speak(text, { rate = 0.9, pitch = 1.1, interrupt = false } = {}) {
-    if (!synth || !enabled || !text) return;
+/**
+ * @returns {boolean} whether an utterance was actually queued, so callers that
+ *   pace visuals off the voice can fall back to a timer when it wasn't.
+ */
+export function speak(text, { rate = 0.9, pitch = 1.1, interrupt = false, onStart = null, onEnd = null } = {}) {
+    if (!synth || !enabled || !text) return false;
     try {
         if (interrupt) synth.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -113,8 +117,52 @@ export function speak(text, { rate = 0.9, pitch = 1.1, interrupt = false } = {})
         utterance.pitch = pitch;
         const voice = currentVoice();
         if (voice) utterance.voice = voice;
+        if (onStart) utterance.addEventListener('start', onStart);
+        if (onEnd) {
+            utterance.addEventListener('end', onEnd);
+            // A cancelled or failed utterance must not strand a caller waiting
+            // for it to finish.
+            utterance.addEventListener('error', onEnd);
+        }
         synth.speak(utterance);
-    } catch (err) { /* speech is best-effort */ }
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+/**
+ * Speak several short phrases back to back, calling `onPhraseStart(index)` as
+ * each one actually begins.
+ *
+ * The phrases are **queued**, never interrupted — speechSynthesis plays them in
+ * order with its own natural gap, so counting paces itself to the voice instead
+ * of to a guessed timer. The old approach fired every 500ms with
+ * `interrupt: true`, which meant any voice slower than that got cut off by the
+ * next number: the better the voice, the more chopped it sounded.
+ *
+ * Only the first phrase may interrupt, to clear whatever came before.
+ *
+ * @param {string[]} phrases
+ * @param {{ onPhraseStart?: ((index: number) => void)|null, interrupt?: boolean,
+ *           rate?: number, pitch?: number }} [options]
+ * @returns {boolean} false when speech is unavailable, so the caller can
+ *   pace the same sequence on a timer instead.
+ */
+export function speakEach(phrases, { onPhraseStart = null, interrupt = false, rate, pitch } = {}) {
+    if (!synth || !enabled || !phrases.length) return false;
+
+    let queued = false;
+    phrases.forEach((text, index) => {
+        const spoke = speak(text, {
+            rate,
+            pitch,
+            interrupt: interrupt && index === 0,
+            onStart: onPhraseStart ? () => onPhraseStart(index) : null
+        });
+        queued = queued || spoke;
+    });
+    return queued;
 }
 
 export function cancelSpeech() {

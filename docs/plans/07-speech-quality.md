@@ -2,7 +2,8 @@
 
 Goal: the app should sound like a person, not a 1998 answering machine — on the devices it's actually used on.
 
-> **Status (2026-08-01):** Phase A done (voice selection fixed). Phase B is a
+> **Status (2026-08-01):** Phase A done (voice selection fixed) and A2 done
+> (counting paces itself to the voice instead of interrupting itself). Phase B is a
 > **spike, not a commitment**: a bundled neural engine costs 63–92 MB on a
 > child's tablet, and must clear a hardware gate on the real target device
 > before any of it is merged.
@@ -30,6 +31,17 @@ The old picker took the **first** voice matching `/en[-_]/` + `/natural/i`, deci
 - [x] **`voice.default` is never scored** — iOS reports it `true` for everything, so the old fallback picked an arbitrary first voice on exactly the platform we care most about.
 - [x] Voice is resolved **lazily per utterance** and re-ranked when the list changes, instead of being frozen at load.
 - [x] `rankVoices()` is exported pure and covered by `tests/speech.spec.js` against realistic Edge and iOS voice lists — headless browsers expose no voices, so the ranking is tested directly.
+
+## Phase A2 — counting follows the voice, not a stopwatch (done 2026-08-01)
+
+Numbers mode counted objects on a fixed 500 ms timer and spoke each number with `interrupt: true`. Since a spoken digit actually takes **~1.25 s**, every number cut off the one before it — so the *better* the voice, the more chopped it sounded. Measured, not guessed: chained utterances start at 63 ms, 1323 ms, 2594 ms, 3747 ms, with only ~13 ms of engine gap between them.
+
+- [x] `speakEach(phrases, { onPhraseStart })` in `js/speech.js`: **queue** the announcement and the whole count in one go, never interrupting, and reveal each object as its number actually starts. Only the first phrase interrupts, to clear whatever came before. The browser's own inter-utterance gap turns out to be exactly the rhythm counting wants, so there is no hand-rolled chain and no guessed delay.
+- [x] `speak()` now takes `onStart`/`onEnd` and returns whether anything was queued, so callers can fall back to a timer when speech is off or unsupported.
+- [x] Same fix applied to the other two places with the identical bug: `countAloud()` in `js/math/manipulatives.js` and `showHint()` in `js/modes/math.js`. Both previously interrupted their own intro line ("Take away 3!") with the first count, and `countAloud` called twice in one hint used to race two overlapping timers — queueing fixes that for free.
+- [x] Safety net: one timer per object, ~2 s apart, both paths guarded so the voice and the net can never double-count. Speech events are not guaranteed — a backgrounded tab stops delivering them — and without this the count freezes part-way.
+
+**Testing note worth keeping.** The first version of these specs waited on real audio and passed alone but failed under ten parallel workers: `speechSynthesis` is a single shared OS service, and it stalls under contention. Timing assertions now run with `speech: false` (the deterministic timer path); the voice path is contract-tested by instrumenting `speechSynthesis.speak`/`cancel` and asserting the queue is `['3!', '1', '2', '3']` with exactly **one** cancel — no waiting on audio at all. Verified over three consecutive full runs.
 
 Not done, and deliberately: **a parent voice picker.** On Android the list contains voices that aren't installed, so the dropdown would offer choices that silently do nothing. Worth revisiting for desktop alone, or once the list can be validated by test-speaking a candidate.
 

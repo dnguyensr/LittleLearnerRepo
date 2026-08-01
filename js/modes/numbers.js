@@ -1,6 +1,6 @@
 import { playKeyTone } from '../audio.js';
 import { randomBackground, createBubble, randomStar, setScoreVisible } from '../effects.js';
-import { speak, cancelSpeech } from '../speech.js';
+import { speak, speakEach, cancelSpeech } from '../speech.js';
 
 /** @typedef {import('../types.js').Mode} Mode */
 
@@ -10,7 +10,32 @@ const numberObjects = document.getElementById('number-objects');
 
 const objectEmojis = ['🍎', '⭐', '🎈', '🐸', '🌸', '🍪', '🚗', '🐤'];
 
+// Pace used only when there is no voice to follow.
+const SILENT_PACE_MS = 650;
+// Longest a single spoken number should take before we stop waiting for it.
+// Comfortably above a slow voice (~1.3s) but short enough that a stalled
+// engine costs one beat rather than freezing the count.
+const PHRASE_STALL_MS = 2000;
+
 let revealToken = 0;
+
+function addObject(emoji) {
+    const span = document.createElement('span');
+    span.className = 'count-object';
+    span.textContent = emoji;
+    numberObjects.appendChild(span);
+}
+
+// Reveal the objects still missing, on a timer. Used whenever there's no voice
+// to pace against — speech off, unsupported, or silently not working.
+function countOnTimer(n, emoji, token, alreadyShown) {
+    for (let i = alreadyShown; i < n; i++) {
+        setTimeout(() => {
+            if (token !== revealToken) return;
+            addObject(emoji);
+        }, (i - alreadyShown + 1) * SILENT_PACE_MS);
+    }
+}
 
 function showNumber(digit) {
     const n = Number(digit);
@@ -33,18 +58,37 @@ function showNumber(digit) {
         return;
     }
 
-    speak(`${n}!`, { interrupt: true });
+    // The announcement and the whole count are queued in one go, so nothing
+    // interrupts anything and each object lands exactly as its number is
+    // spoken. Phrase 0 is the announcement; phrase i>0 reveals object i.
+    const phrases = [`${n}!`, ...Array.from({ length: n }, (_, i) => String(i + 1))];
+    let shown = 0;
 
-    // Objects appear one by one with a counting voice-over
+    // Guarded so the voice and the safety net below can never double-count:
+    // whichever reaches an object first reveals it, and the total is capped.
+    const revealNext = () => {
+        if (token !== revealToken || shown >= n) return;
+        shown++;
+        addObject(emoji);
+    };
+
+    const spoke = speakEach(phrases, {
+        interrupt: true,
+        onPhraseStart: index => {
+            if (index > 0) revealNext();
+        }
+    });
+
+    if (!spoke) {
+        countOnTimer(n, emoji, token, 0);
+        return;
+    }
+
+    // Speech events are not guaranteed — a backgrounded tab or a busy engine
+    // can simply stop delivering them. One net per object keeps the count
+    // moving at worst a beat late, instead of freezing part-way.
     for (let i = 0; i < n; i++) {
-        setTimeout(() => {
-            if (token !== revealToken) return;
-            const span = document.createElement('span');
-            span.className = 'count-object';
-            span.textContent = emoji;
-            numberObjects.appendChild(span);
-            speak(String(i + 1), { interrupt: true });
-        }, 500 + i * 500);
+        setTimeout(revealNext, (i + 1) * PHRASE_STALL_MS);
     }
 }
 

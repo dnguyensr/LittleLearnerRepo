@@ -4,7 +4,7 @@ const { gotoApp, ensureOskVisible, seedSettings } = require('./helpers');
 // Open Math Lab pinned to one skill, so each spec exercises a known layout.
 // `mathLabLevel` accepts an exact skill id as well as a stage id.
 async function openLab(page, skill) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: skill });
+    await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: skill, speech: false });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);

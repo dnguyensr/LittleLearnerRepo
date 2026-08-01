@@ -1,4 +1,4 @@
-import { speak } from '../speech.js';
+import { speak, speakEach } from '../speech.js';
 
 // Reusable tap-first widgets, built as DOM + CSS (no canvas, no libraries).
 // Every tappable part is a real <button>: js/input.js skips play-area taps that
@@ -59,19 +59,29 @@ export function handleCounterTap(target) {
     return counted;
 }
 
-// Walk a group aloud, lighting one object per beat. `token` guards against a
-// walk-through that outlives its problem; pass a getter that returns false to
-// abandon it.
+/**
+ * Walk a group aloud, lighting each object as its number is spoken. The counts
+ * are queued rather than interrupting one another, so they pace to the voice
+ * and land after whatever the hint said first — the old version interrupted its
+ * own intro and then chopped each number off with the next.
+ *
+ * `stillValid` abandons a walk-through that outlived its problem.
+ */
 export function countAloud(group, stillValid, { from = 0, delay = 600 } = {}) {
     const items = [...group.querySelectorAll('.tap-item, .math-emoji')]
         .filter(node => !node.classList.contains('eaten'));
-    items.forEach((node, i) => {
-        setTimeout(() => {
-            if (!stillValid()) return;
-            node.classList.add('counted');
-            speak(String(from + i + 1), { interrupt: true });
-        }, delay + i * delay);
+
+    const light = index => {
+        if (stillValid()) items[index].classList.add('counted');
+    };
+
+    const spoke = speakEach(items.map((_, i) => String(from + i + 1)), {
+        onPhraseStart: light
     });
+
+    if (!spoke) {
+        items.forEach((_, i) => setTimeout(() => light(i), delay + i * delay));
+    }
 }
 
 /**
