@@ -1390,6 +1390,42 @@ button {
     font-size: clamp(1.3rem, 4vw, 1.8rem);
 }
 
+/* ---------- Opened as a file:// path ---------- */
+
+#file-protocol-help {
+    max-width: 34rem;
+    margin: 12vh auto;
+    padding: 0 1.5rem;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    line-height: 1.5;
+}
+
+#file-protocol-help h1 {
+    margin-bottom: 0.6em;
+}
+
+#file-protocol-help p {
+    margin: 0.8em 0;
+}
+
+#file-protocol-help pre,
+#file-protocol-help code {
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    padding: 0.15em 0.5em;
+    font-family: ui-monospace, Consolas, monospace;
+}
+
+#file-protocol-help pre {
+    padding: 0.8em 1em;
+    overflow-x: auto;
+}
+
+#file-protocol-help a {
+    color: #ffe680;
+}
+
 /* ---------- Reduced motion ---------- */
 
 /* Every keyframe animation and transition collapses to (near-)instant. States

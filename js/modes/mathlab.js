@@ -156,7 +156,8 @@ function newProblem() {
         : { html: problem.questionText, speak: problem.speakText };
 
     questionEl.innerHTML = question.html;
-    promptEl.textContent = steps.length > 1 ? 'Ones first!' : '';
+    // Only the column algorithm still needs ✓, so only it says so.
+    promptEl.textContent = steps.length > 1 ? 'Ones first, then ✓' : '';
     answerDisplay.style.color = 'white';
     updateDisplays();
 
@@ -187,7 +188,7 @@ function advanceStep() {
 
     const token = hintToken;
     const next = currentStep();
-    promptEl.textContent = next ? 'Now the tens!' : '';
+    promptEl.textContent = next ? 'Now the tens, then ✓' : '';
     setTimeout(() => {
         if (!next || token !== hintToken) return;
         updateDisplays();
@@ -240,15 +241,42 @@ function submitAnswer() {
 
     wrongAttempts++;
     recordWrong();
+    // Locked through the red flash so a fast tapper can't stack up several
+    // wrong answers on digits typed before they saw the first one land.
+    locked = true;
     answerDisplay.style.color = '#ff6b6b';
     playWrongSound();
+
+    // Fenced on the problem itself rather than hintToken, because showHint()
+    // below bumps that token and would cancel this reset — leaving the mode
+    // locked forever.
+    const flashedOn = problem;
     setTimeout(() => {
-        if (locked) return;
+        if (problem !== flashedOn) return;
+        locked = false;
         buffer = '';
         updateDisplays();
         answerDisplay.style.color = 'white';
     }, 800);
     if (wrongAttempts >= 2) showHint();
+}
+
+/**
+ * Single-step levels judge themselves the moment the digits can only be right
+ * or only be wrong, matching Math mode — no ✓ needed.
+ *
+ * The classical column algorithm is deliberately excluded. Its steps expect one
+ * digit each, so auto-judging would commit the very first key pressed, and the
+ * `maxLen === 1` overwrite below (tap 3, then tap 7 to replace it) could never
+ * fire. That forgiveness matters most exactly where the task is hardest, so the
+ * column keeps its ✓ and its extra beat between the ones and the tens.
+ */
+function judgeIfDecided() {
+    if (steps.length > 1) return;
+    const expected = String(currentStep().expect);
+    if (buffer === expected || !expected.startsWith(buffer)) {
+        submitAnswer();
+    }
 }
 
 container.addEventListener('pointerdown', e => {
@@ -285,7 +313,7 @@ export const mathLabMode = {
     icon: '🧮',
     beta: true,
     oskLayout: 'numpad',
-    instructions: 'Tap to work it out, then type the answer and press ✓! 🧪',
+    instructions: 'Tap to work it out, then type the answer! 🧪',
 
     activate() {
         container.classList.add('active');
@@ -324,6 +352,7 @@ export const mathLabMode = {
             randomBackground();
             createBubble();
             updateDisplays();
+            judgeIfDecided();
         } else if (key === 'Backspace') {
             buffer = buffer.slice(0, -1);
             updateDisplays();

@@ -115,12 +115,8 @@ test.describe('Math Lab — Singapore, number bonds', () => {
         // The answer goes in the bond, not a separate box
         await expect(page.locator('#mathlab-answer-display')).toBeHidden();
 
-        await page.keyboard.press('1');
-        await expect(page.locator('.nb-whole .nb-slot')).toHaveText('1');
-        await page.keyboard.press('Backspace');
-
+        // Single-step levels need no ✓
         await type(page, answer);
-        await page.keyboard.press('Enter');
         await expect(page.locator('.nb-whole .nb-slot')).toHaveClass(/done/);
         await expect(page.locator('#word-count')).toHaveText('1');
     });

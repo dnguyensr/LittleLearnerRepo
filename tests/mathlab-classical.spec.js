@@ -91,13 +91,12 @@ test.describe('Math Lab — classical, adding and taking away', () => {
 
         // The answer goes into the notation, not a second box below it
         await expect(page.locator('#mathlab-answer-display')).toBeHidden();
-        await page.keyboard.press('1');
-        await expect(page.locator('.v-slot')).toHaveText('1');
+        await expect(page.locator('.v-slot')).toHaveText('?');
 
-        await page.keyboard.press('Backspace');
+        // Single-step levels need no ✓
         await type(page, answer);
-        await page.keyboard.press('Enter');
         await expect(page.locator('#word-count')).toHaveText('1');
+        await expect(page.locator('.v-slot')).toHaveClass(/done/);
     });
 
     test('taking away shows the eater and takes one away per tap', async ({ page }) => {
@@ -125,13 +124,18 @@ test.describe('Math Lab — classical, two-digit column algorithm', () => {
         const tens = Math.floor(answer / 10);
         expect(tens).toBeGreaterThan(0);
 
-        await expect(page.locator('#mathlab-prompt')).toHaveText('Ones first!');
+        await expect(page.locator('#mathlab-prompt')).toHaveText('Ones first, then ✓');
 
+        // The column algorithm keeps ✓: a digit alone must not commit, so the
+        // child can correct a mis-tap before the carry animates.
         await type(page, ones);
+        await page.waitForTimeout(900);
+        await expect(page.locator('.c-slot[data-slot="ones"]')).not.toHaveClass(/done/);
+
         await page.keyboard.press('Enter');
         await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveText(String(ones));
         await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveClass(/done/);
-        await expect(page.locator('#mathlab-prompt')).toHaveText('Now the tens!');
+        await expect(page.locator('#mathlab-prompt')).toHaveText('Now the tens, then ✓');
         await expect(page.locator('#word-count')).toHaveText('0');
 
         if (regroups) {
@@ -151,9 +155,25 @@ test.describe('Math Lab — classical, two-digit column algorithm', () => {
         await page.keyboard.press('Enter');
         await page.waitForTimeout(1000);
 
-        await expect(page.locator('#mathlab-prompt')).toHaveText('Ones first!');
+        await expect(page.locator('#mathlab-prompt')).toHaveText('Ones first, then ✓');
         await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveText('?');
         await expect(page.locator('#word-count')).toHaveText('0');
+    });
+
+    test('a mis-tapped column digit can be replaced before ✓', async ({ page }) => {
+        const { answer } = await readProblem(page);
+        const ones = answer % 10;
+        const wrong = (ones + 1) % 10;
+
+        await type(page, wrong);
+        await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveText(String(wrong));
+
+        // A second digit overwrites rather than being judged as a new attempt
+        await type(page, ones);
+        await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveText(String(ones));
+
+        await page.keyboard.press('Enter');
+        await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveClass(/done/);
     });
 });
 

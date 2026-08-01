@@ -105,6 +105,24 @@
         </div>
     </div>
 
+    <!-- Browsers refuse to load ES modules over file:// (CORS), so opening this
+         file directly gives a blank page and a console error. Say so in the page
+         instead, since that is exactly when nobody is looking at the console. -->
+    <script>
+        if (location.protocol === 'file:') {
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.innerHTML = '<div id="file-protocol-help">'
+                    + '<h1>🎹 Almost there!</h1>'
+                    + '<p>Little Learner Keys needs a web server. Browsers block ES modules '
+                    + 'opened straight from a <code>file://</code> path, so double-clicking '
+                    + '<code>index.html</code> cannot work.</p>'
+                    + '<p>From the repo root, run:</p>'
+                    + '<pre>npm run serve</pre>'
+                    + '<p>then open <a href="http://localhost:8123/">http://localhost:8123/</a></p>'
+                    + '</div>';
+            });
+        }
+    </script>
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

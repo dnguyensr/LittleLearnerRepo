@@ -20,6 +20,7 @@ Work through the plans in this order. Each file is a checklist; check items off 
 | P4 | [Learning module improvements & new modules](04-learning-modules.md) | Upgrade Math and Words, then add new pre-K–1st modules (letters, numbers, shapes, sight words). |
 | P5 | [Testing, tooling & accessibility](05-testing-tooling.md) | npm dev tooling, Playwright E2E, axe accessibility scans, CI. Phased last, but start it alongside P2 so the refactor is protected by tests. |
 | P6 | [Math Lab beta: teaching methods](06-math-methods-beta.md) | **Where the curriculum work happens; still behind the beta flag.** A 24-skill ladder from counting to two-digit regrouping, taught through classical, Common Core and Singapore methods with tap-first manipulatives (ten frames, number lines, number bonds, bar models, base-ten blocks). One shared spine plus per-curriculum detours. Also adds the JSDoc + `tsc --noEmit` typecheck gate (Phase B) — no build step, no `.ts` files. Next step is a real child, not more code. |
+| P7 | [Speech quality](07-speech-quality.md) | Voice selection fixed (deterministic, locale-aware, resilient to each platform's broken `getVoices()`). A bundled neural engine (Kokoro/Piper, 63–92 MB) is a spike gated on measurements from the real target tablet — with pre-generated audio clips as the cheaper alternative to price first. |
 
 ## Conventions
 

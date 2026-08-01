@@ -136,6 +136,50 @@ test.describe('Math Lab — Common Core, adding', () => {
     });
 });
 
+test.describe('Math Lab — single-step levels judge themselves', () => {
+    test('a correct answer scores without ✓', async ({ page }) => {
+        await openLab(page, 'addWithin10', 'hops');
+        const { answer } = await readQuestion(page);
+        await type(page, answer);
+        // No Enter
+        await expect(page.locator('#word-count')).toHaveText('1');
+    });
+
+    test('a partial two-digit answer waits for the next digit', async ({ page }) => {
+        await openLab(page, 'addRegroup', 'blocks');
+        const { answer } = await readQuestion(page);
+        expect(answer).toBeGreaterThanOrEqual(10);
+        const [first, second] = String(answer);
+
+        await type(page, first);
+        await page.waitForTimeout(900);
+        await expect(page.locator('#mathlab-answer-display')).toHaveText(first);
+        await expect(page.locator('#word-count')).toHaveText('0');
+
+        await type(page, second);
+        await expect(page.locator('#word-count')).toHaveText('1');
+    });
+
+    test('backspace still edits a partial answer', async ({ page }) => {
+        await openLab(page, 'addRegroup', 'blocks');
+        const { answer } = await readQuestion(page);
+        const first = String(answer)[0];
+
+        await type(page, first);
+        await expect(page.locator('#mathlab-answer-display')).toHaveText(first);
+        await page.keyboard.press('Backspace');
+        await expect(page.locator('#mathlab-answer-display')).toHaveText('?');
+    });
+
+    test('a digit that cannot be right is judged immediately', async ({ page }) => {
+        await openLab(page, 'addWithin10', 'hops');
+        // 0 is never a sum here, and never the start of one
+        await page.keyboard.press('0');
+        await expect(page.locator('#mathlab-answer-display')).toHaveText('?', { timeout: 3000 });
+        await expect(page.locator('#word-count')).toHaveText('0');
+    });
+});
+
 test.describe('Math Lab — Common Core, taking away and two-digit', () => {
     test('taking away counts back on the number line', async ({ page }) => {
         await openLab(page, 'subWithin10', 'countback');

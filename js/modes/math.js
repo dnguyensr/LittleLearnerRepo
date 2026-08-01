@@ -172,10 +172,14 @@ function submitAnswer() {
         }, 1800);
     } else {
         wrongAttempts++;
+        // Locked through the red flash so a fast tapper can't stack up several
+        // wrong answers on digits typed before they saw the first one land.
+        locked = true;
         mathAnswerDisplay.style.color = '#ff6b6b';
         playWrongSound();
         setTimeout(() => {
             mathAnswer = '';
+            locked = false;
             updateDisplays();
             mathAnswerDisplay.style.color = 'white';
         }, 800);
@@ -185,13 +189,26 @@ function submitAnswer() {
     }
 }
 
+/**
+ * No ✓ needed: judge as soon as the digits so far can only be right or can only
+ * be wrong. "1" when the answer is 12 is still on its way, so it waits; "3" is
+ * not, so it's marked immediately. ✓ still works for the rare case where a
+ * child stops on a valid prefix and wants to commit to it.
+ */
+function judgeIfDecided() {
+    const expected = String(problem.answer);
+    if (mathAnswer === expected || !expected.startsWith(mathAnswer)) {
+        submitAnswer();
+    }
+}
+
 /** @type {Mode} */
 export const mathMode = {
     id: 'math',
     label: 'Math',
     icon: '🔢',
     oskLayout: 'numpad',
-    instructions: 'Type the answer, then press ✓! 🔢',
+    instructions: 'Type the answer! 🔢',
 
     activate() {
         mathContainer.classList.add('active');
@@ -217,6 +234,7 @@ export const mathMode = {
             createBubble();
             randomStar();
             updateDisplays();
+            judgeIfDecided();
         } else if (key === 'Backspace') {
             mathAnswer = mathAnswer.slice(0, -1);
             updateDisplays();

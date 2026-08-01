@@ -3,7 +3,7 @@ import { getLetterInfo } from '../data/letters.js';
 import { playKeyTone, playWrongSound } from '../audio.js';
 import { randomBackground, createBubble, randomStar, celebrate, setScoreVisible, setScoreMode } from '../effects.js';
 import { setOskHint } from '../input.js';
-import { speak, cancelSpeech } from '../speech.js';
+import { speak, cancelSpeech, isSpeechEnabled } from '../speech.js';
 import { getSetting } from '../settings.js';
 
 /** @typedef {import('../types.js').Mode} Mode */
@@ -28,6 +28,9 @@ let letterMisses = 0;
 let queue = [];
 let queueTier = -1;
 let lastWord = '';
+// Bumped whenever the word changes or the mode closes, so a celebration timer
+// can't outlive its word and announce the next one into a different mode.
+let wordToken = 0;
 
 function tierIndex() {
     return Math.min(tiers.length - 1, Math.floor(completedThisSession / WORDS_PER_TIER));
@@ -68,6 +71,7 @@ function updateHint() {
 }
 
 function pickNewWord() {
+    wordToken++;
     const wordObj = nextWordFromQueue();
     currentWord = wordObj.word;
     lastWord = wordObj.word;
@@ -94,15 +98,23 @@ function renderWord() {
     }
 }
 
+// Deliberately does NOT interrupt: the final letter is still being spoken, and
+// cancelling it swallowed the last sound of every word — FLY came out
+// "F, L, ...FLY". Queueing behind it gives the full "F, L, Y, FLY!".
 function celebrateWordComplete() {
     completedThisSession++;
     celebrate();
-    speak(`${currentWord}! Great job!`, { interrupt: true });
+    speak(`${currentWord}! Great job!`);
     targetWordEl.classList.add('celebrate');
+
+    // Long enough for that letter + word to finish; the next word's prompt
+    // interrupts, so a short wait would clip the celebration instead.
+    const token = wordToken;
     setTimeout(() => {
+        if (token !== wordToken) return;
         targetWordEl.classList.remove('celebrate');
         pickNewWord();
-    }, 1200);
+    }, isSpeechEnabled() ? 2600 : 1200);
 }
 
 /** @type {Mode} */
@@ -124,6 +136,7 @@ export const wordsMode = {
     deactivate() {
         wordContainer.classList.remove('active');
         setOskHint(null);
+        wordToken++;
         cancelSpeech();
     },
 
