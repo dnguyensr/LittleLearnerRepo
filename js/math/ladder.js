@@ -108,6 +108,42 @@ export function emptyProgress() {
     return { spine: 0, streak: 0, done: {} };
 }
 
+/* ---------- Persistence ----------
+ *
+ * Storage lives here rather than in the mode because the parent settings panel
+ * also reads and clears it, and settings.js importing the mode would be a
+ * module cycle (the mode already imports settings).
+ */
+
+const PROGRESS_KEY = 'lls-mathlab-progress';
+
+/** @returns {LabProgress} */
+export function loadProgress() {
+    try {
+        return normalizeProgress(JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'));
+    } catch (err) {
+        return emptyProgress();
+    }
+}
+
+/** @param {LabProgress} progress */
+export function saveProgress(progress) {
+    try {
+        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    } catch (err) { /* private mode etc. */ }
+}
+
+export function clearProgress() {
+    try {
+        localStorage.removeItem(PROGRESS_KEY);
+    } catch (err) { /* ignore */ }
+}
+
+/** One parent-readable line about where the child is on the spine. */
+export function describeProgress(progress) {
+    return `${labelOf(SPINE[progress.spine])} (step ${progress.spine + 1} of ${SPINE.length})`;
+}
+
 /**
  * Tolerate anything that might be sitting in localStorage — an older shape, a
  * hand-edit, a half-written value — rather than letting it break the mode.

@@ -11,6 +11,31 @@ async function scan(page) {
     return results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
 }
 
+test.describe('Reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+    test('key presses and celebrations spawn no bubbles, stars or flying keys', async ({ page }) => {
+        await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: 'count10' });
+        await gotoApp(page);
+
+        // Free play: the flying key and its confetti are suppressed
+        await page.keyboard.press('a');
+        await expect(page.locator('#key-display')).toHaveText('A');
+        expect(await page.locator('.flying-key, .bubble, .star').count()).toBe(0);
+
+        // Math Lab: a correct answer still scores and advances, minus the storm
+        await page.locator('#mathlab-btn').click();
+        const answer = await page.locator('#mathlab-workspace .math-emoji').count();
+        for (const ch of String(answer)) await page.keyboard.press(ch);
+        await page.keyboard.press('Enter');
+        await expect(page.locator('#word-count')).toHaveText('1');
+        expect(await page.locator('.bubble, .star').count()).toBe(0);
+    });
+
+    // The inverse — effects DO spawn with motion allowed — is already covered
+    // by freeplay.spec.js ("tapping the play area spawns effects").
+});
+
 test.describe('Accessibility (axe)', () => {
     // Math Lab is scanned once per teaching method: each renders a completely
     // different set of controls.

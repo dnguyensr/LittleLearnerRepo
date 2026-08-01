@@ -175,9 +175,9 @@ Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a modu
 ## Still open
 
 - [ ] Try the ladder with an actual child; record which rungs land and which are too big a step, before touching the beta flag.
-- [ ] `prefers-reduced-motion` (P5) now covers noticeably more surface. Still wants one deliberate app-wide pass.
-- [ ] The parent panel has no way to reset or nudge progress. Fine while the only user is the author; needed before anyone else uses it.
-- [ ] Detour rungs are never revisited once done. If a child regresses, only the spine tracks them.
+- [x] `prefers-reduced-motion`: app-wide pass done (2026-08-01). CSS media block collapses every keyframe/transition to near-instant (states still land — a counted emoji still highlights — they just arrive without the journey); `js/effects.js` suppresses bubbles/stars/flying keys at the source, since for spawned elements their existence *is* the animation. Score and success sound still land. Covered by a `reducedMotion: 'reduce'` spec in `tests/a11y.spec.js`.
+- [x] Parent progress controls (2026-08-01): the beta section of the panel shows the current rung ("Making a ten — step 7 of 15") and a **Start over** button. Reset is two-tap (one mis-tap must not erase weeks of climbing) and disarms when the panel closes. Storage helpers moved into `js/math/ladder.js` so settings.js can read/clear progress without importing the mode (which would be a module cycle); the mode hears about a reset via a `lls-mathlab-progress-reset` window event and re-deals from the bottom rung if active. Nudging to a specific rung stays out: pinning a stage already covers "practice this", and a jump-to-rung control invites parents to skip the child up the ladder.
+- [ ] Detour rungs are never revisited once done. If a child regresses, only the spine tracks them. Deliberately unresolved for now — it's the same design stance as no-demotion, and real-child evidence should drive it.
 
 ### Phase E notes
 

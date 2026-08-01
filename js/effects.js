@@ -20,6 +20,11 @@ const scoreCountEl = document.getElementById('word-count');
 let score = 0;
 let scoreStorageKey = null;
 
+// The CSS media block collapses keyframes, but bubbles/stars/flying keys are
+// spawned elements whose existence is the animation — suppress them at the
+// source. Checked at call time so an OS-level toggle applies immediately.
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 // Each scoring mode keeps its own persistent score in localStorage.
 export function setScoreMode(modeId) {
     scoreStorageKey = `lls-score-${modeId}`;
@@ -36,6 +41,7 @@ export function randomBackground() {
 }
 
 export function createBubble(x, y) {
+    if (reducedMotion.matches) return;
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
     bubble.style.width = Math.random() * 100 + 50 + 'px';
@@ -48,6 +54,7 @@ export function createBubble(x, y) {
 }
 
 export function createStar(x, y) {
+    if (reducedMotion.matches) return;
     const star = document.createElement('div');
     star.className = 'star';
     star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
@@ -65,6 +72,7 @@ export function randomStar() {
 }
 
 export function createFlyingKey(key) {
+    if (reducedMotion.matches) return;
     const flyingKey = document.createElement('div');
     flyingKey.className = 'flying-key';
     flyingKey.textContent = key;
@@ -118,6 +126,8 @@ export function celebrate() {
 
     playSuccessSound();
 
+    // The success sound and score still land under reduced motion; the
+    // twenty-piece confetti storm does not (each spawn is a no-op there).
     for (let i = 0; i < 20; i++) {
         setTimeout(() => {
             randomStar();

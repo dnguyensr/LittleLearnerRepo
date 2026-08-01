@@ -9,7 +9,7 @@ Goal: once npm enters the repo (dev tooling only — the deployed site stays dep
 - [x] `package.json` with `"private": true`, no runtime dependencies; devDependencies: `@playwright/test`, `@axe-core/playwright`. Static serving is the zero-dependency `tools/serve.js` (Node built-ins only).
 - [x] Scripts: `serve` (local static server), `test` (Playwright), `test:ui` (Playwright UI mode). `lint` deferred until ESLint lands.
 - [x] `.gitignore` covers `node_modules/`, `test-results/`, `playwright-report/`; `package-lock.json` is committed for `npm ci`.
-- [x] Playwright config: `webServer` block launches `tools/serve.js` so `npx playwright test` is one command; `baseURL` http://localhost:8123.
+- [x] Playwright config: `webServer` block launches `tools/serve.js` so `npx playwright test` is one command; `baseURL` `http://localhost:8123`.
 
 ## Playwright E2E specs
 
@@ -26,7 +26,7 @@ Goal: once npm enters the repo (dev tooling only — the deployed site stays dep
 - [x] `@axe-core/playwright` scan of each of the 4 modes in `tests/a11y.spec.js`; fails on serious/critical violations. **`color-contrast` rule is disabled pending the palette pass below.**
 - [x] Icon-only buttons have `aria-label`s; mode buttons expose state (`aria-pressed`).
 - [ ] Check color contrast of white text over the pastel gradients (several current gradients likely fail 4.5:1) — add a text-shadow/scrim or adjust palette, then re-enable the `color-contrast` axe rule.
-- [ ] `prefers-reduced-motion`: gate the heavy animations (flying keys, star bursts, bounces) behind the media query.
+- [x] `prefers-reduced-motion`: gate the heavy animations (flying keys, star bursts, bounces) behind the media query. Done app-wide 2026-08-01: CSS media block collapses keyframes/transitions; `js/effects.js` suppresses spawned effects (bubbles, stars, flying keys) at the source. Spec in `tests/a11y.spec.js` runs with `reducedMotion: 'reduce'`.
 - [ ] Keyboard/focus: the on-screen keyboards are reachable and operable with a physical keyboard and screen reader; focus is never trapped or invisible. (Note: the app intentionally swallows all physical keydown events — needs a deliberate design for focus-based operation.)
 - [ ] Live-region announcements for mode changes and correct/incorrect feedback (`aria-live="polite"`), so the app isn't silent to screen readers.
 

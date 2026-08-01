@@ -1283,6 +1283,27 @@ button {
     display: none;
 }
 
+#mathlab-progress-row {
+    justify-content: space-between;
+}
+
+.reset-btn {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    min-height: 40px;
+    border-radius: 20px;
+    border: 2px solid #c33;
+    background: white;
+    color: #c33;
+    cursor: pointer;
+}
+
+.reset-btn.armed {
+    background: #c33;
+    color: white;
+}
+
 .settings-row input[type="checkbox"] {
     width: 22px;
     height: 22px;
@@ -1367,6 +1388,23 @@ button {
     max-width: 110px;
     height: clamp(52px, 8vh, 68px);
     font-size: clamp(1.3rem, 4vw, 1.8rem);
+}
+
+/* ---------- Reduced motion ---------- */
+
+/* Every keyframe animation and transition collapses to (near-)instant. States
+   still land — a counted emoji still highlights, a revealed bar segment still
+   shows its value — they just arrive without the journey. The near-zero
+   duration (instead of `none`) keeps animation events firing for any code
+   that waits on them. JS-spawned effects (bubbles, stars, flying keys) are
+   suppressed at the source in js/effects.js, since display of those elements
+   IS the animation. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 /* ---------- Small screens ---------- */

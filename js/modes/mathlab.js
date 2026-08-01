@@ -4,7 +4,7 @@ import { speak, cancelSpeech } from '../speech.js';
 import { getSetting, onSettingChange } from '../settings.js';
 import { generateProblem, rand } from '../math/problems.js';
 import {
-    currentRung, advance, normalizeProgress, emptyProgress,
+    currentRung, advance, emptyProgress, loadProgress, saveProgress,
     skillsForSetting, stageOf, labelOf, STREAK_TO_ADVANCE
 } from '../math/ladder.js';
 import { handleCounterTap } from '../math/manipulatives.js';
@@ -64,24 +64,8 @@ let mixIndex = 0;
  * failing backwards reads as punishment at this age.
  */
 
-const PROGRESS_KEY = 'lls-mathlab-progress';
-
 /** @type {import('../types.js').LabProgress} */
 let progress = emptyProgress();
-
-function loadProgress() {
-    try {
-        return normalizeProgress(JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'));
-    } catch (err) {
-        return emptyProgress();
-    }
-}
-
-function saveProgress() {
-    try {
-        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
-    } catch (err) { /* private mode etc. */ }
-}
 
 function isAutoLevel() {
     const setting = getSetting('mathLabLevel');
@@ -106,18 +90,18 @@ function recordCorrect(methodId) {
 
     progress.streak++;
     if (progress.streak < STREAK_TO_ADVANCE) {
-        saveProgress();
+        saveProgress(progress);
         return null;
     }
     const { rung } = advance(progress, methodId);
-    saveProgress();
+    saveProgress(progress);
     return rung;
 }
 
 function recordWrong() {
     if (!isAutoLevel() || progress.streak === 0) return;
     progress.streak = 0;
-    saveProgress();
+    saveProgress(progress);
 }
 
 // `mix` rotates rather than picking at random, so every method gets equal time
@@ -284,6 +268,14 @@ speakBtn.addEventListener('click', () => {
 onSettingChange(key => {
     if (!container.classList.contains('active')) return;
     if (key === 'mathMethod' || key === 'mathLabLevel') newProblem();
+});
+
+// The settings panel clears stored progress via ladder.js and announces it
+// with this event (importing the mode from settings.js would be a cycle). If
+// the child is mid-session behind the panel, re-deal from the bottom rung.
+window.addEventListener('lls-mathlab-progress-reset', () => {
+    progress = loadProgress();
+    if (container.classList.contains('active')) newProblem();
 });
 
 /** @type {Mode} */

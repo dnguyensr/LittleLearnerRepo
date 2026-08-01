@@ -1,5 +1,5 @@
 import { setSpeechEnabled } from './speech.js';
-import { LEGACY_STAGE } from './math/ladder.js';
+import { LEGACY_STAGE, loadProgress, clearProgress, describeProgress } from './math/ladder.js';
 
 const STORAGE_KEY = 'lls-settings';
 const defaults = {
@@ -82,22 +82,53 @@ export function initSettingsUI() {
     labLevelSelect.value = String(settings.mathLabLevel);
     betaRows.hidden = !settings.betaModes;
 
+    /* ---- Math Lab progress: read-out + two-tap reset ---- */
+
+    const progressLabel = document.getElementById('mathlab-progress-label');
+    const resetBtn = document.getElementById('mathlab-progress-reset');
+
+    function refreshProgressRow() {
+        progressLabel.textContent = describeProgress(loadProgress());
+        resetBtn.textContent = 'Start over';
+        resetBtn.classList.remove('armed');
+    }
+    refreshProgressRow();
+
+    // Two taps to reset: one mis-tap in a parent panel shouldn't erase weeks
+    // of a child's climbing.
+    resetBtn.addEventListener('click', () => {
+        if (!resetBtn.classList.contains('armed')) {
+            resetBtn.textContent = 'Tap again to erase';
+            resetBtn.classList.add('armed');
+            return;
+        }
+        clearProgress();
+        window.dispatchEvent(new CustomEvent('lls-mathlab-progress-reset'));
+        refreshProgressRow();
+    });
+
     let holdTimer = null;
 
     settingsBtn.addEventListener('pointerdown', () => {
         holdTimer = setTimeout(() => {
             panel.hidden = false;
+            refreshProgressRow();
         }, HOLD_MS);
     });
     for (const evt of ['pointerup', 'pointerleave', 'pointercancel']) {
         settingsBtn.addEventListener(evt, () => clearTimeout(holdTimer));
     }
 
+    // Closing the panel disarms a half-finished reset.
     closeBtn.addEventListener('click', () => {
         panel.hidden = true;
+        refreshProgressRow();
     });
     panel.addEventListener('pointerdown', e => {
-        if (e.target === panel) panel.hidden = true;
+        if (e.target === panel) {
+            panel.hidden = true;
+            refreshProgressRow();
+        }
     });
 
     speechBox.addEventListener('change', () => setSetting('speech', speechBox.checked));

@@ -35,8 +35,13 @@ const skillOf = page => page.locator('#mathlab-workspace').getAttribute('data-sk
 async function solveCount(page, expectedScore) {
     const workspace = page.locator('#mathlab-workspace');
     const variant = await workspace.getAttribute('data-variant');
+    const skill = await workspace.getAttribute('data-skill');
     let answer;
-    if (variant === 'numeralbuild') answer = Number(await page.locator('.numeral-card').textContent());
+    if (skill === 'countBack') {
+        // "What comes just before n?" shows the numeral n; the answer is n − 1
+        answer = Number(await page.locator('.numeral-card').textContent()) - 1;
+    }
+    else if (variant === 'numeralbuild') answer = Number(await page.locator('.numeral-card').textContent());
     else if (variant === 'subitize') answer = await page.locator('.tf-cell.filled').count();
     else if (variant === 'pictorial') answer = await page.locator('.dot').count();
     else answer = await page.locator('#mathlab-workspace .math-emoji').count();
@@ -275,6 +280,54 @@ test.describe('Math Lab — stored progress is defended', () => {
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-stage', 'subtracting10');
+    });
+});
+
+test.describe('Math Lab — parent progress controls', () => {
+    const { openSettings } = require('./helpers');
+
+    test('the panel names the current rung', async ({ page }) => {
+        await seedProgress(page, { spine: 6, streak: 0, done: {} });
+        await openLab(page);
+        await openSettings(page);
+        await expect(page.locator('#mathlab-progress-label'))
+            .toHaveText('Making a ten (step 7 of 15)');
+    });
+
+    test('one tap arms the reset, closing the panel disarms it', async ({ page }) => {
+        await seedProgress(page, { spine: 6, streak: 0, done: {} });
+        await openLab(page);
+        await openSettings(page);
+
+        const resetBtn = page.locator('#mathlab-progress-reset');
+        await resetBtn.click();
+        await expect(resetBtn).toHaveText('Tap again to erase');
+
+        await page.locator('#settings-close').click();
+        await openSettings(page);
+        await expect(resetBtn).toHaveText('Start over');
+
+        // Progress untouched by the armed-but-abandoned tap
+        const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
+        expect(stored.spine).toBe(6);
+    });
+
+    test('two taps erase progress and the live session re-deals from the bottom', async ({ page }) => {
+        await seedProgress(page, { spine: 6, streak: 3, done: {} });
+        await openLab(page);
+        expect(await skillOf(page)).toBe('makeTen');
+        await openSettings(page);
+
+        const resetBtn = page.locator('#mathlab-progress-reset');
+        await resetBtn.click();
+        await resetBtn.click();
+
+        await expect(page.locator('#mathlab-progress-label'))
+            .toHaveText('Counting to 5 (step 1 of 15)');
+        expect(await page.evaluate(key => localStorage.getItem(key), PROGRESS_KEY)).toBeNull();
+
+        await page.locator('#settings-close').click();
+        expect(await skillOf(page)).toBe('count5');
     });
 });
 
