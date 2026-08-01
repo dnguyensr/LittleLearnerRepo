@@ -2,7 +2,11 @@ import { playKeyTone, playWrongSound } from '../audio.js';
 import { celebrate, setScoreVisible, setScoreMode, randomBackground, createBubble } from '../effects.js';
 import { speak, cancelSpeech } from '../speech.js';
 import { getSetting, onSettingChange } from '../settings.js';
-import { generateProblem, clampLevel, MAX_LEVEL, PROBLEMS_PER_LEVEL } from '../math/problems.js';
+import { generateProblem, rand } from '../math/problems.js';
+import {
+    currentRung, advance, normalizeProgress, emptyProgress,
+    skillsForSetting, stageOf, labelOf, STREAK_TO_ADVANCE
+} from '../math/ladder.js';
 import { handleCounterTap } from '../math/manipulatives.js';
 import { closestEl } from '../dom.js';
 import { classicalMethod } from '../math/classical.js';
@@ -48,29 +52,30 @@ let hintToken = 0;
 let locked = false;
 let mixIndex = 0;
 
-/* ---------- Auto-progression ----------
+/* ---------- Progression ----------
  *
- * Level progress is persisted rather than session-scoped. A toddler bounces out
- * to Free Play and back constantly; demoting them to level 1 every time made
- * auto mode feel like it was punishing them for exploring. The streak toward the
- * next level survives too, so a mode switch never costs work already done.
+ * Progress is persisted rather than session-scoped. A toddler bounces out to
+ * Free Play and back constantly; resetting them each time made auto mode feel
+ * like it punished exploring. The streak toward the next rung survives too, so a
+ * mode switch never costs work already done.
+ *
+ * Advancement needs a streak of correct answers *in a row*, so guessing can't
+ * climb the ladder. A wrong answer resets the streak but never drops a rung —
+ * failing backwards reads as punishment at this age.
  */
 
 const PROGRESS_KEY = 'lls-mathlab-progress';
 
+/** @type {import('../types.js').LabProgress} */
+let progress = emptyProgress();
+
 function loadProgress() {
     try {
-        const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-        return {
-            level: clampLevel(Number(saved.level) || 1),
-            streak: Math.max(0, Number(saved.streak) || 0)
-        };
+        return normalizeProgress(JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'));
     } catch (err) {
-        return { level: 1, streak: 0 };
+        return emptyProgress();
     }
 }
-
-let progress = loadProgress();
 
 function saveProgress() {
     try {
@@ -83,24 +88,36 @@ function isAutoLevel() {
     return !setting || setting === 'auto';
 }
 
-function currentLevel() {
-    return isAutoLevel() ? progress.level : clampLevel(Number(getSetting('mathLabLevel')));
+/**
+ * Which skill to ask about next. On auto that's the child's current rung for
+ * the active method; pinned to a stage, it's any skill from that stage, so a
+ * parent parking a child on "Counting" still gets variety.
+ */
+function nextSkill(methodId) {
+    if (isAutoLevel()) return currentRung(progress, methodId).skill;
+    const pool = skillsForSetting(String(getSetting('mathLabLevel')));
+    return pool[rand(0, pool.length - 1)];
 }
 
-// Returns the level just reached, or 0 if this answer didn't earn one.
-function recordCorrect() {
+// Returns the rung just unlocked, or null if this answer didn't unlock one.
+function recordCorrect(methodId) {
     correctThisSession++;
-    if (!isAutoLevel()) return 0;
+    if (!isAutoLevel()) return null;
 
     progress.streak++;
-    if (progress.streak < PROBLEMS_PER_LEVEL || progress.level >= MAX_LEVEL) {
+    if (progress.streak < STREAK_TO_ADVANCE) {
         saveProgress();
-        return 0;
+        return null;
     }
-    progress.level++;
+    const { rung } = advance(progress, methodId);
+    saveProgress();
+    return rung;
+}
+
+function recordWrong() {
+    if (!isAutoLevel() || progress.streak === 0) return;
     progress.streak = 0;
     saveProgress();
-    return progress.level;
 }
 
 // `mix` rotates rather than picking at random, so every method gets equal time
@@ -135,7 +152,7 @@ function updateDisplays() {
 function newProblem() {
     hintToken++;
     method = resolveMethod();
-    problem = generateProblem(currentLevel());
+    problem = generateProblem(nextSkill(method.id));
     steps = method.steps(problem);
     stepIndex = 0;
     buffer = '';
@@ -146,7 +163,8 @@ function newProblem() {
     // data-variant is cleared rather than overwritten: classical doesn't set
     // one, so under `mix` a stale value would otherwise survive the switch.
     workspaceEl.dataset.method = method.id;
-    workspaceEl.dataset.level = String(problem.level);
+    workspaceEl.dataset.skill = problem.skill;
+    workspaceEl.dataset.stage = stageOf(problem.skill);
     delete workspaceEl.dataset.variant;
     method.render(problem, workspaceEl, { correct: correctThisSession });
     question = method.question
@@ -209,13 +227,14 @@ function finish() {
     // answer means (uncovering a bar segment) rather than only what comes next.
     if (method.onStepDone) method.onStepDone(step, problem, workspaceEl);
 
-    // A level-up is the bigger news, so it takes the follow-up line if both
-    // it and the method's celebration land on the same answer.
-    const newLevel = recordCorrect();
-    const extra = newLevel
-        ? `Level ${newLevel}! You are getting so good at this!`
+    // Unlocking a new rung is the bigger news, so it takes the follow-up line
+    // if both it and the method's celebration land on the same answer.
+    const unlocked = recordCorrect(method.id);
+    const unlockedLabel = unlocked && labelOf(unlocked.skill);
+    const extra = unlockedLabel
+        ? `New challenge! ${unlockedLabel}.`
         : (method.celebrationText && method.celebrationText(problem));
-    promptEl.textContent = newLevel ? `Level ${newLevel}! 🎉` : '';
+    promptEl.textContent = unlockedLabel ? `New: ${unlockedLabel} 🎉` : '';
 
     const token = hintToken;
     if (extra) setTimeout(() => token === hintToken && speak(extra), 1400);
@@ -236,6 +255,7 @@ function submitAnswer() {
     }
 
     wrongAttempts++;
+    recordWrong();
     answerDisplay.style.color = '#ff6b6b';
     playWrongSound();
     setTimeout(() => {

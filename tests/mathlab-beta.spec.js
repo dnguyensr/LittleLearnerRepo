@@ -49,12 +49,12 @@ test.describe('Beta gating', () => {
         await gotoApp(page);
         await openSettings(page);
         await page.locator('#set-beta-modes').check();
-        await page.locator('#set-mathlab-level').selectOption('3');
+        await page.locator('#set-mathlab-level').selectOption('subtracting10');
         await page.locator('#settings-close').click();
 
         await page.reload();
         await expect(page.locator('#mathlab-btn')).toBeVisible();
         await openSettings(page);
-        await expect(page.locator('#set-mathlab-level')).toHaveValue('3');
+        await expect(page.locator('#set-mathlab-level')).toHaveValue('subtracting10');
     });
 });

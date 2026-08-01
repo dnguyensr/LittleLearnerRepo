@@ -14,7 +14,9 @@ import {
 // Like Common Core, the chosen presentation is recorded on the container as
 // `data-variant` so onTap, hint and question all read what render actually drew.
 
-const CPA_STAGES = ['concrete', 'pictorial', 'abstract'];
+// The abstract step (numeral → quantity) is now its own ladder rung,
+// `numeralMatch`, so the within-rung rotation is just concrete ↔ pictorial.
+const CPA_STAGES = ['concrete', 'pictorial'];
 const PROBLEMS_PER_STAGE = 2;
 
 function variantOf(container) {
@@ -50,12 +52,31 @@ function splitOf(problem) {
     return { toTen, rest: problem.b - toTen };
 }
 
-/** @param {Problem} problem */
+/**
+ * Dispatch is on problem SHAPE, with one exception: Singapore's own detour rung
+ * `numeralMatch` is keyed by skill id, because that rung exists precisely
+ * because this curriculum teaches numeral → quantity as its own step. Spine
+ * rungs stay shape-driven so a new one needs no edit here.
+ *
+ * @param {Problem} problem
+ */
 function pickVariant(problem, session) {
-    if (problem.level === 1) return cpaStage(session);
-    if (problem.level === 2) return 'bond';
-    if (problem.level === 3) return 'missingpart';
-    return problem.op === 'add' ? 'splitbars' : 'comparebars';
+    if (problem.skill === 'numeralMatch') return 'numeralbuild';
+
+    if (problem.op === 'count') {
+        if (problem.twoDigit) return 'placevaluebar';
+        // "What comes before 7?" isn't a counting task; showing 7 objects to
+        // count would walk the child straight to the wrong answer.
+        if (problem.answer !== problem.a) return 'numeral';
+        return cpaStage(session);
+    }
+
+    // Part-whole covers both "one part is missing" and take-away — Singapore
+    // teaches them as the same picture, which is the point.
+    if (problem.op === 'missing') return 'missingpart';
+    if (problem.twoDigit) return problem.op === 'add' ? 'splitbars' : 'comparebars';
+    if (problem.op === 'sub') return 'missingpart';
+    return 'bond';
 }
 
 function labelled(text, node) {
@@ -63,6 +84,18 @@ function labelled(text, node) {
     box.appendChild(el('div', 'cc-label', text));
     box.appendChild(node);
     return box;
+}
+
+/**
+ * Singapore draws take-away and missing-addend as the same part-whole picture,
+ * so both shapes resolve to one { whole, known } pair here.
+ *
+ * @param {Problem} problem
+ */
+function partWholeOf(problem) {
+    return problem.op === 'missing'
+        ? { whole: problem.total, known: problem.a }
+        : { whole: problem.a, known: problem.b };
 }
 
 function combineButton(label, which) {
@@ -90,21 +123,29 @@ export const singaporeMethod = {
             }));
         } else if (variant === 'pictorial') {
             workspace.appendChild(labelled('Count the dots!', dotCard(problem.a)));
-        } else if (variant === 'abstract') {
-            // Reverse of the other two stages: the numeral is given and the
+        } else if (variant === 'numeralbuild') {
+            // Reverse of the other CPA stages: the numeral is given and the
             // child builds the quantity from it.
             workspace.appendChild(numeralCard(problem.a));
             workspace.appendChild(labelled('Tap that many counters!', tenFrame(0)));
+        } else if (variant === 'numeral') {
+            workspace.appendChild(numeralCard(problem.a));
+        } else if (variant === 'placevaluebar') {
+            workspace.appendChild(labelled('One bar, split into tens and ones.', barModel([
+                { value: tens(problem.a), label: `${tens(problem.a) / 10} tens` },
+                { value: ones(problem.a), label: `${ones(problem.a)} ones` }
+            ], { brace: String(problem.a) })));
         } else if (variant === 'bond') {
             workspace.appendChild(labelled(
                 splitOf(problem) ? 'Tap the second part to break it up!' : 'Put the parts together!',
                 numberBond(null, [problem.a, problem.b])));
         } else if (variant === 'missingpart') {
-            workspace.appendChild(numberBond(problem.a, [problem.b, null]));
+            const { whole, known } = partWholeOf(problem);
+            workspace.appendChild(numberBond(whole, [known, null]));
             workspace.appendChild(barModel([
-                { value: problem.b },
+                { value: known },
                 { value: problem.answer, covered: true }
-            ], { brace: `${problem.a} in all` }));
+            ], { brace: `${whole} in all` }));
         } else if (variant === 'splitbars') {
             const bars = el('div', 'sg-bars');
             for (const value of [problem.a, problem.b]) {
@@ -120,10 +161,11 @@ export const singaporeMethod = {
             controls.appendChild(combineButton('Ones', 'ones'));
             workspace.appendChild(controls);
         } else {
+            const { whole, known } = partWholeOf(problem);
             workspace.appendChild(labelled('One part is hidden — what is it?', barModel([
-                { value: problem.b },
+                { value: known },
                 { value: problem.answer, covered: true }
-            ], { brace: `${problem.a} in all` })));
+            ], { brace: `${whole} in all` })));
         }
 
         container.appendChild(workspace);
@@ -147,8 +189,11 @@ export const singaporeMethod = {
         if (variant === 'pictorial') {
             return { html: 'How many dots?', speak: 'How many dots do you see?' };
         }
-        if (variant === 'abstract') {
+        if (variant === 'numeralbuild') {
             return { html: `Show me ${a}!`, speak: `Show me ${a}. Tap that many counters.` };
+        }
+        if (variant === 'numeral' || variant === 'placevaluebar') {
+            return { html: problem.questionText, speak: problem.speakText };
         }
         if (variant === 'bond') {
             return { html: `${a} + ${b} = ?`, speak: `${a} and ${b}. What is the whole?` };
@@ -156,13 +201,18 @@ export const singaporeMethod = {
         if (variant === 'splitbars') {
             return { html: `${a} + ${b} = ?`, speak: `${a} plus ${b}. Split them into tens and ones.` };
         }
-        return { html: `${a} − ${b} = ?`, speak: `The whole is ${a}. One part is ${b}. What is the other part?` };
+
+        const { whole, known } = partWholeOf(problem);
+        return {
+            html: problem.op === 'missing' ? `${a} + ? = ${problem.total}` : `${a} − ${b} = ?`,
+            speak: `The whole is ${whole}. One part is ${known}. What is the other part?`
+        };
     },
 
     onTap(target, problem, container) {
         const variant = variantOf(container);
 
-        if (variant === 'abstract') {
+        if (variant === 'numeralbuild') {
             const cell = closestEl(target, '.tf-cell');
             if (cell) {
                 cell.classList.toggle('filled');
@@ -222,7 +272,7 @@ export const singaporeMethod = {
             return;
         }
 
-        if (variant === 'abstract') {
+        if (variant === 'numeralbuild') {
             const frame = container.querySelector('.ten-frame');
             speak(`Tap ${problem.a} counters.`);
             for (let i = 0; i < problem.a; i++) {
@@ -232,6 +282,17 @@ export const singaporeMethod = {
                     speak(String(i + 1), { interrupt: true });
                 }, 600 + i * 600);
             }
+            return;
+        }
+
+        if (variant === 'numeral') {
+            speak(`Say the numbers in order. What comes just before ${problem.a}?`);
+            return;
+        }
+
+        if (variant === 'placevaluebar') {
+            speak(`${problem.a} splits into ${tens(problem.a)} and ${ones(problem.a)}. `
+                + `That is ${tens(problem.a) / 10} tens and ${ones(problem.a)} ones.`);
             return;
         }
 
@@ -245,8 +306,9 @@ export const singaporeMethod = {
         }
 
         if (variant === 'missingpart' || variant === 'comparebars') {
-            speak(`The whole is ${problem.a} and one part is ${problem.b}. `
-                + `${problem.b} and how many more makes ${problem.a}?`);
+            const { whole, known } = partWholeOf(problem);
+            speak(`The whole is ${whole} and one part is ${known}. `
+                + `${known} and how many more makes ${whole}?`);
             return;
         }
 

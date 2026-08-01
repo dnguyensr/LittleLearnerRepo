@@ -1,12 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const { gotoApp, seedSettings } = require('./helpers');
 
-// Several levels have two presentations of the same problem, chosen at random
-// and recorded on #mathlab-workspace[data-variant]. Reload until the wanted
-// variant comes up (and, optionally, until the problem itself satisfies
-// `until`) so each spec drives a known widget with a known shape.
-async function openLab(page, level, variant, until) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: level });
+// Pinning `mathLabLevel` to an exact skill id fixes the problem shape, which
+// fixes the variant for most rungs. Where a rung still has two presentations
+// (counting can flash a subitizing frame), reload until the wanted one comes up.
+async function openLab(page, skill, variant, until) {
+    await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: skill });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -41,9 +40,9 @@ async function type(page, text) {
     for (const ch of String(text)) await page.keyboard.press(ch);
 }
 
-test.describe('Math Lab — Common Core, level 1', () => {
+test.describe('Math Lab — Common Core, counting', () => {
     test('ten frame: tapping cells places and removes counters', async ({ page }) => {
-        await openLab(page, '1', 'tenframe');
+        await openLab(page, 'count10', 'tenframe');
         const cells = page.locator('.tf-cell');
         await expect(cells).toHaveCount(10);
         await expect(page.locator('.tf-cell.filled')).toHaveCount(0);
@@ -57,7 +56,7 @@ test.describe('Math Lab — Common Core, level 1', () => {
     });
 
     test('ten frame: the count of objects is the answer', async ({ page }) => {
-        await openLab(page, '1', 'tenframe');
+        await openLab(page, 'count10', 'tenframe');
         const answer = await page.locator('#mathlab-workspace .math-emoji').count();
         expect(answer).toBeGreaterThanOrEqual(1);
         await type(page, answer);
@@ -66,7 +65,7 @@ test.describe('Math Lab — Common Core, level 1', () => {
     });
 
     test('subitizing: the frame is dealt pre-filled, then covered', async ({ page }) => {
-        await openLab(page, '1', 'subitize');
+        await openLab(page, 'subitize', 'subitize');
         await expect(page.locator('#mathlab-question')).toContainText('How many did you see?');
 
         const frame = page.locator('.ten-frame');
@@ -85,9 +84,9 @@ test.describe('Math Lab — Common Core, level 1', () => {
     });
 });
 
-test.describe('Math Lab — Common Core, level 2', () => {
+test.describe('Math Lab — Common Core, adding', () => {
     test('make-a-ten moves counters between frames without changing the total', async ({ page }) => {
-        await openLab(page, '2', 'maketen');
+        await openLab(page, 'makeTen', 'maketen');
         const { a, b, answer } = await readQuestion(page);
         expect(a + b).toBeGreaterThanOrEqual(10);
 
@@ -106,15 +105,16 @@ test.describe('Math Lab — Common Core, level 2', () => {
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 
-    test('make-a-ten is never chosen for a sum below ten', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: '2' });
+    test('make-a-ten is never chosen for a sum that cannot cross ten', async ({ page }) => {
+        // addWithin10 caps sums at 10, so the strategy never applies here
+        await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: 'addWithin10' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
 
-        for (let i = 0; i < 12; i++) {
-            const variant = await page.locator('#mathlab-workspace').getAttribute('data-variant');
+        for (let i = 0; i < 8; i++) {
             const { a, b } = await readQuestion(page);
-            if (variant === 'maketen') expect(a + b).toBeGreaterThanOrEqual(10);
+            expect(a + b).toBeLessThanOrEqual(10);
+            await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'hops');
             await page.reload();
             await page.locator('#play-area').click();
             await page.locator('#mathlab-btn').click();
@@ -122,7 +122,7 @@ test.describe('Math Lab — Common Core, level 2', () => {
     });
 
     test('number-line hops move the frog and trail the ticks passed over', async ({ page }) => {
-        await openLab(page, '2', 'hops');
+        await openLab(page, 'addWithin10', 'hops');
         const { a, answer } = await readQuestion(page);
         await expect(page.locator(`.nl-tick[data-value="${a}"]`)).toHaveClass(/here/);
 
@@ -136,9 +136,9 @@ test.describe('Math Lab — Common Core, level 2', () => {
     });
 });
 
-test.describe('Math Lab — Common Core, levels 3 and 4', () => {
-    test('level 3 counts back on the number line', async ({ page }) => {
-        await openLab(page, '3', 'countback');
+test.describe('Math Lab — Common Core, taking away and two-digit', () => {
+    test('taking away counts back on the number line', async ({ page }) => {
+        await openLab(page, 'subWithin10', 'countback');
         const { a, answer } = await readQuestion(page);
         expect(answer).toBeLessThan(a);
 
@@ -150,10 +150,10 @@ test.describe('Math Lab — Common Core, levels 3 and 4', () => {
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 
-    test('level 4 addition: ten loose ones snap into a rod', async ({ page }) => {
+    test('two-digit addition: ten loose ones snap into a rod', async ({ page }) => {
         // Insist on a problem that actually regroups — that's the behaviour
         // under test, so it shouldn't be left to the dice.
-        await openLab(page, '4', 'blocks', q => q && (q.a % 10) + (q.b % 10) >= 10);
+        await openLab(page, 'addRegroup', 'blocks');
         const { a, b, answer } = await readQuestion(page);
         const looseBefore = (a % 10) + (b % 10);
         expect(looseBefore).toBeGreaterThanOrEqual(10);
@@ -173,8 +173,8 @@ test.describe('Math Lab — Common Core, levels 3 and 4', () => {
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 
-    test('level 4 subtraction: the open number line hops back and undoes', async ({ page }) => {
-        await openLab(page, '4', 'openline');
+    test('two-digit subtraction: the open number line hops back and undoes', async ({ page }) => {
+        await openLab(page, 'subRegroup', 'openline');
         const { a, answer } = await readQuestion(page);
         const line = page.locator('.open-line');
         await expect(line).toHaveAttribute('data-position', String(a));
@@ -195,7 +195,7 @@ test.describe('Math Lab — Common Core, levels 3 and 4', () => {
     });
 
     test('undo on a fresh line is a no-op, not a crash', async ({ page }) => {
-        await openLab(page, '4', 'openline');
+        await openLab(page, 'subRegroup', 'openline');
         const { a } = await readQuestion(page);
         await tap(page.locator('.ol-hop[data-hop="undo"]'));
         await expect(page.locator('.open-line')).toHaveAttribute('data-position', String(a));
@@ -205,7 +205,7 @@ test.describe('Math Lab — Common Core, levels 3 and 4', () => {
 
 test.describe('Math Lab — method selection', () => {
     test('Common Core is selectable and swaps the manipulative live', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: '2' });
+        await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: 'addWithin10' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('.vertical-sum')).toBeVisible();
@@ -216,7 +216,7 @@ test.describe('Math Lab — method selection', () => {
         await page.locator('#settings-close').click();
 
         await expect(page.locator('.vertical-sum')).toHaveCount(0);
-        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', /maketen|hops/);
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'hops');
     });
 
     // Which methods are selectable is asserted once, in

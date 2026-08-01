@@ -1,29 +1,32 @@
 # P6 — Math Lab (beta): classical, Common Core & Singapore methods
 
-> **Status (2026-07-31):** **All phases done.** Math Lab ships behind the
+> **Status (2026-08-01):** Phases A–F done. Math Lab ships behind the
 > `betaModes` flag with all three teaching methods — **classical**, **Common
-> Core** and **Singapore** — plus `mix`, across all four levels, with persisted
-> auto-progression. The JSDoc typecheck gate is green and wired into CI. 178
-> specs pass on chromium + mobile-chrome (webkit runs in CI).
+> Core** and **Singapore** — plus `mix`, across a **24-skill ladder covering
+> pre-K through 1st grade**. The JSDoc typecheck gate is green and wired into
+> CI. 208 specs pass on chromium + mobile-chrome (webkit runs in CI); all 75
+> skill × method combinations render without overflow.
 >
-> **It stays behind the beta flag.** See the graduation review below: the code is
-> covered, but nothing here has been tried on an actual child yet, and that's the
-> only evidence that should retire the flag.
+> **Direction (2026-08-01):** Math Lab is where the curriculum work happens.
+> Math mode stays frozen as-is — the two are not converging, see the graduation
+> review.
+>
+> **It stays behind the beta flag.** The code is covered, but nothing here has
+> been tried on an actual child yet, and that's the only evidence that should
+> retire the flag.
 
 Goal: a new **Math Lab 🧪** beta module that teaches the same four skill levels through three selectable teaching methods — classical, Common Core, and Singapore — each with its own *interactive manipulatives* instead of only type-the-answer. The existing Math mode stays untouched; Math Lab is where the new interaction styles incubate.
 
-Scope is deliberately limited to four levels:
-
-1. **Learning to count** (1–10)
-2. **Single-digit addition**
-3. **Single-digit subtraction**
-4. **Double-digit addition & subtraction**
+**Scope (revised 2026-08-01):** the original four levels have been replaced by a
+**24-skill ladder covering pre-K through 1st grade**. Math Lab is now where the
+curriculum work happens; Math mode is frozen as-is. See "The progression" below.
 
 Design principles (on top of the repo-wide toddler rules):
 
 - **Tap, don't drag.** Every manipulative is tap-to-act (tap a counter to place it, tap a number-line spot to hop there). Drag targets are too hard for small fingers and drag isn't in the input layer today.
 - **Manipulate first, type to confirm.** The interactive widget builds understanding; the numpad OSK + ✓ remains the final answer step, same muscle memory as existing Math.
-- **Same problem, different lens.** One shared problem generator per level; each method only changes how the problem is *represented and worked*, so methods stay comparable and the child can switch without losing progress.
+- **Same problem, different lens — with room for each curriculum to be itself.** One shared problem generator; each method changes how a problem is *represented and worked*. Originally that meant a single ladder for all three. It now means a shared **spine** every method walks, plus **detours** each curriculum inserts where it genuinely teaches something the others don't. Methods stay comparable at each spine rung and a child never loses their place by switching.
+- **Methods dispatch on problem *shape*, not skill id.** `op`, `twoDigit`, `crossesTen` and `regroups` decide which manipulative fits. Adding a rung to the ladder therefore needs no edit to any method. The one sanctioned exception is a curriculum's own detour rungs, which exist precisely because that curriculum teaches that specific thing.
 - **GitHub Pages compatible, always.** Plain ES modules with relative paths, DOM + CSS manipulatives (no canvas, no external libraries, no CDN), all state in `localStorage`, speech/audio via built-in browser APIs. No build step, no backend, no separate hosted app — deploys exactly like the rest of the site: push to `main`.
 
 ## Beta gating
@@ -35,10 +38,68 @@ Design principles (on top of the repo-wide toddler rules):
 ## Settings
 
 - [x] `mathMethod`: `classical` | `commoncore` | `singapore` | `mix` (mix rotates methods per problem). Parent-facing dropdown; all four options are live. While a method was unbuilt its option was rendered `disabled` with a "(soon)" label rather than silently falling back, so the panel never lied about what it would do.
-- [x] `mathLabLevel`: `auto` | `1`–`4`, mirroring the existing `mathTier` pattern. Auto advances a level every 5 correct — **persisted across sessions**, unlike Math mode's `mathTier`, which resets every time the mode is entered.
+- [x] `mathLabLevel`: `auto` | a **stage id** (`counting`, `adding10`, `subtracting10`, `teens`, `twodigit`). Nobody wants a 24-item dropdown, so the parent picks a stage and problems are drawn from the skills in it. Auto walks the ladder instead. **Persisted across sessions**, unlike Math mode's `mathTier`, which resets every time the mode is entered.
+- [x] The setting also accepts an **exact skill id**, which the UI never offers. It keeps the specs deterministic — pinning `addRegroup` guarantees a regrouping problem — and leaves room for per-skill practice later.
+- [x] Migration: a stored numeric `mathLabLevel` (`'1'`–`'4'`) maps onto a stage on load, and old `{ level, streak }` progress maps onto a spine index, so an existing user is not sent back to counting to five.
 - [x] Changing either setting mid-session regenerates the problem in the new shape (`onSettingChange` in `js/settings.js`).
 
-## Method × level matrix
+## The progression
+
+Defined in [js/math/ladder.js](../../js/math/ladder.js); the skills themselves live in [js/math/problems.js](../../js/math/problems.js).
+
+### The spine (15 rungs, shared by all three curriculums)
+
+| # | Skill | Stage |
+| --- | --- | --- |
+| 0 | `count5` | Counting |
+| 1 | `count10` | Counting |
+| 2 | `addWithin5` | Adding to 10 |
+| 3 | `addWithin10` | Adding to 10 |
+| 4 | `subWithin5` | Taking away to 10 |
+| 5 | `subWithin10` | Taking away to 10 |
+| 6 | `makeTen` | Teen numbers |
+| 7 | `addWithin20` | Teen numbers |
+| 8 | `subWithin20` | Teen numbers |
+| 9 | `missingAddend` | Teen numbers |
+| 10 | `addTens` | Two-digit |
+| 11 | `addWithin100` | Two-digit |
+| 12 | `subWithin100` | Two-digit |
+| 13 | `addRegroup` | Two-digit |
+| 14 | `subRegroup` | Two-digit |
+
+### Detours (each curriculum's own rungs)
+
+| Curriculum | Detour | Sits after | Why it's theirs |
+| --- | --- | --- | --- |
+| Classical | `countBack` | `count10` | Counting backwards as its own idea, before it becomes subtraction |
+| Classical | `factFamily` | `addWithin10` | "You know 3 + 4 = 7, so what is 4 + 3?" |
+| Classical | `tenAndSome` | `makeTen` | 10 + 4 = 14 as a memorized place-value fact |
+| Common Core | `subitize` | `count5` | Recognising a quantity without counting it |
+| Common Core | `countOn` | `addWithin5` | Start from the bigger number and count on |
+| Common Core | `doubles` | `addWithin10` | Doubles as anchor facts |
+| Common Core | `tensAndOnes` | `subWithin20` | Place value before two-digit strategies |
+| Singapore | `numeralMatch` | `count10` | The abstract step of CPA: numeral → quantity |
+| Singapore | `bondTo10` | `addWithin10` | Number bonds to ten |
+| Singapore | `partWhole` | `subWithin10` | The missing part of a whole |
+| Singapore | `tensAndOnes` | `subWithin20` | Decomposition before bar models |
+
+### How progress is tracked
+
+`lls-mathlab-progress` = `{ spine, streak, done }`. `spine` is **shared** across curriculums, so switching keeps the child's place. `done` records which detours each method has had, since those are per-curriculum.
+
+**A detour comes due the moment its spine rung is mastered.** This is an off-by-one worth remembering: a detour after spine rung *k* is due when `progress.spine === k + 1`, so `isPassed` compares `spineIndex + 1 < progress.spine`. Comparing against `progress.spine` alone marks a detour passed at the same instant it becomes available — which made every detour unreachable, and was caught only by a spec that asserted a specific rung rather than "some rung".
+
+Detours *behind* the spine position are skipped, not back-tracked: arriving at rung 12 on a curriculum never used before should not drag the child back through its rung-1 detour.
+
+### Advancing
+
+**Four correct in a row**, so guessing can't climb. A wrong answer resets the streak but **never drops a rung** — failing backwards reads as punishment at this age. The top rung is a ceiling, not a crash: it stays put and announces nothing.
+
+### `twoDigit` is opted into, not sniffed
+
+Generators set it; it is not inferred from magnitude. Magnitude gets it wrong in both directions — counting ten apples is not place-value work, and 15 − 7 is count-back territory, not a column algorithm that would demand a leading-zero tens digit. Both bugs were live until the spec sweep caught them.
+
+## Method × shape matrix
 
 ### Classical (count, memorize, column algorithm)
 
@@ -71,7 +132,8 @@ Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a modu
 ## Architecture
 
 - [x] `js/modes/mathlab.js` — mode shell (activate/deactivate/onKey, score via `setScoreMode('mathlab')`, `celebrate()`), delegates rendering/interaction to the selected method. Owns the step list, the answer buffer and the `hintToken` fence that cancels timers when the child leaves mid-celebration.
-- [x] `js/math/problems.js` — shared per-level problem generator (reuses `js/data/math-items.js`).
+- [x] `js/math/problems.js` — the **skill table**: one generator per skill (24 of them), each returning a `Problem` with its shape flags filled in. Reuses `js/data/math-items.js`.
+- [x] `js/math/ladder.js` — the **spine, the detours and the progression state machine**: `ladderFor()`, `currentRung()`, `advance()`, `normalizeProgress()`, stage grouping and the legacy migrations.
 - [x] `js/math/classical.js`, `js/math/common-core.js` and `js/math/singapore.js` — all three implement the shared method interface. Final interface (see the `MathMethod` typedef in `js/types.js`): `render(problem, container, session)`, `steps(problem)`, `hint(problem, container, stillValid)`, plus optional `onTap(target, problem, container)`, `onStepDone(step, problem, container) → pause ms`, `celebrationText(problem)` and `question(problem, container) → { html, speak }`.
 - [x] `js/math/manipulatives.js` — reusable tap-first widgets. Phase A: `tapCounter()`, `eaterButton()`/`eatOne()`, `countAloud()`, `el()`. Phase C: `tenFrame()`/`frameCount()`/`fillCell()`/`emptyCell()`, `numberLine()`/`hopTo()`, `openNumberLine()`/`hopBy()`/`undoHop()`, `baseTenBlocks()`/`blockCounts()`/`snapTen()`. Phase D: `dotCard()`, `numeralCard()`, `numberBond()`/`splitPart()`, `barModel()`/`revealSegment()`. DOM + CSS only (no canvas), all with speech hooks. Widgets keep their state in the DOM (classes and `data-*`), never in module variables, so a re-render can't desync from what's on screen.
 - [x] `js/dom.js` — `closestEl()`, the one helper every delegated tap handler needs (also removed three ad-hoc casts in `input.js`/`piano.js`).
@@ -101,6 +163,21 @@ Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a modu
 - [x] **Phase C** — **Common Core** (ten frame, number line, open number line, base-ten blocks widgets).
 - [x] **Phase D** — **Singapore** (dot card, numeral card, number bond, bar model widgets).
 - [x] **Phase E** — `mix` rotation, cross-level auto-progression polish, graduation review (below).
+- [x] **Phase F** — **the ladder**: four levels replaced by 24 skills across a shared spine with per-curriculum detours; methods refactored onto problem shape; streak-based advancement; stage-based parent dropdown.
+
+### Phase F notes
+
+- [x] The four-level model is gone. `Problem.level` no longer exists; `Problem.skill` plus the shape flags replace it. The typecheck found every place the three methods keyed off `level` — 16 errors across three files, which is exactly what the Phase B gate was added for.
+- [x] `#mathlab-workspace` now carries `data-skill` and `data-stage` alongside `data-method` and `data-variant`.
+- [x] The missing-addend gap the Phase E graduation review found is closed: `missingAddend` is a spine rung, and `bondTo10` / `partWhole` are Singapore detours built on the same shape.
+- [x] A sweep script checks all 75 skill × method combinations for empty workspaces, missing questions and play-area overflow. It passed while the missing-addend equation was still rendering stacked instead of across — a reminder that a sweep proves absence of crashes, not correctness. Looking at the screenshots caught it.
+
+## Still open
+
+- [ ] Try the ladder with an actual child; record which rungs land and which are too big a step, before touching the beta flag.
+- [ ] `prefers-reduced-motion` (P5) now covers noticeably more surface. Still wants one deliberate app-wide pass.
+- [ ] The parent panel has no way to reset or nudge progress. Fine while the only user is the author; needed before anyone else uses it.
+- [ ] Detour rungs are never revisited once done. If a child regresses, only the spine tracks them.
 
 ### Phase E notes
 
@@ -125,7 +202,9 @@ The premise recorded in "Open decisions" was that `js/math/problems.js` and the 
 
 So "merge the generators" is a **curriculum decision, not a refactor**. Pointing Math mode at `problems.js` would silently make levels 1, 2 and 4 harder for a child already using it. That is not a call to make as tidy-up.
 
-**Recommendation: do not merge, and do not graduate yet.**
+**Resolved 2026-08-01:** the repo owner's call is that Math Lab is where curriculum work happens and Math mode stays frozen. The two are no longer converging, so the table above is now a record of *why* rather than an open question. The gap it identified (missing addend) has since been closed inside Math Lab.
+
+**Recommendation at the time: do not merge, and do not graduate yet.**
 
 1. Only level 3 is genuinely shared, and the common part is ~10 lines (`rand`, item selection). Extracting that would trade a little duplication for a module boundary and no behaviour win. Leave it.
 2. Every method × level combo is covered by specs and renders correctly on desktop and a phone — but **no child has used any of it**. Specs prove it doesn't crash; they prove nothing about whether a four-year-old understands a number bond. That's the only evidence that should retire the beta flag, and it doesn't exist yet. Keep `betaModes` off by default until it does.

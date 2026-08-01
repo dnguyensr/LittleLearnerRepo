@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
 const { gotoApp, ensureOskVisible, seedSettings } = require('./helpers');
 
-// Open Math Lab pinned to one level, so each spec exercises a known layout.
-async function openLab(page, level) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: level });
+// Open Math Lab pinned to one skill, so each spec exercises a known layout.
+// `mathLabLevel` accepts an exact skill id as well as a stage id.
+async function openLab(page, skill) {
+    await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: skill });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -41,8 +42,8 @@ async function type(page, text) {
     for (const ch of String(text)) await page.keyboard.press(ch);
 }
 
-test.describe('Math Lab — classical, level 1 (counting)', () => {
-    test.beforeEach(async ({ page }) => openLab(page, '1'));
+test.describe('Math Lab — classical, counting', () => {
+    test.beforeEach(async ({ page }) => openLab(page, 'count10'));
 
     test('renders tappable counters and the numpad', async ({ page }) => {
         const items = page.locator('#mathlab-workspace .tap-item');
@@ -80,9 +81,9 @@ test.describe('Math Lab — classical, level 1 (counting)', () => {
     });
 });
 
-test.describe('Math Lab — classical, levels 2 and 3', () => {
-    test('level 2 shows stacked notation and scores a correct sum', async ({ page }) => {
-        await openLab(page, '2');
+test.describe('Math Lab — classical, adding and taking away', () => {
+    test('adding shows stacked notation and scores a correct sum', async ({ page }) => {
+        await openLab(page, 'addWithin10');
         await expect(page.locator('.vertical-sum')).toBeVisible();
         const { a, b, sign, answer } = await readProblem(page);
         expect(sign).toBe('+');
@@ -99,8 +100,8 @@ test.describe('Math Lab — classical, levels 2 and 3', () => {
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 
-    test('level 3 shows the eater and takes one away per tap', async ({ page }) => {
-        await openLab(page, '3');
+    test('taking away shows the eater and takes one away per tap', async ({ page }) => {
+        await openLab(page, 'subWithin10');
         const { sign, answer } = await readProblem(page);
         expect(sign).toBe('−');
 
@@ -115,8 +116,8 @@ test.describe('Math Lab — classical, levels 2 and 3', () => {
     });
 });
 
-test.describe('Math Lab — classical, level 4 (column algorithm)', () => {
-    test.beforeEach(async ({ page }) => openLab(page, '4'));
+test.describe('Math Lab — classical, two-digit column algorithm', () => {
+    test.beforeEach(async ({ page }) => openLab(page, 'addRegroup'));
 
     test('answers the ones column first, then the tens', async ({ page }) => {
         const { answer, regroups } = await readProblem(page);
@@ -158,7 +159,7 @@ test.describe('Math Lab — classical, level 4 (column algorithm)', () => {
 
 test.describe('Math Lab — settings plumbing', () => {
     test('score is kept separately from Math mode', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathLabLevel: '1' });
+        await seedSettings(page, { betaModes: true, mathLabLevel: 'count10' });
         await page.addInitScript(() => localStorage.setItem('lls-score-math', '7'));
         await gotoApp(page);
 

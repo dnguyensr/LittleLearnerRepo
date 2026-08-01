@@ -3,11 +3,11 @@ const { gotoApp, seedSettings } = require('./helpers');
 
 /**
  * @param {import('@playwright/test').Page} page
- * @param {string} level
+ * @param {string} skill  exact skill id, accepted by the mathLabLevel setting
  * @param {{ variant?: string, until?: (q: any) => boolean }} [options]
  */
-async function openLab(page, level, { variant, until } = {}) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'singapore', mathLabLevel: level });
+async function openLab(page, skill, { variant, until } = {}) {
+    await seedSettings(page, { betaModes: true, mathMethod: 'singapore', mathLabLevel: skill });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -41,36 +41,32 @@ async function type(page, text) {
     for (const ch of String(text)) await page.keyboard.press(ch);
 }
 
-// The CPA stage is derived from correct answers *this session*, which resets
-// whenever the mode is activated — so the later stages can only be reached by
-// actually playing, not by reloading until they turn up.
-async function solveLevel1(page, expectedScore) {
-    const workspace = page.locator('#mathlab-workspace');
-    const answer = await workspace.getAttribute('data-variant') === 'abstract'
-        ? Number(await page.locator('.numeral-card').textContent())
-        : await page.locator('#mathlab-workspace .tap-item').count();
-
+// The concrete/pictorial rotation is derived from correct answers *this
+// session*, which resets whenever the mode is activated — so the later stage
+// can only be reached by actually playing, not by reloading until it turns up.
+async function solveCount(page, expectedScore) {
+    const answer = await page.locator('#mathlab-workspace .tap-item').count();
     await type(page, answer);
     await page.keyboard.press('Enter');
     await expect(page.locator('#word-count')).toHaveText(String(expectedScore));
     await expect(page.locator('#mathlab-answer-display')).toHaveText('?', { timeout: 5000 });
 }
 
-test.describe('Math Lab — Singapore, level 1 (concrete → pictorial → abstract)', () => {
+test.describe('Math Lab — Singapore, counting (concrete → pictorial)', () => {
     test('a fresh session starts concrete, with countable objects', async ({ page }) => {
-        await openLab(page, '1');
+        await openLab(page, 'count10');
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'concrete');
         expect(await page.locator('#mathlab-workspace .tap-item').count()).toBeGreaterThanOrEqual(1);
         await expect(page.locator('.dot-card')).toHaveCount(0);
     });
 
     test('two correct answers move concrete → pictorial (a dot card)', async ({ page }) => {
-        await openLab(page, '1');
+        await openLab(page, 'count10');
         const workspace = page.locator('#mathlab-workspace');
 
-        await solveLevel1(page, 1);
+        await solveCount(page, 1);
         await expect(workspace).toHaveAttribute('data-variant', 'concrete');
-        await solveLevel1(page, 2);
+        await solveCount(page, 2);
         await expect(workspace).toHaveAttribute('data-variant', 'pictorial');
 
         const dots = page.locator('.dot-card .dot');
@@ -81,10 +77,16 @@ test.describe('Math Lab — Singapore, level 1 (concrete → pictorial → abstr
         await expect(dots.first()).toHaveClass(/counted/);
     });
 
-    test('four correct answers reach abstract: numeral given, quantity built', async ({ page }) => {
-        await openLab(page, '1');
-        for (let i = 1; i <= 4; i++) await solveLevel1(page, i);
-        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'abstract');
+    test('the rotation wraps back to concrete after pictorial', async ({ page }) => {
+        await openLab(page, 'count10');
+        for (let i = 1; i <= 4; i++) await solveCount(page, i);
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'concrete');
+    });
+
+    // The abstract step is its own ladder rung now, not a stage in the rotation.
+    test('the numeralMatch rung gives the numeral and asks for the quantity', async ({ page }) => {
+        await openLab(page, 'numeralMatch');
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'numeralbuild');
 
         const target = Number(await page.locator('.numeral-card').textContent());
         expect(target).toBeGreaterThanOrEqual(1);
@@ -97,19 +99,13 @@ test.describe('Math Lab — Singapore, level 1 (concrete → pictorial → abstr
 
         await type(page, target);
         await page.keyboard.press('Enter');
-        await expect(page.locator('#word-count')).toHaveText('5');
-    });
-
-    test('the stage rotation wraps back to concrete', async ({ page }) => {
-        await openLab(page, '1');
-        for (let i = 1; i <= 6; i++) await solveLevel1(page, i);
-        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'concrete');
+        await expect(page.locator('#word-count')).toHaveText('1');
     });
 });
 
-test.describe('Math Lab — Singapore, level 2 (number bonds)', () => {
+test.describe('Math Lab — Singapore, number bonds', () => {
     test('the whole is the answer slot and fills as you type', async ({ page }) => {
-        await openLab(page, '2');
+        await openLab(page, 'addWithin10');
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'bond');
         const { a, b, answer } = await readQuestion(page);
 
@@ -130,7 +126,7 @@ test.describe('Math Lab — Singapore, level 2 (number bonds)', () => {
     });
 
     test('make-a-ten splits the second part into what completes ten and the rest', async ({ page }) => {
-        await openLab(page, '2', { until: q => q && 10 - q.a > 0 && 10 - q.a < q.b });
+        await openLab(page, 'makeTen');
         const { a, b } = await readQuestion(page);
         const toTen = 10 - a;
 
@@ -149,7 +145,7 @@ test.describe('Math Lab — Singapore, level 2 (number bonds)', () => {
     });
 
     test('a bond that cannot make ten offers no split', async ({ page }) => {
-        await openLab(page, '2', { until: q => q && q.a + q.b < 10 });
+        await openLab(page, 'addWithin5');
         await expect(page.locator('#mathlab-workspace .cc-label'))
             .toHaveText('Put the parts together!');
         await tap(page.locator('.nb-part[data-part="1"]'));
@@ -157,9 +153,9 @@ test.describe('Math Lab — Singapore, level 2 (number bonds)', () => {
     });
 });
 
-test.describe('Math Lab — Singapore, levels 3 and 4 (bar models)', () => {
-    test('level 3 hides a part and reveals it only after a correct answer', async ({ page }) => {
-        await openLab(page, '3');
+test.describe('Math Lab — Singapore, bar models', () => {
+    test('taking away hides a part and reveals it only after a correct answer', async ({ page }) => {
+        await openLab(page, 'subWithin10');
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'missingpart');
         const { a, b, answer } = await readQuestion(page);
 
@@ -180,8 +176,8 @@ test.describe('Math Lab — Singapore, levels 3 and 4 (bar models)', () => {
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 
-    test('level 4 addition splits both numbers into tens and ones', async ({ page }) => {
-        await openLab(page, '4', { variant: 'splitbars' });
+    test('two-digit addition splits both numbers into tens and ones', async ({ page }) => {
+        await openLab(page, 'addWithin100');
         const { a, b, answer } = await readQuestion(page);
 
         const bars = page.locator('.bar-model');
@@ -212,8 +208,8 @@ test.describe('Math Lab — Singapore, levels 3 and 4 (bar models)', () => {
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 
-    test('level 4 subtraction is a comparison bar with the part hidden', async ({ page }) => {
-        await openLab(page, '4', { variant: 'comparebars' });
+    test('two-digit subtraction is a comparison bar with the part hidden', async ({ page }) => {
+        await openLab(page, 'subWithin100');
         const { a, answer } = await readQuestion(page);
         await expect(page.locator('.bm-brace')).toHaveText(`${a} in all`);
         await expect(page.locator('.bm-seg.covered')).toHaveText('?');
@@ -229,7 +225,7 @@ test.describe('Math Lab — Singapore, levels 3 and 4 (bar models)', () => {
 // tests/mathlab-progression.spec.js — the spec for the last one to land.
 test.describe('Math Lab — method selection', () => {
     test('switching to Singapore swaps in its manipulative', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: '2' });
+        await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: 'addWithin10' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('.number-bond')).toHaveCount(0);

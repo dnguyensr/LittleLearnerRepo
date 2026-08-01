@@ -1,4 +1,5 @@
 import { setSpeechEnabled } from './speech.js';
+import { LEGACY_STAGE } from './math/ladder.js';
 
 const STORAGE_KEY = 'lls-settings';
 const defaults = {
@@ -11,11 +12,18 @@ const defaults = {
 };
 
 function load() {
+    let stored = {};
     try {
-        return { ...defaults, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') };
+        stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {};
     } catch (err) {
         return { ...defaults };
     }
+    // mathLabLevel used to be '1'-'4'; it is now a stage id. A stored numeric
+    // value would otherwise match no <option> and silently reset the dropdown.
+    if (LEGACY_STAGE[stored.mathLabLevel]) {
+        stored.mathLabLevel = LEGACY_STAGE[stored.mathLabLevel];
+    }
+    return { ...defaults, ...stored };
 }
 
 let settings = load();

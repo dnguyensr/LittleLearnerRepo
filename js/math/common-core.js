@@ -32,17 +32,54 @@ function ones(n) {
     return n % 10;
 }
 
-/** @param {Problem} problem */
+/**
+ * Dispatch is on problem SHAPE, with one exception: Common Core's own detour
+ * rungs (`subitize`, `countOn`) are keyed by skill id, because those rungs exist
+ * precisely because this curriculum teaches that specific thing. Spine rungs
+ * must stay shape-driven so a new one needs no edit here.
+ *
+ * @param {Problem} problem
+ */
 function pickVariant(problem) {
-    if (problem.level === 1) return Math.random() < SUBITIZE_CHANCE ? 'subitize' : 'tenframe';
-    if (problem.level === 2) {
-        // Make-a-ten only means anything when the sum actually crosses ten;
-        // below that the first frame never fills and the strategy is a lie.
-        const crossesTen = problem.a + problem.b >= 10;
-        return crossesTen && Math.random() < 0.5 ? 'maketen' : 'hops';
+    if (problem.skill === 'subitize') return 'subitize';
+    if (problem.skill === 'countOn') return 'counton';
+
+    if (problem.op === 'count') {
+        if (problem.twoDigit) return 'placevalue';
+        // "What comes before 7?" is a number-line question, not a counting one
+        if (problem.answer !== problem.a) return 'hops';
+        return Math.random() < SUBITIZE_CHANCE ? 'subitize' : 'tenframe';
     }
-    if (problem.level === 3) return 'countback';
-    return problem.op === 'add' ? 'blocks' : 'openline';
+
+    // Think-addition: hop up from the part you know to the whole
+    if (problem.op === 'missing') return 'hops';
+
+    if (problem.twoDigit) return problem.op === 'add' ? 'blocks' : 'openline';
+
+    // Make-a-ten only means anything when the sum actually crosses ten; below
+    // that the first frame never fills and the strategy is a lie.
+    if (problem.op === 'add') {
+        return problem.crossesTen && Math.random() < 0.6 ? 'maketen' : 'hops';
+    }
+    return 'countback';
+}
+
+// Where the frog starts and where it should land, per variant.
+function lineRange(problem, variant) {
+    if (variant === 'counton') {
+        const from = Math.max(problem.a, problem.b);
+        return { from, to: problem.answer, max: 20 };
+    }
+    if (problem.op === 'missing') {
+        return { from: problem.a, to: problem.total, max: 20 };
+    }
+    if (problem.op === 'count') {
+        return { from: problem.a, to: problem.answer, max: 10 };
+    }
+    if (problem.op === 'sub') {
+        return { from: problem.a, to: problem.answer, max: 20 };
+    }
+    return { from: problem.a, to: problem.answer, max: 20 };
 }
 
 function labelled(text, node) {
@@ -89,14 +126,27 @@ export const commonCoreMethod = {
             frames.appendChild(el('span', 'math-operator', '+'));
             frames.appendChild(tenFrame(problem.b, { name: 'b' }));
             workspace.appendChild(labelled('Move counters over to make a ten!', frames));
-        } else if (variant === 'hops') {
+        } else if (variant === 'counton') {
+            const { from, max } = lineRange(problem, variant);
             workspace.appendChild(labelled(
-                `Start at ${problem.a} and hop ${problem.b} more!`,
-                numberLine(18, problem.a)));
-        } else if (variant === 'countback') {
+                `Start at the bigger number, ${from}, and count on!`,
+                numberLine(max, from)));
+        } else if (variant === 'hops' || variant === 'countback') {
+            const { from, max } = lineRange(problem, variant);
+            const label = problem.op === 'missing'
+                ? `Hop up from ${problem.a} until you reach ${problem.total}!`
+                : problem.op === 'sub'
+                    ? `Start at ${from} and hop back ${problem.b}!`
+                    : problem.op === 'count'
+                        ? 'Which number comes just before?'
+                        : `Start at ${from} and hop ${problem.b} more!`;
+            workspace.appendChild(labelled(label, numberLine(max, from)));
+        } else if (variant === 'placevalue') {
+            // Ten rods and loose ones make "how many tens" something to look at
+            // rather than a digit-position rule to recite.
             workspace.appendChild(labelled(
-                `Start at ${problem.a} and hop back ${problem.b}!`,
-                numberLine(10, problem.a)));
+                'Count the rods and the loose ones!',
+                baseTenBlocks(tens(problem.a), ones(problem.a))));
         } else if (variant === 'blocks') {
             // Only promise a snap when there are actually ten loose ones to snap
             const loose = ones(problem.a) + ones(problem.b);
@@ -120,7 +170,7 @@ export const commonCoreMethod = {
 
     question(problem, container) {
         const variant = variantOf(container);
-        const { a, b, item } = problem;
+        const { a, b, total, item } = problem;
 
         if (variant === 'subitize') {
             return { html: 'How many did you see? 👀', speak: 'How many did you see?' };
@@ -131,16 +181,35 @@ export const commonCoreMethod = {
                 speak: `Count the ${item.name.toLowerCase()}, then fill the ten frame.`
             };
         }
+        if (variant === 'placevalue') {
+            return { html: problem.questionText, speak: problem.speakText };
+        }
+        if (problem.op === 'count') {
+            return { html: problem.questionText, speak: problem.speakText };
+        }
+        if (problem.op === 'missing') {
+            return {
+                html: `${a} + ? = ${total}`,
+                speak: `${a} and how many more makes ${total}? Hop up and find out.`
+            };
+        }
+        if (problem.op === 'sub') {
+            return { html: `${a} − ${b} = ?`, speak: `${a} take away ${b}. Hop back!` };
+        }
         if (variant === 'maketen') {
             return { html: `${a} + ${b} = ?`, speak: `${a} plus ${b}. Make a ten first!` };
         }
-        if (variant === 'hops') {
-            return { html: `${a} + ${b} = ?`, speak: `${a} plus ${b}. Hop up the number line!` };
+        if (variant === 'counton') {
+            const bigger = Math.max(a, b);
+            return {
+                html: `${a} + ${b} = ?`,
+                speak: `${a} plus ${b}. Start at ${bigger} and count on.`
+            };
         }
         if (variant === 'blocks') {
             return { html: `${a} + ${b} = ?`, speak: `${a} plus ${b}. Use the blocks!` };
         }
-        return { html: `${a} − ${b} = ?`, speak: `${a} take away ${b}. Hop back!` };
+        return { html: `${a} + ${b} = ?`, speak: `${a} plus ${b}. Hop up the number line!` };
     },
 
     onTap(target, problem, container) {
@@ -236,27 +305,37 @@ export const commonCoreMethod = {
             return;
         }
 
-        if (variant === 'hops' || variant === 'countback') {
+        if (variant === 'hops' || variant === 'countback' || variant === 'counton') {
+            // Walk the line one step at a time, in whichever direction this
+            // problem actually travels.
             const line = container.querySelector('.number-line');
-            const direction = variant === 'hops' ? 1 : -1;
-            speak(variant === 'hops'
-                ? `Start at ${problem.a} and hop up ${problem.b}.`
-                : `Start at ${problem.a} and hop back ${problem.b}.`);
-            for (let i = 1; i <= problem.b; i++) {
+            const { from, to } = lineRange(problem, variant);
+            const direction = to >= from ? 1 : -1;
+            const steps = Math.abs(to - from);
+
+            speak(direction > 0
+                ? `Start at ${from} and hop up to ${to}.`
+                : `Start at ${from} and hop back to ${to}.`);
+            for (let i = 1; i <= steps; i++) {
                 setTimeout(() => {
                     if (!stillValid()) return;
-                    const value = hopTo(line, problem.a + i * direction);
+                    const value = hopTo(line, from + i * direction);
                     speak(String(value), { interrupt: true });
                 }, 700 + i * 700);
             }
             // Take-away and think-addition are the same fact seen two ways;
             // hearing both is the point of the strategy, not a bonus.
-            if (variant === 'countback') {
+            if (problem.op === 'sub') {
                 setTimeout(() => {
                     if (!stillValid()) return;
                     speak(`Or think of it the other way: ${problem.b} and how many more makes ${problem.a}?`);
-                }, 700 + (problem.b + 1) * 700);
+                }, 700 + (steps + 1) * 700);
             }
+            return;
+        }
+
+        if (variant === 'placevalue') {
+            speak(`${problem.a} is ${tens(problem.a)} tens and ${ones(problem.a)} ones. Count the rods, then the loose ones.`);
             return;
         }
 

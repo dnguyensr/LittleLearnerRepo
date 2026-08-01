@@ -422,6 +422,14 @@ button {
     font-variant-numeric: tabular-nums;
 }
 
+/* `3 + ? = 8` reads across, not stacked — a missing addend has no column to
+   work down. */
+.vertical-sum.horizontal {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35em;
+}
+
 .v-row,
 .c-row {
     display: flex;

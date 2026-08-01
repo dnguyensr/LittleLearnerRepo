@@ -19,12 +19,13 @@ Work through the plans in this order. Each file is a checklist; check items off 
 | P3 | [Piano mode](03-piano-mode.md) | New mode with an on-screen piano and a pianist-friendly keyboard mapping; removes the drum sounds. Builds on P1's input layer and P2's structure. |
 | P4 | [Learning module improvements & new modules](04-learning-modules.md) | Upgrade Math and Words, then add new pre-K–1st modules (letters, numbers, shapes, sight words). |
 | P5 | [Testing, tooling & accessibility](05-testing-tooling.md) | npm dev tooling, Playwright E2E, axe accessibility scans, CI. Phased last, but start it alongside P2 so the refactor is protected by tests. |
-| P6 | [Math Lab beta: teaching methods](06-math-methods-beta.md) | **Done, still behind the beta flag.** Beta module teaching counting through double-digit add/subtract via classical, Common Core, and Singapore methods with tap-first manipulatives (ten frames, number lines, number bonds, bar models). Also adds the JSDoc + `tsc --noEmit` typecheck gate (Phase B) — no build step, no `.ts` files. Next step is a real child, not more code. |
+| P6 | [Math Lab beta: teaching methods](06-math-methods-beta.md) | **Where the curriculum work happens; still behind the beta flag.** A 24-skill ladder from counting to two-digit regrouping, taught through classical, Common Core and Singapore methods with tap-first manipulatives (ten frames, number lines, number bonds, bar models, base-ten blocks). One shared spine plus per-curriculum detours. Also adds the JSDoc + `tsc --noEmit` typecheck gate (Phase B) — no build step, no `.ts` files. Next step is a real child, not more code. |
 
 ## Conventions
 
 - These plans are committed to the repo; update the checklists in the same PR/commit as the work they describe.
 - New module ideas go in the "New module ideas" section of [04-learning-modules.md](04-learning-modules.md).
+- **Math curriculum work goes in Math Lab** ([06](06-math-methods-beta.md)), not Math mode. Math mode is frozen: it and Math Lab encode different curricula, and they are not converging.
 - The site must keep working when deployed as-is from the `main` branch to GitHub Pages: relative paths only, no bundler, no server-side anything. npm is for dev tooling (tests, linting, typechecking) only.
 - Types are JSDoc comments checked by `npm run typecheck` (`tsc --noEmit`). There are no `.ts` files and nothing is compiled — the `.js` in the repo is exactly what ships. Shared contracts live in [js/types.js](../../js/types.js).
 - Toddler-first design rules apply everywhere: big touch targets, no dead ends, wrong answers are always recoverable, sounds and celebrations over text, no reading required to navigate.

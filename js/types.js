@@ -39,16 +39,47 @@
  * A problem from js/math/problems.js. Every teaching method renders this same
  * object; methods change how it is represented, never what it asks.
  *
+ * Methods should branch on the **shape** flags (`op`, `twoDigit`, `crossesTen`,
+ * `regroups`) rather than on `skill`. Shape is what decides which manipulative
+ * fits; keying off skill ids means every new rung on the ladder has to be
+ * taught to all three methods by hand.
+ *
  * @typedef {object} Problem
- * @property {1|2|3|4} level
- * @property {'count'|'add'|'sub'} op
- * @property {number} a                  first operand, or the total to count
- * @property {number|null} b             second operand; null when counting
+ * @property {string} skill              skill id from the table in problems.js
+ * @property {'count'|'add'|'sub'|'missing'} op
+ * @property {number} a                  first operand, or the number to count
+ * @property {number|null} b             second operand; null when counting or missing-addend
+ * @property {number|null} total         for `missing`: the whole in `a + ? = total`
  * @property {number} answer
  * @property {MathItem} item
  * @property {string|null} equation      horizontal form, or null when counting
  * @property {string} questionText       may contain HTML
  * @property {string} speakText          plain text for speech synthesis
+ * @property {boolean} twoDigit          either operand reaches 10
+ * @property {boolean} crossesTen        single-digit sum that passes 10 (make-a-ten territory)
+ * @property {boolean} regroups          column work needs a carry or a borrow
+ */
+
+/**
+ * One step on a curriculum's ladder. Spine rungs are shared by all three
+ * methods; detour rungs belong to one curriculum and sit just after the spine
+ * rung they extend.
+ *
+ * @typedef {object} LadderRung
+ * @property {string} skill
+ * @property {'spine'|'detour'} kind
+ * @property {number} spineIndex   position in SPINE this rung sits at or after
+ */
+
+/**
+ * Persisted progression. `spine` is shared across methods so switching
+ * curriculum keeps the child's place; `done` records which detours each method
+ * has had, since those are per-curriculum.
+ *
+ * @typedef {object} LabProgress
+ * @property {number} spine
+ * @property {number} streak                 correct answers in a row on the current rung
+ * @property {Record<string, string[]>} done detour skill ids, keyed by method id
  */
 
 /**
