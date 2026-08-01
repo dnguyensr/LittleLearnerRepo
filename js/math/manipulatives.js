@@ -5,9 +5,13 @@ import { speak } from '../speech.js';
 // land on a button, so widget taps never double-fire, and the widgets stay
 // operable by keyboard and screen reader for free.
 //
-// Phase A ships the counter widgets the classical method needs. tenFrame(),
-// numberLine(), baseTenBlocks(), numberBond() and barModel() arrive with
-// Phases C and D.
+// Phase A ships the counter widgets the classical method needs; Phase C adds
+// the Common Core set (ten frame, number line, open number line, base-ten
+// blocks). numberBond() and barModel() arrive with Phase D.
+//
+// Widgets keep their state in the DOM (classes and data-* attributes) rather
+// than in module variables, so a re-render can't desync from what's on screen
+// and the methods stay stateless.
 
 export function el(tag, className, html) {
     const node = document.createElement(tag);
@@ -88,4 +92,207 @@ export function eatOne(group) {
         next.classList.add('eaten');
     }
     return group.querySelectorAll('.tap-item.eaten').length;
+}
+
+/* ---------- Ten frame ---------- */
+
+/**
+ * A 2×5 ten frame. Cells are tappable: tap an empty one to place a counter,
+ * tap a filled one to take it back.
+ *
+ * @param {number} filled  counters already placed
+ * @param {{ name?: string, interactive?: boolean }} [options]
+ */
+export function tenFrame(filled = 0, { name = 'frame', interactive = true } = {}) {
+    const frame = el('div', 'ten-frame');
+    frame.dataset.frame = name;
+    for (let i = 0; i < 10; i++) {
+        const cell = interactive ? tapButton('tf-cell', '') : el('div', 'tf-cell');
+        if (i < filled) cell.classList.add('filled');
+        if (interactive) cell.setAttribute('aria-label', `Ten frame space ${i + 1}`);
+        frame.appendChild(cell);
+    }
+    return frame;
+}
+
+export function frameCount(frame) {
+    return frame.querySelectorAll('.tf-cell.filled').length;
+}
+
+// Place a counter in the first empty cell. Returns false when the frame is full.
+export function fillCell(frame) {
+    const cell = frame.querySelector('.tf-cell:not(.filled)');
+    if (!cell) return false;
+    cell.classList.add('filled');
+    return true;
+}
+
+// Take the last counter back out. Returns false when the frame is empty.
+export function emptyCell(frame) {
+    const cells = [...frame.querySelectorAll('.tf-cell.filled')];
+    const cell = cells[cells.length - 1];
+    if (!cell) return false;
+    cell.classList.remove('filled');
+    return true;
+}
+
+/* ---------- Number line ---------- */
+
+/**
+ * A tick-per-number line with a frog sitting on the current value. Tapping a
+ * tick hops the frog there and trails the ticks it passed over.
+ *
+ * @param {number} max
+ * @param {number} start
+ * @param {{ min?: number }} [options]
+ */
+export function numberLine(max, start, { min = 0 } = {}) {
+    const line = el('div', 'number-line');
+    line.dataset.position = String(start);
+    for (let v = min; v <= max; v++) {
+        const tick = tapButton('nl-tick', String(v));
+        tick.dataset.value = String(v);
+        tick.setAttribute('aria-label', `Hop to ${v}`);
+        line.appendChild(tick);
+    }
+    placeFrog(line, start);
+    return line;
+}
+
+function placeFrog(line, value) {
+    for (const el of line.querySelectorAll('.nl-tick.here')) el.classList.remove('here');
+    const tick = line.querySelector(`.nl-tick[data-value="${value}"]`);
+    if (tick) tick.classList.add('here');
+}
+
+/**
+ * Hop the frog to `value`, marking everything it passed over. Returns the new
+ * position, or null if that value isn't on this line.
+ */
+export function hopTo(line, value) {
+    const tick = line.querySelector(`.nl-tick[data-value="${value}"]`);
+    if (!tick) return null;
+
+    const from = Number(line.dataset.position);
+    const [lo, hi] = from < value ? [from, value] : [value, from];
+    for (const t of line.querySelectorAll('.nl-tick')) {
+        const v = Number(t.dataset.value);
+        t.classList.toggle('hopped', v >= lo && v <= hi);
+    }
+    line.dataset.position = String(value);
+    placeFrog(line, value);
+    return value;
+}
+
+/* ---------- Open number line ---------- */
+
+function stopEl(value, className = '') {
+    return el('span', `ol-stop ${className}`.trim(), String(value));
+}
+
+/**
+ * The open number line: no ticks, just landmarks. The child hops in tens and
+ * ones and watches the running position, which is how the strategy is taught.
+ *
+ * @param {number} start
+ * @param {1|-1} direction
+ */
+export function openNumberLine(start, direction) {
+    const line = el('div', 'open-line');
+    line.dataset.position = String(start);
+    line.dataset.direction = String(direction);
+    line.dataset.start = String(start);
+
+    const track = el('div', 'ol-track');
+    track.appendChild(stopEl(start, 'start'));
+    line.appendChild(track);
+
+    const controls = el('div', 'ol-controls');
+    const sign = direction > 0 ? '+' : '−';
+    for (const size of [10, 1]) {
+        const btn = tapButton('ol-hop', `${sign}${size}`);
+        btn.dataset.hop = String(size);
+        btn.setAttribute('aria-label', `${direction > 0 ? 'Add' : 'Subtract'} ${size}`);
+        controls.appendChild(btn);
+    }
+    const undo = tapButton('ol-hop ol-undo', '↶');
+    undo.dataset.hop = 'undo';
+    undo.setAttribute('aria-label', 'Undo the last hop');
+    controls.appendChild(undo);
+    line.appendChild(controls);
+
+    return line;
+}
+
+// Hop by `size` in the line's direction. Returns the new position.
+export function hopBy(line, size) {
+    const direction = Number(line.dataset.direction);
+    const next = Number(line.dataset.position) + size * direction;
+    const track = line.querySelector('.ol-track');
+    track.appendChild(el('span', 'ol-arc', `${direction > 0 ? '+' : '−'}${size}`));
+    track.appendChild(stopEl(next));
+    line.dataset.position = String(next);
+    return next;
+}
+
+// Undo the last hop. Returns the position, unchanged if there's nothing to undo.
+export function undoHop(line) {
+    const track = line.querySelector('.ol-track');
+    const stops = [...track.querySelectorAll('.ol-stop')];
+    const arcs = [...track.querySelectorAll('.ol-arc')];
+    if (stops.length < 2) return Number(line.dataset.position);
+
+    stops.pop().remove();
+    arcs.pop().remove();
+    const position = Number(stops[stops.length - 1].textContent);
+    line.dataset.position = String(position);
+    return position;
+}
+
+/* ---------- Base-ten blocks ---------- */
+
+/**
+ * Tens rods and loose ones. Ten loose ones can be snapped into a rod, which is
+ * what makes regrouping visible instead of a rule to remember.
+ *
+ * @param {number} rods
+ * @param {number} ones
+ */
+export function baseTenBlocks(rods, ones) {
+    const wrap = el('div', 'base-ten');
+
+    const rodBox = el('div', 'btb-rods');
+    for (let i = 0; i < rods; i++) rodBox.appendChild(el('div', 'btb-rod'));
+    wrap.appendChild(rodBox);
+
+    const oneBox = el('div', 'btb-ones');
+    for (let i = 0; i < ones; i++) {
+        const cube = tapButton('btb-one', '');
+        cube.setAttribute('aria-label', `Loose one ${i + 1}`);
+        oneBox.appendChild(cube);
+    }
+    wrap.appendChild(oneBox);
+
+    return wrap;
+}
+
+export function blockCounts(wrap) {
+    return {
+        rods: wrap.querySelectorAll('.btb-rod').length,
+        ones: wrap.querySelectorAll('.btb-one').length,
+        selected: wrap.querySelectorAll('.btb-one.selected').length
+    };
+}
+
+/**
+ * Swap ten selected ones for a new rod. Returns true when a snap happened, so
+ * the caller can celebrate the regroup.
+ */
+export function snapTen(wrap) {
+    const selected = [...wrap.querySelectorAll('.btb-one.selected')];
+    if (selected.length < 10) return false;
+    for (const cube of selected.slice(0, 10)) cube.remove();
+    const rod = el('div', 'btb-rod new');
+    wrap.querySelector('.btb-rods').appendChild(rod);
+    return true;
 }

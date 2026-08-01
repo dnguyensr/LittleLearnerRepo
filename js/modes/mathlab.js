@@ -6,6 +6,7 @@ import { generateProblem, resolveLevel } from '../math/problems.js';
 import { handleCounterTap } from '../math/manipulatives.js';
 import { closestEl } from '../dom.js';
 import { classicalMethod } from '../math/classical.js';
+import { commonCoreMethod } from '../math/common-core.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
 /** @typedef {import('../types.js').MathMethod} MathMethod */
@@ -23,15 +24,18 @@ const answerDisplay = document.getElementById('mathlab-answer-display');
 const promptEl = document.getElementById('mathlab-prompt');
 const speakBtn = document.getElementById('mathlab-speak-btn');
 
-// Common Core and Singapore land in Phases C and D; their settings options
-// stay disabled until they're here.
+// Singapore lands in Phase D; its settings option stays disabled until it's
+// here, as does `mix` (Phase E).
 /** @type {Record<string, MathMethod>} */
 const methods = {
-    classical: classicalMethod
+    classical: classicalMethod,
+    commoncore: commonCoreMethod
 };
 
 /** @type {Problem|null} */
 let problem = null;
+/** @type {import('../types.js').Question|null} */
+let question = null;
 /** @type {MathMethod} */
 let method = classicalMethod;
 /** @type {AnswerStep[]} */
@@ -81,13 +85,18 @@ function newProblem() {
     wrongAttempts = 0;
     locked = false;
 
-    questionEl.innerHTML = problem.questionText;
+    // render first: a method's question may depend on which variant it drew
     method.render(problem, workspaceEl);
+    question = method.question
+        ? method.question(problem, workspaceEl)
+        : { html: problem.questionText, speak: problem.speakText };
+
+    questionEl.innerHTML = question.html;
     promptEl.textContent = steps.length > 1 ? 'Ones first!' : '';
     answerDisplay.style.color = 'white';
     updateDisplays();
 
-    speak(problem.speakText, { interrupt: true });
+    speak(question.speak, { interrupt: true });
 }
 
 function showHint() {
@@ -176,7 +185,7 @@ container.addEventListener('pointerdown', e => {
 });
 
 speakBtn.addEventListener('click', () => {
-    if (problem) speak(problem.speakText, { interrupt: true });
+    if (question) speak(question.speak, { interrupt: true });
 });
 
 // A parent changing method or level mid-session gets a fresh problem in the

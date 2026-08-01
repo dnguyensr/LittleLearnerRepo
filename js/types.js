@@ -75,6 +75,17 @@
  * @property {(target: HTMLElement, problem: Problem, container: HTMLElement) => void} [onTap]
  * @property {(step: AnswerStep, problem: Problem, container: HTMLElement) => number} [onStepDone]
  * @property {(problem: Problem) => string|null} [celebrationText]
+ * @property {(problem: Problem, container: HTMLElement) => Question} [question]
+ *   Overrides Problem.questionText/speakText. Called after render, so it can
+ *   read whichever variant render chose. Needed because a method may show the
+ *   problem in a form the generator's own wording contradicts — a subitizing
+ *   flash asks "how many did you see?", not "count the apples".
+ */
+
+/**
+ * @typedef {object} Question
+ * @property {string} html   shown above the manipulative; may contain HTML
+ * @property {string} speak  plain text spoken when the problem appears
  */
 
 /**

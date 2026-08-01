@@ -1,8 +1,9 @@
 # P6 — Math Lab (beta): classical, Common Core & Singapore methods
 
-> **Status (2026-07-31):** Phases A and B done. Math Lab ships behind the
-> `betaModes` flag with the classical method across all four levels; the JSDoc
-> typecheck gate is green and wired into CI. Phase C (Common Core) is next.
+> **Status (2026-07-31):** Phases A, B and C done. Math Lab ships behind the
+> `betaModes` flag with the **classical** and **Common Core** methods across all
+> four levels; the JSDoc typecheck gate is green and wired into CI. 136 specs
+> pass on chromium + mobile-chrome. Phase D (Singapore) is next.
 
 Goal: a new **Math Lab 🧪** beta module that teaches the same four skill levels through three selectable teaching methods — classical, Common Core, and Singapore — each with its own *interactive manipulatives* instead of only type-the-answer. The existing Math mode stays untouched; Math Lab is where the new interaction styles incubate.
 
@@ -42,10 +43,14 @@ Design principles (on top of the repo-wide toddler rules):
 
 ### Common Core (strategies + place value)
 
-- [ ] **L1 Count:** **ten frame** — tap empty cells to place counters until it matches the spoken target; occasional subitizing flash ("how many did you see?").
-- [ ] **L2 Add:** **make-a-ten** on a double ten frame — tap counters in the second frame to move them and fill the first (8 + 5 becomes 10 + 3); alternate with **number-line hops** (tap where the frog lands).
-- [ ] **L3 Subtract:** count-back hops on the number line; think-addition framing (reuses the existing missing-addend idea).
-- [ ] **L4 Double-digit:** **base-ten blocks** — tap ten loose ones to snap them into a ten-rod (regrouping made visible); open number line with big +10 jumps then +1 hops.
+- [x] **L1 Count:** **ten frame** — objects on top, empty frame below; tap cells to place counters until it matches. Subitizing flash (`subitize` variant, 25% of L1 problems): the frame is dealt pre-filled, covers itself after 1.6s, and asks "how many did you see?" with a 👀 Peek button for another look.
+- [x] **L2 Add:** **make-a-ten** on a double ten frame — tapping a counter in the second frame *moves* it into the first, so the total never changes while the child rearranges (8 + 5 becomes 10 + 3); alternates with **number-line hops** (tap where the frog lands).
+- [x] **L3 Subtract:** count-back hops on the number line; think-addition framing in the hint.
+- [x] **L4 Double-digit:** **base-ten blocks** for addition — tap ten loose ones to snap them into a ten-rod (regrouping made visible); **open number line** for subtraction, with −10 / −1 hop buttons, a running position, and undo.
+
+Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a module variable, so `onTap`, `hint` and `question` always read the variant that `render` actually drew — and the specs can pin one.
+
+**Make-a-ten is gated on `a + b >= 10`.** Below that the first frame never fills and the strategy is a lie; those problems always get the number line instead.
 
 ### Singapore (Concrete → Pictorial → Abstract)
 
@@ -58,12 +63,13 @@ Design principles (on top of the repo-wide toddler rules):
 
 - [x] `js/modes/mathlab.js` — mode shell (activate/deactivate/onKey, score via `setScoreMode('mathlab')`, `celebrate()`), delegates rendering/interaction to the selected method. Owns the step list, the answer buffer and the `hintToken` fence that cancels timers when the child leaves mid-celebration.
 - [x] `js/math/problems.js` — shared per-level problem generator (reuses `js/data/math-items.js`).
-- [x] `js/math/classical.js` — implements the shared method interface. `js/math/common-core.js` and `js/math/singapore.js` follow in Phases C and D. Final interface (see the `MathMethod` typedef in `js/types.js`): `render(problem, container)`, `steps(problem)`, `hint(problem, container, stillValid)`, plus optional `onTap(target, problem, container)`, `onStepDone(step, problem, container) → pause ms`, and `celebrationText(problem)`.
-- [x] `js/math/manipulatives.js` — reusable tap-first widgets. Phase A ships `tapCounter()`, `eaterButton()`/`eatOne()`, `countAloud()` and `el()`; `tenFrame()`, `numberLine()`, `baseTenBlocks()`, `numberBond()` and `barModel()` arrive with Phases C and D. DOM + CSS only (no canvas), all with speech hooks.
+- [x] `js/math/classical.js` and `js/math/common-core.js` — implement the shared method interface; `js/math/singapore.js` follows in Phase D. Final interface (see the `MathMethod` typedef in `js/types.js`): `render(problem, container)`, `steps(problem)`, `hint(problem, container, stillValid)`, plus optional `onTap(target, problem, container)`, `onStepDone(step, problem, container) → pause ms`, `celebrationText(problem)` and `question(problem, container) → { html, speak }`.
+- [x] `js/math/manipulatives.js` — reusable tap-first widgets. Phase A: `tapCounter()`, `eaterButton()`/`eatOne()`, `countAloud()`, `el()`. Phase C: `tenFrame()`/`frameCount()`/`fillCell()`/`emptyCell()`, `numberLine()`/`hopTo()`, `openNumberLine()`/`hopBy()`/`undoHop()`, `baseTenBlocks()`/`blockCounts()`/`snapTen()`. `numberBond()` and `barModel()` arrive with Phase D. DOM + CSS only (no canvas), all with speech hooks. Widgets keep their state in the DOM (classes and `data-*`), never in module variables, so a re-render can't desync from what's on screen.
 - [x] `js/dom.js` — `closestEl()`, the one helper every delegated tap handler needs (also removed three ad-hoc casts in `input.js`/`piano.js`).
 - [x] `index.html` — `#mathlab-container`, settings rows for `betaModes`, `mathMethod`, `mathLabLevel`.
 - [x] Speech everywhere via `js/speech.js`; hints follow the existing pattern (after 2 wrong attempts, the manipulative walks the strategy aloud).
-- [x] Playwright specs per method (`tests/mathlab-*.spec.js`), including the beta-flag gate and the settings plumbing. `tests/helpers.js` gained `seedSettings()` and `openSettings()`; `tests/a11y.spec.js` now scans Math Lab too.
+- [x] Playwright specs per method (`tests/mathlab-*.spec.js`), including the beta-flag gate and the settings plumbing. `tests/helpers.js` gained `seedSettings()` and `openSettings()`; `tests/a11y.spec.js` scans Math Lab once per method, since each renders a completely different set of controls.
+- [x] The Common Core specs reload until `[data-variant]` (and optionally the problem shape) match what they intend to test, rather than skipping on an unlucky roll — the regrouping snap is behaviour under test, not something to leave to the dice.
 - [x] The answer renders **into** the notation (`[data-slot]`) when the manipulative has a slot for the current step, and only falls back to the big standalone display when it doesn't (L1). Two copies of the answer pushed the workspace off a phone.
 
 ## Open decisions (resolve before/while building Phase A)
@@ -72,13 +78,14 @@ Design principles (on top of the repo-wide toddler rules):
 - **L4 needs two-step answer entry.** Every existing mode drives a single answer buffer from `onKey`. The column algorithm answers ones, then tens. The mode shell owns a **step list** (`steps(problem)`) supplied by the method — one step for L1–L3, two for classical L4 — so this stays in the shell rather than leaking into `js/input.js`.
 - **Score is separate from Math.** `setScoreMode('mathlab')` derives its own `lls-score-mathlab` key, so Math Lab keeps a score independent of Math. Intentional while in beta; revisit at graduation.
 - **Seventh top-bar button.** Six modes already compete for width. Checked on a Pixel 7: the bar wraps to two rows and stays usable. Separately, `#score-display` (absolutely positioned top-right of the play area) overlaps the question text on phones once the bar wraps — **pre-existing, reproduces in Math mode too**, so it's left alone here; it belongs with the P5 layout/accessibility pass.
+- **A method can override the question text.** `Problem.questionText` is written for the classical lens ("Count the APPLES!"), which flatly contradicts a subitizing flash or a bare `8 + 5` on a number line. The optional `question(problem, container)` hook on `MathMethod` runs *after* render so it can read the chosen variant; the shell falls back to `Problem.questionText`/`speakText` when a method doesn't define it. The 🔊 button re-speaks whichever one is live.
 - **Manipulatives are `<button>` elements.** `js/input.js` skips `playArea` taps that land on a button, so widget taps never double-fire, and keyboard/screen-reader operability comes for free. Tap handling is one delegated listener on `#mathlab-container` that forwards to `method.onTap(target)`.
 
 ## Phases
 
 - [x] **Phase A** — beta gating + settings + mode shell + **classical** method (least new UI; vertical notation + tap-to-count + carry animation).
 - [x] **Phase B** — **type-safety net** (below). Lands after A so it types an interface that has actually been built, and before the two methods that must conform to it.
-- [ ] **Phase C** — **Common Core** (ten frame, number line, base-ten blocks widgets).
+- [x] **Phase C** — **Common Core** (ten frame, number line, open number line, base-ten blocks widgets).
 - [ ] **Phase D** — **Singapore** (number bond, bar model widgets).
 - [ ] **Phase E** — `mix` rotation, cross-level auto-progression polish, graduation review.
 

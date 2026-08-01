@@ -492,6 +492,260 @@ button {
     100% { transform: none; opacity: 1; }
 }
 
+/* ---------- Common Core manipulatives ---------- */
+
+.cc-labelled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(4px, 1.2vh, 10px);
+}
+
+.cc-label {
+    font-size: clamp(0.85rem, min(2.8vw, 2vh), 1.15rem);
+    color: rgba(255,255,255,0.9);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.cc-frames {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 2vw, 16px);
+    flex-wrap: wrap;
+}
+
+.cc-peek {
+    font-size: 1rem;
+    padding: 8px 18px;
+    min-height: 44px;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid white;
+    border-radius: 24px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Ten frame */
+.ten-frame {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 6px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 12px;
+}
+
+.tf-cell {
+    width: clamp(26px, min(8vw, 5.5vh), 52px);
+    height: clamp(26px, min(8vw, 5.5vh), 52px);
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.tf-cell.filled::after {
+    content: '';
+    display: block;
+    width: 70%;
+    height: 70%;
+    margin: 15%;
+    border-radius: 50%;
+    background: #ffe680;
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+}
+
+.ten-frame.flashing {
+    animation: tf-pop 0.4s ease-out;
+}
+
+/* The subitizing flash: the frame stays, the dots go. */
+.ten-frame.covered .tf-cell.filled::after {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+@keyframes tf-pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+/* Number line */
+.number-line {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
+    flex-wrap: nowrap;
+    max-width: 94vw;
+    padding: 6px 4px 4px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.nl-tick {
+    flex: 0 0 auto;
+    min-width: clamp(20px, 4.6vw, 38px);
+    min-height: 44px;
+    padding: 2px;
+    font: inherit;
+    font-size: clamp(0.7rem, 2.4vw, 1rem);
+    font-weight: bold;
+    color: white;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nl-tick.hopped {
+    background: rgba(255, 230, 128, 0.35);
+    border-color: #ffe680;
+}
+
+.nl-tick.here {
+    background: rgba(76, 175, 80, 0.65);
+    border-color: #7CFF9B;
+}
+
+.nl-tick.here::after {
+    content: '🐸';
+    display: block;
+    font-size: 1.1em;
+}
+
+/* Open number line */
+.open-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.ol-track {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    flex-wrap: wrap;
+    max-width: 92vw;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 12px;
+    font-weight: bold;
+    color: white;
+    font-size: clamp(1rem, min(3.4vw, 2.6vh), 1.6rem);
+}
+
+.ol-stop {
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.2);
+}
+
+.ol-stop.start {
+    background: rgba(76, 175, 80, 0.5);
+}
+
+.ol-arc {
+    font-size: 0.7em;
+    color: #ffe680;
+    padding: 0 2px;
+}
+
+.ol-arc::before {
+    content: '⌒';
+    display: block;
+    line-height: 0.6;
+    font-size: 1.4em;
+}
+
+.ol-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.ol-hop {
+    min-width: 64px;
+    min-height: 48px;
+    font: inherit;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid white;
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+.ol-hop:active {
+    transform: scale(0.94);
+}
+
+/* Base-ten blocks */
+.base-ten {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(10px, 3vw, 24px);
+    flex-wrap: wrap;
+    max-width: 94vw;
+    padding: 8px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 12px;
+}
+
+.btb-rods,
+.btb-ones {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 44vw;
+}
+
+.btb-rod {
+    width: clamp(12px, 2.6vw, 20px);
+    height: clamp(60px, min(13vw, 16vh), 110px);
+    border-radius: 4px;
+    border: 2px solid rgba(255,255,255,0.8);
+    background: repeating-linear-gradient(
+        to bottom,
+        #7CFF9B 0 10%,
+        rgba(0,0,0,0.25) 10% 10.9%
+    );
+}
+
+.btb-rod.new {
+    animation: rod-snap 0.5s ease-out;
+}
+
+@keyframes rod-snap {
+    from { transform: scaleY(0.2); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+
+.btb-one {
+    width: clamp(20px, 4.4vw, 30px);
+    height: clamp(20px, 4.4vw, 30px);
+    padding: 0;
+    border-radius: 4px;
+    border: 2px solid rgba(255,255,255,0.8);
+    background: #ffe680;
+    cursor: pointer;
+}
+
+.btb-one.selected {
+    background: #7CFF9B;
+    transform: scale(1.15);
+    box-shadow: 0 0 8px rgba(255,255,255,0.8);
+}
+
 /* Beta modes get a badge so parents can tell them apart at a glance. */
 .top-btn.beta {
     border-style: dashed;
