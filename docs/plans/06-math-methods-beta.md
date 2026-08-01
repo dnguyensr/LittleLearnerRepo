@@ -1,10 +1,14 @@
 # P6 — Math Lab (beta): classical, Common Core & Singapore methods
 
-> **Status (2026-07-31):** Phases A–D done. Math Lab ships behind the
+> **Status (2026-07-31):** **All phases done.** Math Lab ships behind the
 > `betaModes` flag with all three teaching methods — **classical**, **Common
-> Core** and **Singapore** — across all four levels; the JSDoc typecheck gate is
-> green and wired into CI. 160 specs pass on chromium + mobile-chrome (webkit
-> runs in CI). Phase E (`mix` rotation + graduation review) is what's left.
+> Core** and **Singapore** — plus `mix`, across all four levels, with persisted
+> auto-progression. The JSDoc typecheck gate is green and wired into CI. 178
+> specs pass on chromium + mobile-chrome (webkit runs in CI).
+>
+> **It stays behind the beta flag.** See the graduation review below: the code is
+> covered, but nothing here has been tried on an actual child yet, and that's the
+> only evidence that should retire the flag.
 
 Goal: a new **Math Lab 🧪** beta module that teaches the same four skill levels through three selectable teaching methods — classical, Common Core, and Singapore — each with its own *interactive manipulatives* instead of only type-the-answer. The existing Math mode stays untouched; Math Lab is where the new interaction styles incubate.
 
@@ -30,8 +34,8 @@ Design principles (on top of the repo-wide toddler rules):
 
 ## Settings
 
-- [x] `mathMethod`: `classical` | `commoncore` | `singapore` | `mix` (mix rotates methods per problem). Parent-facing dropdown; the three unbuilt options are rendered `disabled` with a "(soon)" label rather than silently falling back, so the panel never lies about what it will do. Un-disable them as Phases C/D/E land.
-- [x] `mathLabLevel`: `auto` | `1`–`4`, mirroring the existing `mathTier` pattern (auto advances a level every 5 correct in a session).
+- [x] `mathMethod`: `classical` | `commoncore` | `singapore` | `mix` (mix rotates methods per problem). Parent-facing dropdown; all four options are live. While a method was unbuilt its option was rendered `disabled` with a "(soon)" label rather than silently falling back, so the panel never lied about what it would do.
+- [x] `mathLabLevel`: `auto` | `1`–`4`, mirroring the existing `mathTier` pattern. Auto advances a level every 5 correct — **persisted across sessions**, unlike Math mode's `mathTier`, which resets every time the mode is entered.
 - [x] Changing either setting mid-session regenerates the problem in the new shape (`onSettingChange` in `js/settings.js`).
 
 ## Method × level matrix
@@ -46,7 +50,7 @@ Design principles (on top of the repo-wide toddler rules):
 
 - [x] **L1 Count:** **ten frame** — objects on top, empty frame below; tap cells to place counters until it matches. Subitizing flash (`subitize` variant, 25% of L1 problems): the frame is dealt pre-filled, covers itself after 1.6s, and asks "how many did you see?" with a 👀 Peek button for another look.
 - [x] **L2 Add:** **make-a-ten** on a double ten frame — tapping a counter in the second frame *moves* it into the first, so the total never changes while the child rearranges (8 + 5 becomes 10 + 3); alternates with **number-line hops** (tap where the frog lands).
-- [x] **L3 Subtract:** count-back hops on the number line; think-addition framing in the hint.
+- [x] **L3 Subtract:** count-back hops on the number line, with the hint speaking **both** framings — the count-back walk, then "or think of it the other way: 3 and how many more makes 8?". Note this reuses the missing-addend *framing*, not Math mode's missing-addend problem type, which `problems.js` still lacks (see the graduation review).
 - [x] **L4 Double-digit:** **base-ten blocks** for addition — tap ten loose ones to snap them into a ten-rod (regrouping made visible); **open number line** for subtraction, with −10 / −1 hop buttons, a running position, and undo.
 
 Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a module variable, so `onTap`, `hint` and `question` always read the variant that `render` actually drew — and the specs can pin one.
@@ -81,7 +85,7 @@ Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a modu
 
 ## Open decisions (resolve before/while building Phase A)
 
-- **Duplicated problem generation is deliberate.** `js/math/problems.js` and the existing `js/modes/math.js` will both generate problems from `js/data/math-items.js` with their own tier/level logic. Math mode stays untouched during the beta; the two generators merge as part of the Phase E graduation review, not before.
+- **Duplicated problem generation is deliberate.** `js/math/problems.js` and the existing `js/modes/math.js` both generate problems from `js/data/math-items.js` with their own tier/level logic. Math mode stays untouched during the beta. *(Resolved by the Phase E graduation review below: they should **not** merge — they encode different curricula, not duplicated logic.)*
 - **L4 needs two-step answer entry.** Every existing mode drives a single answer buffer from `onKey`. The column algorithm answers ones, then tens. The mode shell owns a **step list** (`steps(problem)`) supplied by the method — one step for L1–L3, two for classical L4 — so this stays in the shell rather than leaking into `js/input.js`.
 - **Score is separate from Math.** `setScoreMode('mathlab')` derives its own `lls-score-mathlab` key, so Math Lab keeps a score independent of Math. Intentional while in beta; revisit at graduation.
 - **Seventh top-bar button.** Six modes already compete for width. Checked on a Pixel 7: the bar wraps to two rows and stays usable. Separately, `#score-display` (absolutely positioned top-right of the play area) overlaps the question text on phones once the bar wraps — **pre-existing, reproduces in Math mode too**, so it's left alone here; it belongs with the P5 layout/accessibility pass.
@@ -96,7 +100,42 @@ Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a modu
 - [x] **Phase B** — **type-safety net** (below). Lands after A so it types an interface that has actually been built, and before the two methods that must conform to it.
 - [x] **Phase C** — **Common Core** (ten frame, number line, open number line, base-ten blocks widgets).
 - [x] **Phase D** — **Singapore** (dot card, numeral card, number bond, bar model widgets).
-- [ ] **Phase E** — `mix` rotation, cross-level auto-progression polish, graduation review.
+- [x] **Phase E** — `mix` rotation, cross-level auto-progression polish, graduation review (below).
+
+### Phase E notes
+
+- [x] **`mix` rotates, it does not randomise.** Every method gets equal time and the same one never lands twice running. The rotation restarts on activate, alongside the CPA rotation.
+- [x] `#mathlab-workspace` carries `data-method` and `data-level` as well as `data-variant`, so what's on screen is inspectable — mostly for the specs, but it also makes `mix` debuggable by eye.
+- [x] `data-variant` is **cleared** before each render. Classical sets none, so under `mix` a stale value from Common Core or Singapore would otherwise survive the switch and mislead whatever read it next.
+- [x] **Auto-progression is persisted, not session-scoped** (`lls-mathlab-progress`: `{ level, streak }`). A toddler bounces out to Free Play and back constantly; resetting to level 1 each time made auto mode feel like it punished exploring. The streak toward the next level survives too, so a mode switch never costs work already done. Corrupt or out-of-range stored values clamp rather than throw.
+- [x] Levelling up is announced — `Level 3! 🎉` in the prompt line and spoken. It takes priority over a method's `celebrationText` when both land on the same answer, since it's the bigger news.
+- [x] A **pinned** level ignores stored progress entirely and never advances it, so a parent holding a child at level 2 doesn't silently accumulate progress toward level 4.
+- [x] `resolveLevel()` is gone from `js/math/problems.js`, replaced by `clampLevel()`; the shell owns progression now.
+
+## Graduation review (2026-07-31)
+
+The premise recorded in "Open decisions" was that `js/math/problems.js` and the generator inside `js/modes/math.js` are duplicated logic to be merged at graduation. **Having built both, that premise is wrong.** They are not two implementations of one curriculum; they are two different curricula:
+
+| Level | Math mode (`mathTier`) | Math Lab (`mathLabLevel`) | Same? |
+| --- | --- | --- | --- |
+| 1 | count 1–5 | count 1–10 | No — Lab is harder |
+| 2 | `a`, `b` ∈ 1–5 (sums ≤ 10) | `a`, `b` ∈ 1–9 (sums ≤ 18) | No — Lab is harder |
+| 3 | `a` ∈ 2–9, `b` ∈ 1…`a`−1 | identical | **Yes** |
+| 4 | big single-digit sums (5–10 + 5–10) **or** missing addend (`a + ? = total`) | double-digit add/sub | No — different topic entirely |
+
+So "merge the generators" is a **curriculum decision, not a refactor**. Pointing Math mode at `problems.js` would silently make levels 1, 2 and 4 harder for a child already using it. That is not a call to make as tidy-up.
+
+**Recommendation: do not merge, and do not graduate yet.**
+
+1. Only level 3 is genuinely shared, and the common part is ~10 lines (`rand`, item selection). Extracting that would trade a little duplication for a module boundary and no behaviour win. Leave it.
+2. Every method × level combo is covered by specs and renders correctly on desktop and a phone — but **no child has used any of it**. Specs prove it doesn't crash; they prove nothing about whether a four-year-old understands a number bond. That's the only evidence that should retire the beta flag, and it doesn't exist yet. Keep `betaModes` off by default until it does.
+3. Graduating *into* Math mode would mean Math mode grows the whole method concept, or gets replaced by Math Lab. That's a product decision for the repo owner, not an implementation detail of this plan.
+
+**Gap found by the review:** Math mode's **missing-addend** problem type (`a + ? = total`) has no equivalent in `problems.js`. The Common Core L3 line above claims it "reuses the existing missing-addend idea" — it reuses the *framing* in the hint (both take-away and think-addition are spoken), but the Lab generator has no missing-addend problem type at all. Worth adding before any merge is contemplated, since it's the one thing Math mode does that Math Lab can't.
+
+- [ ] Add a missing-addend problem type to `js/math/problems.js`, so the Lab is a superset of Math mode rather than a divergent branch.
+- [ ] Try all three methods with an actual child; record which combos land before touching the beta flag.
+- [ ] **Animation debt:** this plan added `carry-hop`, `borrow-slide`, `tf-pop`, `rod-snap`, `nb-grow` and `bm-reveal`. The `prefers-reduced-motion` item in [05-testing-tooling.md](05-testing-tooling.md) is still open and now covers noticeably more surface. It wants one deliberate app-wide pass, not a partial one here.
 
 ## Phase B — type-safety net (JSDoc + `tsc --noEmit`)
 

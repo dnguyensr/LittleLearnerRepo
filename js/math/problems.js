@@ -28,12 +28,11 @@ function pick(list) {
 // The subtraction stories need an eater, which only the food items carry.
 const foodItems = mathItems.filter(item => item.isFood);
 
-// Level from the parent setting, or grown from this session's correct answers.
-export function resolveLevel(setting, correctThisSession) {
-    if (setting && setting !== 'auto') {
-        return Math.min(MAX_LEVEL, Math.max(1, Number(setting)));
-    }
-    return Math.min(MAX_LEVEL, 1 + Math.floor(correctThisSession / PROBLEMS_PER_LEVEL));
+// Keep a level in range whatever it came from — a parent's dropdown, stored
+// progress, or a hand-edited localStorage value.
+export function clampLevel(value) {
+    if (!Number.isFinite(value)) return 1;
+    return Math.min(MAX_LEVEL, Math.max(1, Math.floor(value)));
 }
 
 /** @returns {Problem} */

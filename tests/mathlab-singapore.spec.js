@@ -225,20 +225,9 @@ test.describe('Math Lab — Singapore, levels 3 and 4 (bar models)', () => {
     });
 });
 
-test.describe('Math Lab — all three methods are selectable', () => {
-    test('only Mix remains disabled', async ({ page }) => {
-        await seedSettings(page, { betaModes: true });
-        await gotoApp(page);
-        await page.locator('#settings-btn').dispatchEvent('pointerdown', { pointerId: 1 });
-        await expect(page.locator('#settings-panel')).toBeVisible();
-
-        const option = value => page.locator(`#set-math-method option[value="${value}"]`);
-        await expect(option('classical')).toHaveJSProperty('disabled', false);
-        await expect(option('commoncore')).toHaveJSProperty('disabled', false);
-        await expect(option('singapore')).toHaveJSProperty('disabled', false);
-        await expect(option('mix')).toHaveJSProperty('disabled', true);
-    });
-
+// Which methods are selectable is asserted once, in
+// tests/mathlab-progression.spec.js — the spec for the last one to land.
+test.describe('Math Lab — method selection', () => {
     test('switching to Singapore swaps in its manipulative', async ({ page }) => {
         await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: '2' });
         await gotoApp(page);

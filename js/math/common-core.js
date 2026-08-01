@@ -249,6 +249,14 @@ export const commonCoreMethod = {
                     speak(String(value), { interrupt: true });
                 }, 700 + i * 700);
             }
+            // Take-away and think-addition are the same fact seen two ways;
+            // hearing both is the point of the strategy, not a bonus.
+            if (variant === 'countback') {
+                setTimeout(() => {
+                    if (!stillValid()) return;
+                    speak(`Or think of it the other way: ${problem.b} and how many more makes ${problem.a}?`);
+                }, 700 + (problem.b + 1) * 700);
+            }
             return;
         }
 

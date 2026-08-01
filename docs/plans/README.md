@@ -19,7 +19,7 @@ Work through the plans in this order. Each file is a checklist; check items off 
 | P3 | [Piano mode](03-piano-mode.md) | New mode with an on-screen piano and a pianist-friendly keyboard mapping; removes the drum sounds. Builds on P1's input layer and P2's structure. |
 | P4 | [Learning module improvements & new modules](04-learning-modules.md) | Upgrade Math and Words, then add new pre-K–1st modules (letters, numbers, shapes, sight words). |
 | P5 | [Testing, tooling & accessibility](05-testing-tooling.md) | npm dev tooling, Playwright E2E, axe accessibility scans, CI. Phased last, but start it alongside P2 so the refactor is protected by tests. |
-| P6 | [Math Lab beta: teaching methods](06-math-methods-beta.md) | Beta module teaching counting through double-digit add/subtract via classical, Common Core, and Singapore methods with tap-first manipulatives (ten frames, number lines, number bonds, bar models). Also adds the JSDoc + `tsc --noEmit` typecheck gate (Phase B) — no build step, no `.ts` files. |
+| P6 | [Math Lab beta: teaching methods](06-math-methods-beta.md) | **Done, still behind the beta flag.** Beta module teaching counting through double-digit add/subtract via classical, Common Core, and Singapore methods with tap-first manipulatives (ten frames, number lines, number bonds, bar models). Also adds the JSDoc + `tsc --noEmit` typecheck gate (Phase B) — no build step, no `.ts` files. Next step is a real child, not more code. |
 
 ## Conventions
 

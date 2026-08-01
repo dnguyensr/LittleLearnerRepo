@@ -2,7 +2,7 @@ import { playKeyTone, playWrongSound } from '../audio.js';
 import { celebrate, setScoreVisible, setScoreMode, randomBackground, createBubble } from '../effects.js';
 import { speak, cancelSpeech } from '../speech.js';
 import { getSetting, onSettingChange } from '../settings.js';
-import { generateProblem, resolveLevel } from '../math/problems.js';
+import { generateProblem, clampLevel, MAX_LEVEL, PROBLEMS_PER_LEVEL } from '../math/problems.js';
 import { handleCounterTap } from '../math/manipulatives.js';
 import { closestEl } from '../dom.js';
 import { classicalMethod } from '../math/classical.js';
@@ -48,6 +48,63 @@ let hintToken = 0;
 let locked = false;
 let mixIndex = 0;
 
+/* ---------- Auto-progression ----------
+ *
+ * Level progress is persisted rather than session-scoped. A toddler bounces out
+ * to Free Play and back constantly; demoting them to level 1 every time made
+ * auto mode feel like it was punishing them for exploring. The streak toward the
+ * next level survives too, so a mode switch never costs work already done.
+ */
+
+const PROGRESS_KEY = 'lls-mathlab-progress';
+
+function loadProgress() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+        return {
+            level: clampLevel(Number(saved.level) || 1),
+            streak: Math.max(0, Number(saved.streak) || 0)
+        };
+    } catch (err) {
+        return { level: 1, streak: 0 };
+    }
+}
+
+let progress = loadProgress();
+
+function saveProgress() {
+    try {
+        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    } catch (err) { /* private mode etc. */ }
+}
+
+function isAutoLevel() {
+    const setting = getSetting('mathLabLevel');
+    return !setting || setting === 'auto';
+}
+
+function currentLevel() {
+    return isAutoLevel() ? progress.level : clampLevel(Number(getSetting('mathLabLevel')));
+}
+
+// Returns the level just reached, or 0 if this answer didn't earn one.
+function recordCorrect() {
+    correctThisSession++;
+    if (!isAutoLevel()) return 0;
+
+    progress.streak++;
+    if (progress.streak < PROBLEMS_PER_LEVEL || progress.level >= MAX_LEVEL) {
+        saveProgress();
+        return 0;
+    }
+    progress.level++;
+    progress.streak = 0;
+    saveProgress();
+    return progress.level;
+}
+
+// `mix` rotates rather than picking at random, so every method gets equal time
+// and the same one never lands twice in a row.
 function resolveMethod() {
     const setting = getSetting('mathMethod');
     if (setting === 'mix') {
@@ -78,14 +135,19 @@ function updateDisplays() {
 function newProblem() {
     hintToken++;
     method = resolveMethod();
-    problem = generateProblem(resolveLevel(getSetting('mathLabLevel'), correctThisSession));
+    problem = generateProblem(currentLevel());
     steps = method.steps(problem);
     stepIndex = 0;
     buffer = '';
     wrongAttempts = 0;
     locked = false;
 
-    // render first: a method's question may depend on which variant it drew
+    // render first: a method's question may depend on which variant it drew.
+    // data-variant is cleared rather than overwritten: classical doesn't set
+    // one, so under `mix` a stale value would otherwise survive the switch.
+    workspaceEl.dataset.method = method.id;
+    workspaceEl.dataset.level = String(problem.level);
+    delete workspaceEl.dataset.variant;
     method.render(problem, workspaceEl, { correct: correctThisSession });
     question = method.question
         ? method.question(problem, workspaceEl)
@@ -135,7 +197,6 @@ function advanceStep() {
 // so everything deferred is fenced behind the token newProblem/deactivate bump.
 function finish() {
     locked = true;
-    correctThisSession++;
     celebrate();
     speak(`${problem.answer}! Great job!`, { interrupt: true });
 
@@ -147,10 +208,16 @@ function finish() {
     // The last step gets onStepDone too, so a method can animate what the
     // answer means (uncovering a bar segment) rather than only what comes next.
     if (method.onStepDone) method.onStepDone(step, problem, workspaceEl);
-    promptEl.textContent = '';
+
+    // A level-up is the bigger news, so it takes the follow-up line if both
+    // it and the method's celebration land on the same answer.
+    const newLevel = recordCorrect();
+    const extra = newLevel
+        ? `Level ${newLevel}! You are getting so good at this!`
+        : (method.celebrationText && method.celebrationText(problem));
+    promptEl.textContent = newLevel ? `Level ${newLevel}! 🎉` : '';
 
     const token = hintToken;
-    const extra = method.celebrationText && method.celebrationText(problem);
     if (extra) setTimeout(() => token === hintToken && speak(extra), 1400);
     setTimeout(() => token === hintToken && newProblem(), extra ? 3400 : 1800);
 }
@@ -212,7 +279,11 @@ export const mathLabMode = {
         container.classList.add('active');
         setScoreMode('mathlab');
         setScoreVisible(true);
+        // Session state (the CPA rotation, the mix rotation) restarts; level
+        // progress is persisted and deliberately does not.
         correctThisSession = 0;
+        mixIndex = 0;
+        progress = loadProgress();
         newProblem();
     },
 
