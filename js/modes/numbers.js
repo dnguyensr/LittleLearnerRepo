@@ -2,6 +2,8 @@ import { playKeyTone } from '../audio.js';
 import { randomBackground, createBubble, randomStar, setScoreVisible } from '../effects.js';
 import { speak, cancelSpeech } from '../speech.js';
 
+/** @typedef {import('../types.js').Mode} Mode */
+
 const numbersContainer = document.getElementById('numbers-container');
 const numberDisplay = document.getElementById('number-display');
 const numberObjects = document.getElementById('number-objects');
@@ -46,6 +48,7 @@ function showNumber(digit) {
     }
 }
 
+/** @type {Mode} */
 export const numbersMode = {
     id: 'numbers',
     label: 'Numbers',

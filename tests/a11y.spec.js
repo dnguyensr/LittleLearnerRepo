@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
-const { gotoApp, ensureOskVisible } = require('./helpers');
+const { gotoApp, ensureOskVisible, seedSettings } = require('./helpers');
 
 // color-contrast is disabled for now: the white-on-pastel-gradient palette
 // needs a design pass (tracked in docs/plans/05-testing-tooling.md).
@@ -12,8 +12,9 @@ async function scan(page) {
 }
 
 test.describe('Accessibility (axe)', () => {
-    for (const mode of ['free', 'piano', 'letters', 'numbers', 'math', 'words']) {
+    for (const mode of ['free', 'piano', 'letters', 'numbers', 'math', 'mathlab', 'words']) {
         test(`${mode} mode has no serious/critical violations`, async ({ page }) => {
+            if (mode === 'mathlab') await seedSettings(page, { betaModes: true });
             await gotoApp(page);
             await page.locator(`#${mode}-btn`).click();
             if (mode === 'free' || mode === 'words') {

@@ -1,4 +1,5 @@
 import { unlockAudio } from './audio.js';
+import { closestEl } from './dom.js';
 
 const oskEl = document.getElementById('osk');
 const keyboardBtn = document.getElementById('keyboard-btn');
@@ -176,7 +177,7 @@ export function initInput(activeModeGetter) {
     window.addEventListener('keypress', swallowKeyEvent, true);
 
     oskEl.addEventListener('pointerdown', function(e) {
-        const btn = e.target.closest('.osk-key');
+        const btn = closestEl(e.target, '.osk-key');
         if (!btn) return;
         e.preventDefault();
         btn.classList.add('pressed');
@@ -193,7 +194,7 @@ export function initInput(activeModeGetter) {
         unlockAudio();
         const mode = getActiveMode();
         if (!mode || !mode.onTap) return;
-        if (e.target.closest('button')) return;
+        if (closestEl(e.target, 'button')) return;
         mode.onTap(e.clientX, e.clientY);
     });
 

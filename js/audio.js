@@ -1,4 +1,5 @@
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// webkitAudioContext is the old Safari spelling and isn't in lib.dom
+const audioContext = new (window.AudioContext || /** @type {any} */ (window).webkitAudioContext)();
 
 export const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99];
 

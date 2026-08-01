@@ -3,6 +3,8 @@ import { playKeyTone } from '../audio.js';
 import { randomBackground, createBubble, randomStar, setScoreVisible } from '../effects.js';
 import { speak, cancelSpeech } from '../speech.js';
 
+/** @typedef {import('../types.js').Mode} Mode */
+
 const lettersContainer = document.getElementById('letters-container');
 const letterDisplay = document.getElementById('letter-display');
 const letterExample = document.getElementById('letter-example');
@@ -25,6 +27,7 @@ function showLetter(letter) {
     randomStar();
 }
 
+/** @type {Mode} */
 export const lettersMode = {
     id: 'letters',
     label: 'Letters',

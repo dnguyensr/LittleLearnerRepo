@@ -1,5 +1,8 @@
 import { startPianoNote, stopPianoNote, stopAllPianoNotes } from '../audio.js';
 import { setScoreVisible } from '../effects.js';
+import { closestEl } from '../dom.js';
+
+/** @typedef {import('../types.js').Mode} Mode */
 
 const pianoContainer = document.getElementById('piano-container');
 const pianoEl = document.getElementById('piano');
@@ -63,7 +66,7 @@ function buildPiano() {
 
         const el = document.createElement('div');
         el.className = 'piano-key ' + (black ? 'black' : 'white');
-        el.dataset.midi = k.midi;
+        el.dataset.midi = String(k.midi);
 
         if (black) {
             el.style.width = blackWidth + '%';
@@ -102,7 +105,7 @@ function noteOff(midi) {
 /* ---------- Pointer (touch/mouse) playing ---------- */
 
 pianoEl.addEventListener('pointerdown', function(e) {
-    const el = e.target.closest('.piano-key');
+    const el = closestEl(e.target, '.piano-key');
     if (!el) return;
     e.preventDefault();
     // Release implicit touch capture so sliding across keys (glissando) works
@@ -119,7 +122,7 @@ pianoEl.addEventListener('pointerdown', function(e) {
 
 pianoEl.addEventListener('pointerover', function(e) {
     if (!pointerNotes.has(e.pointerId)) return;
-    const el = e.target.closest('.piano-key');
+    const el = closestEl(e.target, '.piano-key');
     if (!el) return;
     const midi = Number(el.dataset.midi);
     const previous = pointerNotes.get(e.pointerId);
@@ -145,6 +148,7 @@ window.addEventListener('resize', function() {
     if (active) buildPiano();
 });
 
+/** @type {Mode} */
 export const pianoMode = {
     id: 'piano',
     label: 'Piano',

@@ -4,7 +4,10 @@ const STORAGE_KEY = 'lls-settings';
 const defaults = {
     speech: true,
     phonics: false,
-    mathTier: 'auto'
+    mathTier: 'auto',
+    betaModes: false,
+    mathMethod: 'classical',
+    mathLabLevel: 'auto'
 };
 
 function load() {
@@ -27,10 +30,19 @@ export function getSetting(key) {
     return settings[key];
 }
 
+const listeners = [];
+
+// Notified on every setSetting call, so things outside the panel (the mode
+// bar's beta gate, an active mode's level) can react without polling.
+export function onSettingChange(fn) {
+    listeners.push(fn);
+}
+
 export function setSetting(key, value) {
     settings[key] = value;
     save();
     if (key === 'speech') setSpeechEnabled(value);
+    for (const fn of listeners) fn(key, value);
 }
 
 /* ---------- Parent settings panel (gear is hold-to-open) ---------- */
@@ -43,13 +55,24 @@ export function initSettingsUI() {
     const settingsBtn = document.getElementById('settings-btn');
     const panel = document.getElementById('settings-panel');
     const closeBtn = document.getElementById('settings-close');
-    const speechBox = document.getElementById('set-speech');
-    const phonicsBox = document.getElementById('set-phonics');
-    const tierSelect = document.getElementById('set-math-tier');
+    const input = id => /** @type {HTMLInputElement} */ (document.getElementById(id));
+    const select = id => /** @type {HTMLSelectElement} */ (document.getElementById(id));
+
+    const speechBox = input('set-speech');
+    const phonicsBox = input('set-phonics');
+    const tierSelect = select('set-math-tier');
+    const betaBox = input('set-beta-modes');
+    const methodSelect = select('set-math-method');
+    const labLevelSelect = select('set-mathlab-level');
+    const betaRows = document.getElementById('beta-settings');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
     tierSelect.value = String(settings.mathTier);
+    betaBox.checked = settings.betaModes;
+    methodSelect.value = String(settings.mathMethod);
+    labLevelSelect.value = String(settings.mathLabLevel);
+    betaRows.hidden = !settings.betaModes;
 
     let holdTimer = null;
 
@@ -72,4 +95,10 @@ export function initSettingsUI() {
     speechBox.addEventListener('change', () => setSetting('speech', speechBox.checked));
     phonicsBox.addEventListener('change', () => setSetting('phonics', phonicsBox.checked));
     tierSelect.addEventListener('change', () => setSetting('mathTier', tierSelect.value));
+    betaBox.addEventListener('change', () => {
+        setSetting('betaModes', betaBox.checked);
+        betaRows.hidden = !betaBox.checked;
+    });
+    methodSelect.addEventListener('change', () => setSetting('mathMethod', methodSelect.value));
+    labLevelSelect.addEventListener('change', () => setSetting('mathLabLevel', labLevelSelect.value));
 }

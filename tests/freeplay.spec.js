@@ -38,7 +38,10 @@ test.describe('Free Play', () => {
         await gotoApp(page);
         await page.keyboard.press('a');
         const state = await page.evaluate(async () => {
-            const audio = await import('/js/audio.js');
+            // Kept in a variable so the typechecker treats it as a runtime
+            // browser path rather than a module to resolve from disk
+            const path = '/js/audio.js';
+            const audio = await import(path);
             return audio.getAudioState();
         });
         expect(state).toBe('running');

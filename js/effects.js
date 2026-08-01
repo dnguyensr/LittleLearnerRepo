@@ -28,7 +28,7 @@ export function setScoreMode(modeId) {
     } catch (err) {
         score = 0;
     }
-    scoreCountEl.textContent = score;
+    scoreCountEl.textContent = String(score);
 }
 
 export function randomBackground() {
@@ -109,7 +109,7 @@ export function setScoreVisible(visible) {
 
 export function celebrate() {
     score++;
-    scoreCountEl.textContent = score;
+    scoreCountEl.textContent = String(score);
     if (scoreStorageKey) {
         try {
             localStorage.setItem(scoreStorageKey, String(score));

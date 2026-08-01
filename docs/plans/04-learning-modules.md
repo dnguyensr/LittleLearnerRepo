@@ -34,6 +34,7 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 - [ ] **Shapes & Colors**: "Tap the red circle!" — a few shapes on screen, tap the right one; spoken prompts, no keyboard needed at all.
 - [ ] **Sight Words** (K–1st): flashcards from the Dolch pre-K/K lists; app speaks the word, child finds it among 2–3 choices (recognition before spelling).
 - [ ] **Patterns**: what comes next — 🔴🔵🔴🔵❓ with 2–3 tappable choices (pre-K sequencing skill).
+- [ ] **Math Lab (beta)**: classical / Common Core / Singapore teaching methods with interactive manipulatives — promoted to its own plan, see [06-math-methods-beta.md](06-math-methods-beta.md).
 
 ## Shared infrastructure
 

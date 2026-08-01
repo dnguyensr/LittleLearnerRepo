@@ -303,6 +303,206 @@ button {
     text-align: center;
 }
 
+/* ---------- Math Lab (beta) ---------- */
+
+/* Math Lab stacks more than Math does (objects + notation + entry), so every
+   band is sized off the shorter of vw/vh to keep it inside the play area on a
+   phone with the numpad open. */
+#mathlab-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1.5vh, 14px);
+    z-index: 10;
+    padding: 0 10px;
+    max-height: 100%;
+}
+
+#mathlab-container.active {
+    display: flex;
+}
+
+#mathlab-question {
+    font-size: clamp(0.95rem, min(3.2vw, 2.2vh), 1.6rem);
+    color: rgba(255,255,255,0.9);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.lab-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1.5vh, 16px);
+}
+
+.lab-objects {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 2vw, 20px);
+    flex-wrap: wrap;
+    max-width: 92vw;
+    font-size: clamp(1.2rem, min(4.5vw, 3.4vh), 2.6rem);
+}
+
+#mathlab-entry {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(10px, 3vw, 20px);
+}
+
+#mathlab-prompt {
+    font-size: clamp(0.95rem, min(3vw, 2.2vh), 1.3rem);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+#mathlab-answer-display {
+    font-size: clamp(2rem, min(8vw, 7vh), 4.5rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+    min-width: 1.2em;
+    text-align: center;
+}
+
+#mathlab-answer-display[hidden] {
+    display: none;
+}
+
+/* Tappable manipulatives: real buttons, stripped back to look like objects. */
+.tap-item {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    line-height: 1;
+    color: inherit;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.tap-item:focus-visible {
+    outline: 3px solid white;
+    border-radius: 8px;
+}
+
+.eater-btn {
+    font-size: clamp(2.2rem, 7vw, 4rem);
+    background: rgba(255,255,255,0.25);
+    border: 3px solid white;
+    border-radius: 50%;
+    padding: 6px 10px;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.eater-btn:active {
+    transform: scale(1.2);
+}
+
+/* Vertical (stacked) notation for the classical method. */
+.vertical-sum,
+.column-sum {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 15px;
+    padding: clamp(8px, 2vw, 16px) clamp(14px, 3vw, 26px);
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-weight: bold;
+    font-size: clamp(1.4rem, min(5.5vw, 4.5vh), 2.8rem);
+    font-variant-numeric: tabular-nums;
+}
+
+.v-row,
+.c-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3em;
+}
+
+.v-op,
+.c-op {
+    min-width: 1em;
+    text-align: left;
+}
+
+.v-num,
+.c-digit {
+    min-width: 1em;
+    text-align: center;
+}
+
+.v-rule,
+.c-rule {
+    align-self: stretch;
+    height: 4px;
+    background: white;
+    border-radius: 2px;
+    margin: 4px 0;
+}
+
+.v-slot,
+.c-slot {
+    color: #ffe680;
+}
+
+.v-slot.done,
+.c-slot.done {
+    color: #7CFF9B;
+}
+
+.c-carry-row {
+    font-size: 0.5em;
+    min-height: 1.2em;
+    color: #ffe680;
+}
+
+.c-carry {
+    min-width: 2em;
+    text-align: center;
+}
+
+.c-carry.carry-in {
+    animation: carry-hop 0.6s ease-out;
+}
+
+.c-carry.borrow-in {
+    animation: borrow-slide 0.6s ease-out;
+}
+
+@keyframes carry-hop {
+    0% { transform: translate(1.6em, 2.4em) scale(2); opacity: 0; }
+    60% { transform: translate(0, -0.3em) scale(1.4); opacity: 1; }
+    100% { transform: none; opacity: 1; }
+}
+
+@keyframes borrow-slide {
+    0% { transform: translateX(-2.2em) scale(2); opacity: 0; }
+    60% { transform: translateX(0.2em) scale(1.4); opacity: 1; }
+    100% { transform: none; opacity: 1; }
+}
+
+/* Beta modes get a badge so parents can tell them apart at a glance. */
+.top-btn.beta {
+    border-style: dashed;
+}
+
+.beta-badge {
+    font-size: 0.7em;
+    margin-left: 4px;
+    vertical-align: super;
+}
+
 .speak-btn {
     font-size: 1.6rem;
     min-width: 56px;
@@ -578,6 +778,18 @@ button {
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+#beta-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 14px;
+    border-left: 3px dashed #ccc;
+}
+
+#beta-settings[hidden] {
+    display: none;
 }
 
 .settings-row input[type="checkbox"] {

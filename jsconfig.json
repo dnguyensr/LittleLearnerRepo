@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+
+    // Deliberately not full `strict`. The value here is catching a renamed
+    // field on a shared contract (Problem, MathMethod, Mode), which these
+    // flags do. `strictNullChecks` would instead report ~150 `getElementById`
+    // results that the app knows are present — that's a separate annotation
+    // pass, tracked in docs/plans/06-math-methods-beta.md.
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "strictFunctionTypes": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["js/**/*.js", "tools/**/*.js", "tests/**/*.js", "playwright.config.js"],
+  "exclude": ["node_modules", "test-results", "playwright-report"]
+}

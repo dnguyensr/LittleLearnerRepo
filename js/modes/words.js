@@ -6,6 +6,8 @@ import { setOskHint } from '../input.js';
 import { speak, cancelSpeech } from '../speech.js';
 import { getSetting } from '../settings.js';
 
+/** @typedef {import('../types.js').Mode} Mode */
+
 const wordContainer = document.getElementById('word-container');
 const targetWordEl = document.getElementById('target-word');
 const wordEmojiEl = document.getElementById('word-emoji');
@@ -103,6 +105,7 @@ function celebrateWordComplete() {
     }, 1200);
 }
 
+/** @type {Mode} */
 export const wordsMode = {
     id: 'words',
     label: 'Words',

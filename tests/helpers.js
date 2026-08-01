@@ -17,4 +17,20 @@ async function ensureOskVisible(page) {
     await expect(osk).toHaveClass(/visible/);
 }
 
-module.exports = { gotoApp, ensureOskVisible };
+// Write parent settings straight into localStorage before the app boots, so a
+// spec can pin a mode/level without driving the hold-to-open panel.
+async function seedSettings(page, settings) {
+    await page.addInitScript(value => {
+        localStorage.setItem('lls-settings', JSON.stringify(value));
+    }, settings);
+}
+
+// The ⚙️ button is hold-to-open (600ms) so toddlers can't stumble into it.
+async function openSettings(page) {
+    const btn = page.locator('#settings-btn');
+    await btn.dispatchEvent('pointerdown', { pointerId: 1 });
+    await expect(page.locator('#settings-panel')).toBeVisible({ timeout: 3000 });
+    await btn.dispatchEvent('pointerup', { pointerId: 1 });
+}
+
+module.exports = { gotoApp, ensureOskVisible, seedSettings, openSettings };

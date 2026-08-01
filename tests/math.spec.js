@@ -2,12 +2,12 @@ const { test, expect } = require('@playwright/test');
 const { gotoApp, ensureOskVisible } = require('./helpers');
 
 // The answer isn't exposed in the DOM, so compute it the way a kid would:
-// count the emojis in each group (grapheme segmentation handles multi-
-// codepoint emojis). A fresh session starts at tier 1 (auto): a single
-// group with no operator, where the answer is just the count.
+// count the .math-emoji spans in each group (one span per emoji, so
+// multi-codepoint emojis can't skew the count). A fresh session starts at
+// tier 1 (auto): a single group with no operator, where the answer is just
+// the count.
 async function computeAnswer(page) {
     return page.evaluate(() => {
-        const seg = new Intl.Segmenter();
         const count = el => el.querySelectorAll('.math-emoji').length;
         const groups = [...document.querySelectorAll('#math-emojis .emoji-group:not(.missing)')].map(count);
         const op = document.querySelector('#math-emojis .math-operator');

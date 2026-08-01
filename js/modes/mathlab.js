@@ -1,0 +1,238 @@
+import { playKeyTone, playWrongSound } from '../audio.js';
+import { celebrate, setScoreVisible, setScoreMode, randomBackground, createBubble } from '../effects.js';
+import { speak, cancelSpeech } from '../speech.js';
+import { getSetting, onSettingChange } from '../settings.js';
+import { generateProblem, resolveLevel } from '../math/problems.js';
+import { handleCounterTap } from '../math/manipulatives.js';
+import { closestEl } from '../dom.js';
+import { classicalMethod } from '../math/classical.js';
+
+/** @typedef {import('../types.js').Problem} Problem */
+/** @typedef {import('../types.js').MathMethod} MathMethod */
+/** @typedef {import('../types.js').AnswerStep} AnswerStep */
+/** @typedef {import('../types.js').Mode} Mode */
+
+// Math Lab (beta): the same problems as Math, worked through a selectable
+// teaching method. The shell owns problem flow, answer entry and scoring; the
+// method owns everything the child sees and touches.
+
+const container = document.getElementById('mathlab-container');
+const questionEl = document.getElementById('mathlab-question');
+const workspaceEl = document.getElementById('mathlab-workspace');
+const answerDisplay = document.getElementById('mathlab-answer-display');
+const promptEl = document.getElementById('mathlab-prompt');
+const speakBtn = document.getElementById('mathlab-speak-btn');
+
+// Common Core and Singapore land in Phases C and D; their settings options
+// stay disabled until they're here.
+/** @type {Record<string, MathMethod>} */
+const methods = {
+    classical: classicalMethod
+};
+
+/** @type {Problem|null} */
+let problem = null;
+/** @type {MathMethod} */
+let method = classicalMethod;
+/** @type {AnswerStep[]} */
+let steps = [];
+let stepIndex = 0;
+let buffer = '';
+let wrongAttempts = 0;
+let correctThisSession = 0;
+let hintToken = 0;
+let locked = false;
+let mixIndex = 0;
+
+function resolveMethod() {
+    const setting = getSetting('mathMethod');
+    if (setting === 'mix') {
+        const available = Object.values(methods);
+        return available[mixIndex++ % available.length];
+    }
+    return methods[setting] || classicalMethod;
+}
+
+function currentStep() {
+    return steps[stepIndex];
+}
+
+function slotFor(stepId) {
+    return workspaceEl.querySelector(`[data-slot="${stepId}"]`);
+}
+
+// When the manipulative has a slot for this step, the answer belongs in the
+// notation itself — showing it twice just pushes the workspace off a phone.
+function updateDisplays() {
+    const step = currentStep();
+    const slot = step && slotFor(step.id);
+    if (slot) slot.textContent = buffer || '?';
+    answerDisplay.textContent = buffer || '?';
+    answerDisplay.hidden = !!slot;
+}
+
+function newProblem() {
+    hintToken++;
+    method = resolveMethod();
+    problem = generateProblem(resolveLevel(getSetting('mathLabLevel'), correctThisSession));
+    steps = method.steps(problem);
+    stepIndex = 0;
+    buffer = '';
+    wrongAttempts = 0;
+    locked = false;
+
+    questionEl.innerHTML = problem.questionText;
+    method.render(problem, workspaceEl);
+    promptEl.textContent = steps.length > 1 ? 'Ones first!' : '';
+    answerDisplay.style.color = 'white';
+    updateDisplays();
+
+    speak(problem.speakText, { interrupt: true });
+}
+
+function showHint() {
+    const token = ++hintToken;
+    method.hint(problem, workspaceEl, () => token === hintToken);
+}
+
+function markStepDone(step) {
+    const slot = slotFor(step.id);
+    if (!slot) return false;
+    slot.textContent = String(step.expect);
+    slot.classList.add('done');
+    return true;
+}
+
+function advanceStep() {
+    const step = currentStep();
+    markStepDone(step);
+
+    const pause = method.onStepDone ? method.onStepDone(step, problem, workspaceEl) : 0;
+    stepIndex++;
+    buffer = '';
+    wrongAttempts = 0;
+
+    const token = hintToken;
+    const next = currentStep();
+    promptEl.textContent = next ? 'Now the tens!' : '';
+    setTimeout(() => {
+        if (!next || token !== hintToken) return;
+        updateDisplays();
+        if (next.speak) speak(next.speak, { interrupt: true });
+    }, pause);
+}
+
+// Timers outlive their problem when the child switches modes mid-celebration,
+// so everything deferred is fenced behind the token newProblem/deactivate bump.
+function finish() {
+    locked = true;
+    correctThisSession++;
+    celebrate();
+    speak(`${problem.answer}! Great job!`, { interrupt: true });
+
+    if (!markStepDone(currentStep())) {
+        answerDisplay.textContent = String(problem.answer);
+        answerDisplay.style.color = '#4CAF50';
+    }
+    promptEl.textContent = '';
+
+    const token = hintToken;
+    const extra = method.celebrationText && method.celebrationText(problem);
+    if (extra) setTimeout(() => token === hintToken && speak(extra), 1400);
+    setTimeout(() => token === hintToken && newProblem(), extra ? 3400 : 1800);
+}
+
+function submitAnswer() {
+    if (buffer === '' || locked) return;
+    const step = currentStep();
+
+    if (Number(buffer) === step.expect) {
+        if (stepIndex === steps.length - 1) {
+            finish();
+        } else {
+            advanceStep();
+        }
+        return;
+    }
+
+    wrongAttempts++;
+    answerDisplay.style.color = '#ff6b6b';
+    playWrongSound();
+    setTimeout(() => {
+        if (locked) return;
+        buffer = '';
+        updateDisplays();
+        answerDisplay.style.color = 'white';
+    }, 800);
+    if (wrongAttempts >= 2) showHint();
+}
+
+container.addEventListener('pointerdown', e => {
+    if (locked || !problem) return;
+    const target = closestEl(e.target, 'button');
+    if (!target || target === speakBtn) return;
+    handleCounterTap(target);
+    if (method.onTap) method.onTap(target, problem, workspaceEl);
+});
+
+speakBtn.addEventListener('click', () => {
+    if (problem) speak(problem.speakText, { interrupt: true });
+});
+
+// A parent changing method or level mid-session gets a fresh problem in the
+// new shape rather than a stale one.
+onSettingChange(key => {
+    if (!container.classList.contains('active')) return;
+    if (key === 'mathMethod' || key === 'mathLabLevel') newProblem();
+});
+
+/** @type {Mode} */
+export const mathLabMode = {
+    id: 'mathlab',
+    label: 'Math Lab',
+    icon: '🧮',
+    beta: true,
+    oskLayout: 'numpad',
+    instructions: 'Tap to work it out, then type the answer and press ✓! 🧪',
+
+    activate() {
+        container.classList.add('active');
+        setScoreMode('mathlab');
+        setScoreVisible(true);
+        correctThisSession = 0;
+        newProblem();
+    },
+
+    deactivate() {
+        container.classList.remove('active');
+        hintToken++;
+        locked = true;
+        cancelSpeech();
+    },
+
+    onKey(key) {
+        if (locked) return;
+        const step = currentStep();
+        if (!step) return;
+
+        if (/^[0-9]$/.test(key)) {
+            // Single-digit column steps overwrite (no backspace hunt for a
+            // toddler); the two-digit total ignores extra taps like Math does.
+            const maxLen = step.id === 'total' ? 2 : 1;
+            if (buffer.length >= maxLen) {
+                if (maxLen > 1) return;
+                buffer = '';
+            }
+            buffer += key;
+            playKeyTone(key);
+            randomBackground();
+            createBubble();
+            updateDisplays();
+        } else if (key === 'Backspace') {
+            buffer = buffer.slice(0, -1);
+            updateDisplays();
+        } else if (key === 'Enter') {
+            submitAnswer();
+        }
+    }
+};

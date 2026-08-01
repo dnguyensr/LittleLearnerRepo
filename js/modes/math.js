@@ -4,6 +4,8 @@ import { randomBackground, createBubble, randomStar, celebrate, setScoreVisible,
 import { speak, cancelSpeech } from '../speech.js';
 import { getSetting } from '../settings.js';
 
+/** @typedef {import('../types.js').Mode} Mode */
+
 const mathContainer = document.getElementById('math-container');
 const mathQuestion = document.getElementById('math-question');
 const mathEmojis = document.getElementById('math-emojis');
@@ -183,6 +185,7 @@ function submitAnswer() {
     }
 }
 
+/** @type {Mode} */
 export const mathMode = {
     id: 'math',
     label: 'Math',

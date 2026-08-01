@@ -2,6 +2,8 @@ import { playKeyTone, playTone, notes } from '../audio.js';
 import { randomBackground, createBubble, createStar, randomStar, createFlyingKey, setScoreVisible } from '../effects.js';
 import { displayLabel } from '../input.js';
 
+/** @typedef {import('../types.js').Mode} Mode */
+
 const keyDisplay = document.getElementById('key-display');
 const keyHistory = document.getElementById('key-history');
 
@@ -18,6 +20,7 @@ function updateKeyHistory(key) {
     }
 }
 
+/** @type {Mode} */
 export const freeplayMode = {
     id: 'free',
     label: 'Free Play',
