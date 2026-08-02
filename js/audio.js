@@ -1,5 +1,21 @@
-// webkitAudioContext is the old Safari spelling and isn't in lib.dom
-const audioContext = new (window.AudioContext || /** @type {any} */ (window).webkitAudioContext)();
+// webkitAudioContext is the old Safari spelling and isn't in lib.dom.
+//
+// Constructed defensively, because this module is imported by everything: a
+// throw here isn't "no sound", it's a blank page with no mode buttons at all.
+// Playwright's WebKit build exposes neither spelling and took down the entire
+// app on import; a real device can also refuse a context under memory pressure.
+// Either way the app has to keep working, silently.
+function createAudioContext() {
+    const Ctor = window.AudioContext || /** @type {any} */ (window).webkitAudioContext;
+    if (!Ctor) return null;
+    try {
+        return /** @type {AudioContext} */ (new Ctor());
+    } catch (err) {
+        return null;
+    }
+}
+
+const audioContext = createAudioContext();
 
 export const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25, 698.46, 783.99];
 
@@ -7,13 +23,14 @@ const keyToNote = {};
 let noteIndex = 0;
 
 export function unlockAudio() {
+    if (!audioContext) return;
     if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
 }
 
 export function getAudioState() {
-    return audioContext.state;
+    return audioContext ? audioContext.state : 'unavailable';
 }
 
 function getFrequencyForKey(key) {
@@ -25,6 +42,7 @@ function getFrequencyForKey(key) {
 }
 
 export function playTone(frequency) {
+    if (!audioContext) return;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -32,7 +50,8 @@ export function playTone(frequency) {
     gainNode.connect(audioContext.destination);
 
     oscillator.frequency.value = frequency;
-    oscillator.type = ['sine', 'square', 'triangle'][Math.floor(Math.random() * 3)];
+    const waveforms = /** @type {OscillatorType[]} */ (['sine', 'square', 'triangle']);
+    oscillator.type = waveforms[Math.floor(Math.random() * waveforms.length)];
 
     gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
@@ -46,6 +65,7 @@ export function playKeyTone(key) {
 }
 
 function playChimeNote(frequency, duration) {
+    if (!audioContext) return;
     const osc = audioContext.createOscillator();
     const gain = audioContext.createGain();
     osc.connect(gain);
@@ -65,6 +85,7 @@ export function playSuccessSound() {
 }
 
 export function playWrongSound() {
+    if (!audioContext) return;
     const osc = audioContext.createOscillator();
     const gain = audioContext.createGain();
     osc.connect(gain);
@@ -87,17 +108,19 @@ export function midiToFreq(midi) {
     return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function getPianoMaster() {
+/** @param {AudioContext} ctx */
+function getPianoMaster(ctx) {
     if (!pianoMaster) {
-        pianoMaster = audioContext.createGain();
+        pianoMaster = ctx.createGain();
         pianoMaster.gain.value = 0.6;
-        pianoMaster.connect(audioContext.destination);
+        pianoMaster.connect(ctx.destination);
     }
     return pianoMaster;
 }
 
 // Fixed piano-ish timbre: layered partials with a fast attack, a natural
 // decay toward a quiet sustain while held, and a short release on key-up.
+/** @type {{ mult: number, type: OscillatorType, gain: number, detune: number }[]} */
 const pianoPartials = [
     { mult: 1, type: 'triangle', gain: 1.0, detune: 0 },
     { mult: 2, type: 'sine', gain: 0.35, detune: 3 },
@@ -106,6 +129,7 @@ const pianoPartials = [
 
 export function startPianoNote(midi) {
     unlockAudio();
+    if (!audioContext) return;
 
     if (activePianoNotes.has(midi)) {
         stopPianoNote(midi, true);
@@ -123,7 +147,7 @@ export function startPianoNote(midi) {
     filter.frequency.value = Math.min(freq * 6, 9000);
     filter.Q.value = 0.5;
     gain.connect(filter);
-    filter.connect(getPianoMaster());
+    filter.connect(getPianoMaster(audioContext));
 
     const oscs = [];
     for (const partial of pianoPartials) {
@@ -148,7 +172,7 @@ export function startPianoNote(midi) {
 
 export function stopPianoNote(midi, immediate = false) {
     const voice = activePianoNotes.get(midi);
-    if (!voice) return;
+    if (!voice || !audioContext) return;
     activePianoNotes.delete(midi);
 
     const t = audioContext.currentTime;

@@ -66,6 +66,7 @@
             <h2>Grown-Ups Only 🔒</h2>
             <p class="settings-note">Opened by holding the ⚙️ button.</p>
             <label class="settings-row"><input type="checkbox" id="set-speech"> Speech sounds</label>
+            <p class="settings-note" id="voice-readout">Voice: —</p>
             <label class="settings-row"><input type="checkbox" id="set-phonics"> Letter sounds (phonics) instead of names</label>
             <label class="settings-row">Math level
                 <select id="set-math-tier">
@@ -100,6 +101,10 @@
                         <option value="twodigit">Two-digit math</option>
                     </select>
                 </label>
+                <details id="voice-list-row">
+                    <summary>Voices on this device</summary>
+                    <ul id="voice-list"></ul>
+                </details>
             </div>
             <button id="settings-close" type="button" class="top-btn">Done</button>
         </div>

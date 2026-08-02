@@ -73,6 +73,9 @@ const fit = page => page.evaluate(() => {
 
 for (const method of ['classical', 'commoncore', 'singapore']) {
     test(`${method}: every rung fits the play area with the numpad open`, async ({ page }) => {
+        // A full reload per skill, so this is long by construction — ~29s on
+        // Chromium and past the 30s default on WebKit, which is slower still.
+        test.slow();
         const failures = [];
 
         for (const skill of SKILLS) {

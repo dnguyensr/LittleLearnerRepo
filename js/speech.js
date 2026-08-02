@@ -21,10 +21,52 @@ const synth = window.speechSynthesis || null;
 
 let enabled = true;
 let chosenName = null;
+let chosenURI = null;
 let lastListSize = -1;
 
 function isEnglish(voice) {
     return /^en(-|_|$)/i.test(voice.lang || '');
+}
+
+// Apple's English voices carry no quality marker in the name — they are bare
+// first names — so on iOS every candidate used to score identically and the
+// alphabetical tiebreak decided the whole app. That tiebreak has no idea the
+// list it is sorting contains gag voices, and `Albert` (a breathy croak) sorts
+// above `Samantha`. That is the reported "whispering ghost".
+//
+// `voiceURI` is the signal the name doesn't give us:
+//
+//   com.apple.voice.premium.en-US.Ava       downloaded neural — best
+//   com.apple.voice.enhanced.en-US.Ava      downloaded — good
+//   com.apple.voice.compact.en-US.Samantha  preloaded — fine, always present
+//   com.apple.eloquence.en-US.Reed          DECtalk-era formant synth
+//   com.apple.speech.synthesis.voice.Bells  novelty (Boing, Zarvox, Whisper…)
+//
+// Note the last namespace also holds `Alex`, one of the best voices Apple
+// ships, so the namespace alone can't be a reject rule — the novelty set is
+// matched by name instead.
+const UNUSABLE_NAMES = new Set([
+    // Novelty: these sing, buzz, or whisper the text.
+    'albert', 'bad news', 'bahh', 'bells', 'boing', 'bubbles', 'cellos',
+    'deranged', 'good news', 'hysterical', 'jester', 'organ', 'superstar',
+    'trinoids', 'whisper', 'wobble', 'zarvox',
+    // Legacy MacinTalk: intelligible but worse than anything else on the device.
+    'fred', 'junior', 'kathy', 'princess', 'ralph', 'agnes', 'vicki', 'victoria',
+    // Eloquence (iOS 16+), matched by name too in case voiceURI is unavailable.
+    'eddy', 'flo', 'grandma', 'grandpa', 'reed', 'rocko', 'sandy', 'shelley'
+]);
+
+// Apple's mainstream en-US voices, used only to break ties within a tier —
+// never as a gate, since the list a device actually exposes varies with what
+// the parent has downloaded.
+const PREFERRED_NAMES = new Set([
+    'samantha', 'ava', 'allison', 'susan', 'nicky', 'zoe', 'joelle', 'noelle',
+    'alex', 'tom', 'evan', 'nathan', 'aaron'
+]);
+
+/** Apple appends "(Enhanced)" / locale suffixes to some names; compare the stem. */
+function nameKey(voice) {
+    return (voice.name || '').toLowerCase().replace(/\s*\(.*\)\s*$/, '').trim();
 }
 
 /**
@@ -42,31 +84,49 @@ function score(voice) {
     else if (lang === 'en-us') points += 40;
     else points += 10;
 
-    // Quality markers as the platforms spell them: Edge uses "(Natural)",
-    // Apple uses "(Enhanced)"/"(Premium)".
+    // Quality markers as the platforms spell them: Edge puts "(Natural)" in the
+    // name, Apple puts the tier in the voiceURI and sometimes in the name.
     const name = voice.name || '';
-    if (/natural|neural/i.test(name)) points += 25;
-    else if (/premium|enhanced/i.test(name)) points += 20;
+    const uri = (voice.voiceURI || '').toLowerCase();
+    if (/premium/i.test(name) || uri.includes('.premium.')) points += 30;
+    else if (/natural|neural/i.test(name)) points += 25;
+    else if (/enhanced/i.test(name) || uri.includes('.enhanced.')) points += 20;
+
+    const key = nameKey(voice);
+    if (PREFERRED_NAMES.has(key)) points += 8;
+
+    // A demotion, not a filter: if a device somehow exposes nothing else, a
+    // silly voice still beats falling back to whatever the platform picks.
+    if (UNUSABLE_NAMES.has(key) || uri.includes('eloquence')) points -= 1000;
 
     // `voice.default` is deliberately NOT scored: iOS sets it on everything.
     return points;
 }
 
 /**
- * Pick the best English voice, deterministically. Exported for tests, which
- * can't rely on a headless browser exposing any real voices.
+ * Pick the best English voice, deterministically.
  *
  * @param {SpeechSynthesisVoice[]} voices
- * @returns {string|null} the chosen voice's name
+ * @returns {SpeechSynthesisVoice|null}
  */
-export function rankVoices(voices) {
+function bestVoice(voices) {
     const english = voices.filter(isEnglish);
     if (!english.length) return null;
 
     return english
         .slice()
-        .sort((a, b) => score(b) - score(a) || a.name.localeCompare(b.name))[0]
-        .name;
+        .sort((a, b) => score(b) - score(a) || a.name.localeCompare(b.name))[0];
+}
+
+/**
+ * Name of the best English voice. Exported for tests, which can't rely on a
+ * headless browser exposing any real voices.
+ *
+ * @param {SpeechSynthesisVoice[]} voices
+ * @returns {string|null}
+ */
+export function rankVoices(voices) {
+    return bestVoice(voices)?.name ?? null;
 }
 
 // Resolved per utterance rather than cached at load: the list is empty at
@@ -78,9 +138,15 @@ function currentVoice() {
 
     if (voices.length !== lastListSize) {
         lastListSize = voices.length;
-        chosenName = rankVoices(voices);
+        const best = bestVoice(voices);
+        chosenName = best?.name ?? null;
+        // Apple ships compact and enhanced variants under one name, so the URI
+        // is what distinguishes the one that was actually chosen.
+        chosenURI = best?.voiceURI ?? null;
     }
-    return voices.find(v => v.name === chosenName) || null;
+    return voices.find(v => chosenURI && v.voiceURI === chosenURI)
+        || voices.find(v => v.name === chosenName)
+        || null;
 }
 
 if (synth) {
@@ -102,6 +168,41 @@ export function isSpeechEnabled() {
 export function currentVoiceName() {
     const voice = currentVoice();
     return voice ? `${voice.name} (${voice.lang})` : null;
+}
+
+function sameVoice(a, b) {
+    if (!a || !b) return false;
+    return a.voiceURI && b.voiceURI ? a.voiceURI === b.voiceURI : a.name === b.name;
+}
+
+/**
+ * Every voice this device exposes, in the order the ranking sees them.
+ *
+ * Purely diagnostic, and the reason it exists: the inventory is different on
+ * every device and cannot be reproduced locally. Playwright's WebKit is not
+ * Safari and runs on a machine with no Apple voices installed, so `getVoices()`
+ * there is empty — reading the list off the actual phone is the only way to
+ * know what iOS is really offering.
+ *
+ * @returns {{ name: string, lang: string, uri: string, score: number,
+ *             chosen: boolean }[]}
+ */
+export function listVoices() {
+    if (!synth) return [];
+    const chosen = currentVoice();
+    return synth.getVoices()
+        .slice()
+        .sort((a, b) =>
+            Number(isEnglish(b)) - Number(isEnglish(a))
+            || score(b) - score(a)
+            || a.name.localeCompare(b.name))
+        .map(v => ({
+            name: v.name,
+            lang: v.lang,
+            uri: v.voiceURI || '',
+            score: score(v),
+            chosen: sameVoice(v, chosen)
+        }));
 }
 
 /**

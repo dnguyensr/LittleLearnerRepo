@@ -1,4 +1,4 @@
-import { setSpeechEnabled } from './speech.js';
+import { setSpeechEnabled, currentVoiceName, listVoices } from './speech.js';
 import { LEGACY_STAGE, loadProgress, clearProgress, describeProgress } from './math/ladder.js';
 
 const STORAGE_KEY = 'lls-settings';
@@ -87,6 +87,37 @@ export function initSettingsUI() {
     const progressLabel = document.getElementById('mathlab-progress-label');
     const resetBtn = document.getElementById('mathlab-progress-reset');
 
+    // Which voice the ranking actually landed on. The list differs per device
+    // and can't be reproduced on a desktop, so on a phone this read-out is the
+    // only way to tell a bad-sounding voice from a bad-sounding *engine*.
+    const voiceReadout = document.getElementById('voice-readout');
+
+    const voiceList = document.getElementById('voice-list');
+    const voiceListRow = document.getElementById('voice-list-row');
+
+    function refreshVoiceRow() {
+        voiceReadout.textContent = `Voice: ${currentVoiceName() || 'browser default'}`;
+
+        // The full inventory, so a device that sounds wrong can be diagnosed
+        // from the device itself. iOS exposes its novelty and Eloquence voices
+        // here alongside the real ones, and which of them are present depends on
+        // what has been downloaded — none of which is visible from a desktop.
+        const voices = listVoices();
+        voiceList.textContent = '';
+        for (const v of voices) {
+            const item = document.createElement('li');
+            item.textContent = `${v.chosen ? '▶ ' : ''}${v.name} — ${v.lang} — ${v.score}${v.uri ? ` — ${v.uri}` : ''}`;
+            if (v.chosen) item.className = 'voice-chosen';
+            voiceList.appendChild(item);
+        }
+        if (!voices.length) {
+            const item = document.createElement('li');
+            item.textContent = 'None reported (the list can arrive late — reopen this panel).';
+            voiceList.appendChild(item);
+        }
+        voiceListRow.querySelector('summary').textContent = `Voices on this device (${voices.length})`;
+    }
+
     function refreshProgressRow() {
         progressLabel.textContent = describeProgress(loadProgress());
         resetBtn.textContent = 'Start over';
@@ -113,6 +144,7 @@ export function initSettingsUI() {
         holdTimer = setTimeout(() => {
             panel.hidden = false;
             refreshProgressRow();
+            refreshVoiceRow();
         }, HOLD_MS);
     });
     for (const evt of ['pointerup', 'pointerleave', 'pointercancel']) {

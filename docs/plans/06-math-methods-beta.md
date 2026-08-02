@@ -187,6 +187,31 @@ Variant selection is stored on `#mathlab-workspace[data-variant]`, not in a modu
 - [x] The missing-addend gap the Phase E graduation review found is closed: `missingAddend` is a spine rung, and `bondTo10` / `partWhole` are Singapore detours built on the same shape.
 - [x] A sweep script checks all 75 skill × method combinations for empty workspaces, missing questions and play-area overflow. It passed while the missing-addend equation was still rendering stacked instead of across — a reminder that a sweep proves absence of crashes, not correctness. Looking at the screenshots caught it.
 
+## Deferred UI/UX — found on device (2026-08-02)
+
+Parked while speech quality ([07](07-speech-quality.md)) takes priority; pick these up before any further UI/UX work here.
+
+**These came from a real iPhone 16 Pro running Safari, and that is worth recording on its own.** `playwright.config.js` declares `webkit` and `mobile-safari` projects, but the WebKit browser is not installed on the dev machine, so local runs and everything asserted in this plan were verified on **chromium and mobile-chrome only**. Safari is currently unexercised — device testing is the only thing catching these.
+
+- [ ] **Decoration and content are not disjoint sets.** Reported as: the ⭐ in the score badge blends into the ⭐ objects on a "count the STARS" problem. It is not only the badge, and not only Safari:
+
+  | Source | Where |
+  | --- | --- |
+  | `⭐ Score: N` badge | `index.html`, permanently in the play area's top-right corner |
+  | `⭐` as a countable subject | `js/data/math-items.js` |
+  | `⭐ 🌟 ✨ 💫 🎉 🎊 🎈 🎁 ❤️ 💜 💙 💚 💛 🧡` celebration particles | `js/effects.js`, spawned **over** the play area |
+
+  **Four of the sixteen countable items — ⭐ ❤️ 🎈 🎁 — are also celebration particles.** So on a quarter of counting problems a decoration is indistinguishable from a thing to be counted, and on the STARS problem there is a third star sitting in the badge. This is a correctness hazard, not just visual noise: the task is *count exactly these objects*, and the screen shows objects that are not part of the count. It is visible in the mobile-chrome screenshots taken during the 2026-08-02 density pass (hearts drifting across the balloon rows on `tenAndSome`, sparkles over the ten frame) — Safari's larger, higher-contrast glyphs just made it obvious enough to notice.
+
+  Candidate fixes, cheapest first:
+  1. Make the two sets disjoint — drop ⭐ ❤️ 🎈 🎁 from the particle list in `js/effects.js`, keeping ✨ 💫 🎉 🎊 and the coloured hearts. Note 💜💙💚💛🧡 still read as "a heart" next to ❤️ HEARTS, so they likely have to go too.
+  2. Give the score badge a non-emoji mark, or drop its ⭐ in the counting modes.
+  3. Keep particles outside the workspace bounds rather than over it.
+
+  The rule worth adopting either way: **nothing that decorates may also be countable.** Fixing it at the particle list rather than by removing subjects keeps all sixteen items, and ⭐/❤️/🎈/🎁 are among the most appealing to a toddler.
+
+- [ ] Other iPhone 16 Pro / Safari findings from the same session — **not yet captured**, ask before this is picked up.
+
 ## Still open
 
 - [ ] Try the ladder with an actual child; record which rungs land and which are too big a step, before touching the beta flag.
@@ -251,3 +276,44 @@ Phase A introduces the repo's first multi-implementation contract: three method 
 **Verify the gate isn't vacuous when extending it.** A `@returns {Problem}` on a function whose body returns `any` checks nothing — that was true of `generateProblem` until the individual generators were annotated. Confirmed catching both a renamed `Problem` field and an invalid `AnswerStep.id`.
 
 Bugs the first typecheck run surfaced in pre-existing code, now fixed: `score` (a number) assigned to `textContent` in two places in `js/effects.js`, the same in `js/modes/piano.js` (`dataset.midi`), and a dead `Intl.Segmenter` local in `tests/math.spec.js` whose comment described counting that the code wasn't doing.
+
+## Fixed — the Lab didn't fit an iPhone (found and fixed 2026-08-02)
+
+`mobile-safari` was pointed at the real device (`iPhone 16 Pro`, 402x681) when
+WebKit was installed for P7. `mathlab-fit.spec.js` fails on all three methods:
+with the numpad open, roughly half the rungs put the manipulative **below the
+fold**, so a toddler has to scroll to reach the thing they are meant to tap.
+
+```
+classical:  count5, count10, subitize, numeralMatch, factFamily → math-emoji
+            countBack → nl-tick    subWithin20 → eater-btn
+            addTens, addWithin100, subWithin100, addRegroup, subRegroup → btb-one
+```
+
+Confirmed **not** a WebKit bug: the same spec fails on Chromium forced to the
+same viewport. It is screen height, and it is pre-existing — the suite never
+caught it because `mobile-chrome` uses a Pixel 7 (412x915), ~230px taller than
+any iPhone. The base-ten blocks added in `bf04c83` are the worst affected.
+
+**The fix: the numpad went from four rows to two.** None of the three options
+first considered (overlay, deliberate scroll, shrink the manipulatives) were
+needed — the numpad itself was the problem. A phone keypad's `1-2-3 / 4-5-6 /
+7-8-9 / ⌫-0-✓` grid cost **252px, 37% of a 681px screen**. Reshaped to
+`1-2-3-4-5-⌫ / 6-7-8-9-0-✓` it costs **131px**, returning 121px to the
+workspace. That alone cleared all 25 rungs across all three methods.
+
+- [x] `oskLayouts.numpad` in `js/input.js` reshaped to two rows of six.
+- [x] Still exactly 12 keys, so `math.spec.js`'s count assertion, the `✓`
+      confirm key and `data-key="Backspace"` all hold unchanged.
+- [x] Keys land at ~59px wide on a 402px viewport, comfortably over the 44px
+      touch-target minimum, and `#osk.numpad .osk-key`'s 110px `max-width`
+      still caps them on a desktop.
+- [x] Reading order (1-5 then 6-0) is also better for a child learning the
+      number line than a keypad's bottom-up 7-8-9.
+
+Full suite after the change: **550 passed, 6 skipped, 0 failed** across all four
+projects, `mobile-safari` included.
+
+Worth keeping: `mathlab-fit.spec.js` is a load-bearing spec. It caught a real
+defect the moment it was pointed at a true phone viewport, and the temptation
+when it goes red is to loosen it. Don't — it was right.

@@ -37,8 +37,12 @@ module.exports = defineConfig({
             }
         },
         {
+            // The actual device this app is used on. Note it is a WebKit build,
+            // not Safari — no speechSynthesis, no Apple voices, no iOS dynamic
+            // viewport. It covers layout at the real screen size and JSC, and
+            // nothing about how the app sounds.
             name: 'mobile-safari',
-            use: { ...devices['iPhone 14'] }
+            use: { ...devices['iPhone 16 Pro'] }
         }
     ]
 });

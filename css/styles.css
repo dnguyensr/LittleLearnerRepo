@@ -1527,6 +1527,34 @@ button.btb-rod:active {
     justify-content: space-between;
 }
 
+/* Diagnostic voice inventory: long, and read off a phone screen, so it scrolls
+   in its own box and stays selectable for copying into a bug report. */
+#voice-list-row summary {
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+#voice-list {
+    max-height: 40vh;
+    overflow-y: auto;
+    margin: 8px 0 0;
+    padding: 8px;
+    list-style: none;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    word-break: break-word;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+#voice-list .voice-chosen {
+    font-weight: bold;
+    color: #2a7;
+}
+
 .reset-btn {
     font: inherit;
     font-size: 0.9rem;

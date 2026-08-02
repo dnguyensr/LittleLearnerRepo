@@ -69,7 +69,11 @@ test.describe('Number Fun', () => {
 });
 
 test.describe('Number Fun — the counting voice', () => {
-    test('the whole count is queued as one sequence, never interrupted', async ({ page }) => {
+    test('the whole count is queued as one sequence, never interrupted', async ({ page, browserName }) => {
+        // Playwright's WebKit build ships no speechSynthesis API at all — not an
+        // empty voice list, the object is absent — so there is nothing to
+        // instrument. Real Safari has it; this browser is not Safari.
+        test.skip(browserName === 'webkit', 'speechSynthesis is absent in Playwright WebKit');
         await gotoApp(page);
         await page.locator('#numbers-btn').click();
         await expect(page.locator('#numbers-container')).toHaveClass(/active/);

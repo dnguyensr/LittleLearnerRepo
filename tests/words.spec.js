@@ -39,7 +39,9 @@ test.describe('Words mode', () => {
     // Regression: the final letter used to be cancelled by the word
     // celebration, so FLY was spoken "F, L, ...FLY". The celebration must queue
     // behind the letter rather than interrupt it.
-    test('the last letter is not cut off by the word celebration', async ({ page }) => {
+    test('the last letter is not cut off by the word celebration', async ({ page, browserName }) => {
+        // See learning.spec.js: Playwright's WebKit has no speechSynthesis to hook.
+        test.skip(browserName === 'webkit', 'speechSynthesis is absent in Playwright WebKit');
         const spoken = [];
         await page.exposeFunction('recordUtterance', text => spoken.push(text));
         await page.evaluate(() => {

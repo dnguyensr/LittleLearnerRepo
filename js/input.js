@@ -35,11 +35,15 @@ const oskLayouts = {
         ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
         [' ']
     ],
+    // Two rows, not a phone keypad's four. On a 681px-tall iPhone the 4-row
+    // grid ate 252px — 37% of the screen — and pushed the Math Lab
+    // manipulatives below the fold, so a toddler had to scroll to reach the
+    // blocks they were being asked to count. Two rows cost 131px instead.
+    // Reading order (1-5, 6-0) also beats a keypad's bottom-up 7-8-9 for
+    // children who are still learning the number line.
     numpad: [
-        ['1', '2', '3'],
-        ['4', '5', '6'],
-        ['7', '8', '9'],
-        ['Backspace', '0', 'Enter']
+        ['1', '2', '3', '4', '5', 'Backspace'],
+        ['6', '7', '8', '9', '0', 'Enter']
     ]
 };
 
