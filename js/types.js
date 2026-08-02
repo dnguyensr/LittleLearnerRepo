@@ -91,6 +91,10 @@
  * @property {'total'|'ones'|'tens'} id
  * @property {number} expect
  * @property {string|null} speak         spoken when the step becomes active
+ * @property {boolean} [taps]            answered by working the manipulative and
+ *   tapping ✓, not by typing. The shell reads the answer back through
+ *   `MathMethod.readAnswer`, ignores the numpad's digits and hides the answer
+ *   display — the counters the child placed already show what they answered.
  */
 
 /**
@@ -104,6 +108,10 @@
  * @property {(problem: Problem) => AnswerStep[]} steps
  * @property {(problem: Problem, container: HTMLElement, stillValid: () => boolean) => void} hint
  * @property {(target: HTMLElement, problem: Problem, container: HTMLElement) => void} [onTap]
+ * @property {(container: HTMLElement, problem: Problem) => number|null} [readAnswer]
+ *   Required by any method that returns a `taps` step: what the child has built
+ *   so far, or null if they have not started. Read fresh on every judgement, so
+ *   it must be derived from the DOM rather than remembered.
  * @property {(step: AnswerStep, problem: Problem, container: HTMLElement) => number} [onStepDone]
  *   Called whenever a step is answered correctly, including the last one. The
  *   returned pause (ms) is only honoured between steps. Use it to animate what

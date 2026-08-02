@@ -104,6 +104,17 @@ export function eatOne(group) {
     return group.querySelectorAll('.tap-item.eaten').length;
 }
 
+/**
+ * "I have finished building it." The answer step for a rung the child works
+ * instead of types: js/modes/mathlab.js judges on any tap that lands on one, so
+ * a method only has to render it and implement readAnswer().
+ */
+export function checkButton(label = 'Check it!') {
+    const btn = tapButton('lab-check', `✓ ${label}`);
+    btn.setAttribute('aria-label', label);
+    return btn;
+}
+
 /* ---------- Ten frame ---------- */
 
 /**
@@ -119,7 +130,7 @@ export function tenFrame(filled = 0, { name = 'frame', interactive = true } = {}
     for (let i = 0; i < 10; i++) {
         const cell = interactive ? tapButton('tf-cell', '') : el('div', 'tf-cell');
         if (i < filled) cell.classList.add('filled');
-        if (interactive) cell.setAttribute('aria-label', `Ten frame space ${i + 1}`);
+        if (interactive) cell.setAttribute('aria-label', `Ten frame box ${i + 1}`);
         frame.appendChild(cell);
     }
     return frame;

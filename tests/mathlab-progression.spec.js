@@ -36,12 +36,26 @@ async function solveCount(page, expectedScore) {
     const workspace = page.locator('#mathlab-workspace');
     const variant = await workspace.getAttribute('data-variant');
     const skill = await workspace.getAttribute('data-skill');
+
+    // numeralbuild is answered by building the quantity and tapping ✓, not by
+    // typing — see tests/mathlab-singapore.spec.js.
+    if (variant === 'numeralbuild') {
+        const target = Number(await page.locator('.numeral-card').textContent());
+        const cells = page.locator('.tf-cell');
+        for (let i = 0; i < target; i++) {
+            await cells.nth(i).dispatchEvent('pointerdown', { pointerId: 1 });
+        }
+        await page.locator('.lab-check').dispatchEvent('pointerdown', { pointerId: 1 });
+        await expect(page.locator('#word-count')).toHaveText(String(expectedScore));
+        await expect(page.locator('#mathlab-answer-display')).toHaveText('?', { timeout: 6000 });
+        return;
+    }
+
     let answer;
     if (skill === 'countBack') {
         // "What comes just before n?" shows the numeral n; the answer is n − 1
         answer = Number(await page.locator('.numeral-card').textContent()) - 1;
     }
-    else if (variant === 'numeralbuild') answer = Number(await page.locator('.numeral-card').textContent());
     else if (variant === 'subitize') answer = await page.locator('.tf-cell.filled').count();
     else if (variant === 'pictorial') answer = await page.locator('.dot').count();
     else answer = await page.locator('#mathlab-workspace .math-emoji').count();

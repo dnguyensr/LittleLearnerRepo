@@ -119,13 +119,15 @@ export const commonCoreMethod = {
             // Objects first, then the structured frame — the frame is what the
             // child builds, so it starts empty.
             workspace.appendChild(tapCounter(problem.item.emoji, problem.a, { tappable: false }));
-            workspace.appendChild(labelled('Put one counter in for each one!', tenFrame(0)));
+            workspace.appendChild(labelled('Tap one box for each one!', tenFrame(0)));
         } else if (variant === 'maketen') {
             const frames = el('div', 'cc-frames');
             frames.appendChild(tenFrame(problem.a, { name: 'a' }));
             frames.appendChild(el('span', 'math-operator', '+'));
             frames.appendChild(tenFrame(problem.b, { name: 'b' }));
-            workspace.appendChild(labelled('Move counters over to make a ten!', frames));
+            // Here the child taps a *filled* cell, so the noun is the dot in it
+            // rather than the box around it.
+            workspace.appendChild(labelled('Tap the dots to move them and make a ten!', frames));
         } else if (variant === 'counton') {
             const { from, max } = lineRange(problem, variant);
             workspace.appendChild(labelled(
@@ -178,7 +180,7 @@ export const commonCoreMethod = {
         if (variant === 'tenframe') {
             return {
                 html: `Count the ${item.name}!`,
-                speak: `Count the ${item.name.toLowerCase()}, then fill the ten frame.`
+                speak: `Count the ${item.name.toLowerCase()}, then tap one box for each one.`
             };
         }
         if (variant === 'placevalue') {

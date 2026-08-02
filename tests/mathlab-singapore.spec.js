@@ -84,6 +84,8 @@ test.describe('Math Lab — Singapore, counting (concrete → pictorial)', () =>
     });
 
     // The abstract step is its own ladder rung now, not a stage in the rotation.
+    // It is also the one rung answered by building rather than typing: the
+    // numeral is on the card, so a typed answer would only be copying it.
     test('the numeralMatch rung gives the numeral and asks for the quantity', async ({ page }) => {
         await openLab(page, 'numeralMatch');
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-variant', 'numeralbuild');
@@ -91,14 +93,57 @@ test.describe('Math Lab — Singapore, counting (concrete → pictorial)', () =>
         const target = Number(await page.locator('.numeral-card').textContent());
         expect(target).toBeGreaterThanOrEqual(1);
         await expect(page.locator('#mathlab-question')).toContainText(`Show me ${target}`);
+        // The counters are the answer, so there is no numeral box to fill in
+        await expect(page.locator('#mathlab-answer-display')).toBeHidden();
 
         const cells = page.locator('.tf-cell');
         await expect(cells).toHaveCount(10);
         for (let i = 0; i < target; i++) await tap(cells.nth(i));
         await expect(page.locator('.tf-cell.filled')).toHaveCount(target);
 
+        await tap(page.locator('.lab-check'));
+        await expect(page.locator('#word-count')).toHaveText('1');
+    });
+
+    test('typing the numeral cannot answer for you', async ({ page }) => {
+        await openLab(page, 'numeralMatch');
+        const target = Number(await page.locator('.numeral-card').textContent());
+
         await type(page, target);
         await page.keyboard.press('Enter');
+        await page.waitForTimeout(500);
+        await expect(page.locator('#word-count')).toHaveText('0');
+        await expect(page.locator('.tf-cell.filled')).toHaveCount(0);
+    });
+
+    test('✓ before placing a counter does nothing, and a wrong count shakes', async ({ page }) => {
+        await openLab(page, 'numeralMatch');
+        const target = Number(await page.locator('.numeral-card').textContent());
+        const workspace = page.locator('#mathlab-workspace');
+
+        // An empty frame is "not started", not an answer of zero
+        await tap(page.locator('.lab-check'));
+        await page.waitForTimeout(300);
+        await expect(workspace).not.toHaveClass(/wrong/);
+        await expect(page.locator('#word-count')).toHaveText('0');
+
+        // Deliberately miscount: one too few, or one too many at the top
+        const wrong = target === 1 ? 2 : target - 1;
+        const cells = page.locator('.tf-cell');
+        for (let i = 0; i < wrong; i++) await tap(cells.nth(i));
+        await tap(page.locator('.lab-check'));
+        await expect(workspace).toHaveClass(/wrong/);
+        await expect(page.locator('#word-count')).toHaveText('0');
+
+        // The counters stay put, so the child fixes their count rather than
+        // starting over
+        await page.waitForTimeout(1000);
+        await expect(page.locator('.tf-cell.filled')).toHaveCount(wrong);
+        await expect(workspace).not.toHaveClass(/wrong/);
+
+        for (let i = wrong; i < target; i++) await tap(cells.nth(i));
+        if (target === 1) await tap(cells.nth(1));
+        await tap(page.locator('.lab-check'));
         await expect(page.locator('#word-count')).toHaveText('1');
     });
 });

@@ -2,7 +2,7 @@ import { speak, cancelSpeech } from '../speech.js';
 import { closestEl } from '../dom.js';
 import {
     el, tapCounter, countAloud, dotCard, numeralCard, tenFrame, fillCell, frameCount,
-    numberBond, splitPart, barModel, revealSegment
+    numberBond, splitPart, barModel, revealSegment, checkButton
 } from './manipulatives.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
@@ -125,9 +125,14 @@ export const singaporeMethod = {
             workspace.appendChild(labelled('Count the dots!', dotCard(problem.a)));
         } else if (variant === 'numeralbuild') {
             // Reverse of the other CPA stages: the numeral is given and the
-            // child builds the quantity from it.
+            // child builds the quantity from it. The frame is the answer, so it
+            // needs its own "done" — see steps() and readAnswer().
             workspace.appendChild(numeralCard(problem.a));
-            workspace.appendChild(labelled('Tap that many counters!', tenFrame(0)));
+            // "Boxes", not "counters": the thing under their finger is an empty
+            // square, and a child who cannot read the word cannot be told which
+            // abstraction we meant.
+            workspace.appendChild(labelled('Tap that many boxes, then Check it!', tenFrame(0)));
+            workspace.appendChild(checkButton());
         } else if (variant === 'numeral') {
             workspace.appendChild(numeralCard(problem.a));
         } else if (variant === 'placevaluebar') {
@@ -172,8 +177,29 @@ export const singaporeMethod = {
     },
 
     // Every Singapore representation yields the whole answer at once.
+    //
+    // numeralMatch is the one rung answered by tapping rather than typing, and
+    // it is keyed by skill for the same reason pickVariant is: the whole point
+    // of the rung is going numeral → quantity. The numeral is already on the
+    // card, so typing it back would be copying, not answering — the counters
+    // the child places are the answer.
     steps(problem) {
-        return [{ id: 'total', expect: problem.answer, speak: null }];
+        return [{
+            id: 'total',
+            expect: problem.answer,
+            speak: null,
+            taps: problem.skill === 'numeralMatch'
+        }];
+    },
+
+    /**
+     * An empty frame reads as "not started" rather than zero, so tapping ✓
+     * before placing anything does nothing instead of scoring a wrong answer.
+     */
+    readAnswer(container) {
+        const frame = container.querySelector('.ten-frame');
+        const count = frame ? frameCount(frame) : 0;
+        return count > 0 ? count : null;
     },
 
     question(problem, container) {
@@ -190,7 +216,10 @@ export const singaporeMethod = {
             return { html: 'How many dots?', speak: 'How many dots do you see?' };
         }
         if (variant === 'numeralbuild') {
-            return { html: `Show me ${a}!`, speak: `Show me ${a}. Tap that many counters.` };
+            return {
+                html: `Show me ${a}!`,
+                speak: `Show me ${a}. Tap that many boxes, then tap check it.`
+            };
         }
         if (variant === 'numeral' || variant === 'placevaluebar') {
             return { html: problem.questionText, speak: problem.speakText };
@@ -216,8 +245,10 @@ export const singaporeMethod = {
             const cell = closestEl(target, '.tf-cell');
             if (cell) {
                 cell.classList.toggle('filled');
-                const count = frameCount(closestEl(cell, '.ten-frame'));
-                speak(count === problem.a ? `${count}! That is right!` : String(count), { interrupt: true });
+                // Only the running count: calling it right the moment it lands
+                // would answer the question for them and leave ✓ with nothing
+                // to do.
+                speak(String(frameCount(closestEl(cell, '.ten-frame'))), { interrupt: true });
             }
             return;
         }
@@ -274,7 +305,7 @@ export const singaporeMethod = {
 
         if (variant === 'numeralbuild') {
             const frame = container.querySelector('.ten-frame');
-            speak(`Tap ${problem.a} counters.`);
+            speak(`Tap ${problem.a} boxes.`);
             for (let i = 0; i < problem.a; i++) {
                 setTimeout(() => {
                     if (!stillValid()) return;

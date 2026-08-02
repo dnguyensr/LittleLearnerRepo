@@ -123,6 +123,19 @@ function slotFor(stepId) {
     return workspaceEl.querySelector(`[data-slot="${stepId}"]`);
 }
 
+/**
+ * What the child has answered so far. Usually the typed buffer — but a `taps`
+ * step keeps its answer in the manipulative, so it is read back out of the DOM
+ * every time rather than mirrored into the buffer. That way a hint that fills
+ * the widget in for them counts as an answer too.
+ */
+function currentValue() {
+    const step = currentStep();
+    if (!step || !step.taps) return buffer;
+    const value = method.readAnswer ? method.readAnswer(workspaceEl, problem) : null;
+    return value === null || value === undefined ? '' : String(value);
+}
+
 // When the manipulative has a slot for this step, the answer belongs in the
 // notation itself — showing it twice just pushes the workspace off a phone.
 function updateDisplays() {
@@ -130,7 +143,10 @@ function updateDisplays() {
     const slot = step && slotFor(step.id);
     if (slot) slot.textContent = buffer || '?';
     answerDisplay.textContent = buffer || '?';
-    answerDisplay.hidden = !!slot;
+    // A tapped answer is already on screen as counters. Echoing it as a numeral
+    // would turn "show me 7" into matching one numeral against another, which
+    // is the counting the rung exists to make them do.
+    answerDisplay.hidden = !!slot || !!(step && step.taps);
 }
 
 function newProblem() {
@@ -150,6 +166,9 @@ function newProblem() {
     workspaceEl.dataset.skill = problem.skill;
     workspaceEl.dataset.stage = stageOf(problem.skill);
     delete workspaceEl.dataset.variant;
+    // Cleared here as well as on the timer below: switching problems mid-flash
+    // cancels that timer, and a stuck class would kill the next shake.
+    workspaceEl.classList.remove('wrong');
     method.render(problem, workspaceEl, { correct: correctThisSession });
     question = method.question
         ? method.question(problem, workspaceEl)
@@ -227,10 +246,11 @@ function finish() {
 }
 
 function submitAnswer() {
-    if (buffer === '' || locked) return;
+    const value = currentValue();
+    if (value === '' || locked) return;
     const step = currentStep();
 
-    if (Number(buffer) === step.expect) {
+    if (Number(value) === step.expect) {
         if (stepIndex === steps.length - 1) {
             finish();
         } else {
@@ -245,6 +265,10 @@ function submitAnswer() {
     // wrong answers on digits typed before they saw the first one land.
     locked = true;
     answerDisplay.style.color = '#ff6b6b';
+    // The red display is nothing to look at when it is hidden — which it is
+    // whenever the method owns the answer slot, and on every tapped step — so
+    // the workspace shakes too.
+    workspaceEl.classList.add('wrong');
     playWrongSound();
 
     // Fenced on the problem itself rather than hintToken, because showHint()
@@ -256,6 +280,7 @@ function submitAnswer() {
         locked = false;
         buffer = '';
         updateDisplays();
+        workspaceEl.classList.remove('wrong');
         answerDisplay.style.color = 'white';
     }, 800);
     if (wrongAttempts >= 2) showHint();
@@ -285,6 +310,10 @@ container.addEventListener('pointerdown', e => {
     if (!target || target === speakBtn) return;
     handleCounterTap(target);
     if (method.onTap) method.onTap(target, problem, workspaceEl);
+    // The numpad's ✓ still judges, but a child who is working the widget should
+    // not have to leave it to find one — so a method can render its own and the
+    // shell treats a tap on it as ✓.
+    if (closestEl(target, '.lab-check')) submitAnswer();
 });
 
 speakBtn.addEventListener('click', () => {
@@ -313,7 +342,8 @@ export const mathLabMode = {
     icon: '🧮',
     beta: true,
     oskLayout: 'numpad',
-    instructions: 'Tap to work it out, then type the answer! 🧪',
+    // Not "type the answer": one rung is answered by building it and tapping ✓.
+    instructions: 'Tap to work it out, then answer! 🧪',
 
     activate() {
         container.classList.add('active');
@@ -340,6 +370,10 @@ export const mathLabMode = {
         if (!step) return;
 
         if (/^[0-9]$/.test(key)) {
+            // On a tapped step the digits are not an answer — the numeral being
+            // asked for is on screen, so typing it back would be copying.
+            if (step.taps) return;
+
             // Single-digit column steps overwrite (no backspace hunt for a
             // toddler); the two-digit total ignores extra taps like Math does.
             const maxLen = step.id === 'total' ? 2 : 1;
