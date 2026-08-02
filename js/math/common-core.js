@@ -112,7 +112,10 @@ export const commonCoreMethod = {
             // shape they saw, which is the whole point of subitizing.
             const frame = tenFrame(problem.a, { interactive: false });
             frame.classList.add('flashing');
-            workspace.appendChild(labelled('How many did you see?', frame));
+            // No label: the question line above already reads "How many did you
+            // see?" word for word, and the row it cost was the row the peek
+            // button needed to stay on screen.
+            workspace.appendChild(frame);
             workspace.appendChild(peekButton());
             setTimeout(() => frame.classList.add('covered'), 1600);
         } else if (variant === 'tenframe') {

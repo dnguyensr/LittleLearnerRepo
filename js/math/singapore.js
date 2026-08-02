@@ -127,11 +127,18 @@ export const singaporeMethod = {
             // Reverse of the other CPA stages: the numeral is given and the
             // child builds the quantity from it. The frame is the answer, so it
             // needs its own "done" — see steps() and readAnswer().
-            workspace.appendChild(numeralCard(problem.a));
+            // Numeral beside the frame, not above it. Stacked, the two of them
+            // plus the button came to more than the play area has once the
+            // numpad is open — and the thing that fell off the bottom was the
+            // ✓ this very label tells the child to press.
+            //
             // "Boxes", not "counters": the thing under their finger is an empty
             // square, and a child who cannot read the word cannot be told which
             // abstraction we meant.
-            workspace.appendChild(labelled('Tap that many boxes, then Check it!', tenFrame(0)));
+            const build = el('div', 'sg-build');
+            build.appendChild(numeralCard(problem.a));
+            build.appendChild(tenFrame(0));
+            workspace.appendChild(labelled('Tap that many boxes, then Check it!', build));
             workspace.appendChild(checkButton());
         } else if (variant === 'numeral') {
             workspace.appendChild(numeralCard(problem.a));
@@ -164,6 +171,11 @@ export const singaporeMethod = {
             const controls = el('div', 'sg-controls');
             controls.appendChild(combineButton('Tens', 'tens'));
             controls.appendChild(combineButton('Ones', 'ones'));
+            // The answer belongs on this row, beside the two part-sums it is
+            // made of. It also buys back the 56px the separate answer box cost,
+            // which is what had pushed these buttons off the bottom of a phone.
+            controls.appendChild(el('div', 'sg-total',
+                '= <span class="sg-slot" data-slot="total">?</span>'));
             workspace.appendChild(controls);
         } else {
             const { whole, known } = partWholeOf(problem);

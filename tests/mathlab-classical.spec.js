@@ -177,6 +177,74 @@ test.describe('Math Lab — classical, two-digit column algorithm', () => {
     });
 });
 
+/**
+ * The column used to be the only rung with nothing to touch, on a site that is
+ * meant to work on a tablet. Common Core hands the child these same blocks
+ * *instead of* the written algorithm; classical puts them under it, so the
+ * carry and the borrow are things you make rather than rules you are told.
+ */
+test.describe('Math Lab — classical, base-ten blocks under the column', () => {
+    const tap = locator => locator.dispatchEvent('pointerdown', { pointerId: 1 });
+
+    test('ten loose ones snap into a rod: the carry, made of something', async ({ page }) => {
+        await openLab(page, 'addRegroup');
+        const { a, b } = await readProblem(page);
+
+        // Both numbers' blocks in one pile, so the ones column can pass ten
+        await expect(page.locator('.btb-rod')).toHaveCount(Math.floor(a / 10) + Math.floor(b / 10));
+        const cubes = page.locator('.btb-one');
+        const loose = (a % 10) + (b % 10);
+        await expect(cubes).toHaveCount(loose);
+        expect(loose).toBeGreaterThanOrEqual(10);
+
+        // Nine selected is not a ten yet
+        for (let i = 0; i < 9; i++) await tap(cubes.nth(i));
+        await expect(page.locator('.btb-one.selected')).toHaveCount(9);
+        await expect(page.locator('.btb-rod')).toHaveCount(Math.floor(a / 10) + Math.floor(b / 10));
+
+        // The tenth trades them for a rod, and the pile keeps the remainder
+        await tap(cubes.nth(9));
+        await expect(page.locator('.btb-rod')).toHaveCount(Math.floor(a / 10) + Math.floor(b / 10) + 1);
+        await expect(page.locator('.btb-one')).toHaveCount(loose - 10);
+    });
+
+    test('a selected one can be put back before it makes a ten', async ({ page }) => {
+        await openLab(page, 'addRegroup');
+        const cubes = page.locator('.btb-one');
+        const before = await cubes.count();
+
+        await tap(cubes.first());
+        await expect(page.locator('.btb-one.selected')).toHaveCount(1);
+        await tap(cubes.first());
+        await expect(page.locator('.btb-one.selected')).toHaveCount(0);
+        await expect(cubes).toHaveCount(before);
+    });
+
+    test('a ten rod breaks into ten ones: the borrow', async ({ page }) => {
+        await openLab(page, 'subRegroup');
+        const { a } = await readProblem(page);
+
+        // Take-away starts from the whole, and its rods are the tappable ones
+        const rods = page.locator('.btb-rod');
+        await expect(rods).toHaveCount(Math.floor(a / 10));
+        await expect(page.locator('.btb-one')).toHaveCount(a % 10);
+
+        await tap(rods.first());
+        await expect(rods).toHaveCount(Math.floor(a / 10) - 1);
+        await expect(page.locator('.btb-one')).toHaveCount((a % 10) + 10);
+    });
+
+    test('the blocks do not answer for the child', async ({ page }) => {
+        await openLab(page, 'addRegroup');
+        const cubes = page.locator('.btb-one');
+        for (let i = 0; i < 10; i++) await tap(cubes.nth(i));
+
+        // Snapping a ten is a step of the work, not a submitted answer
+        await expect(page.locator('#word-count')).toHaveText('0');
+        await expect(page.locator('.c-slot[data-slot="ones"]')).toHaveText('?');
+    });
+});
+
 test.describe('Math Lab — settings plumbing', () => {
     test('score is kept separately from Math mode', async ({ page }) => {
         await seedSettings(page, { betaModes: true, mathLabLevel: 'count10' });

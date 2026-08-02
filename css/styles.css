@@ -250,7 +250,7 @@ button {
     flex-wrap: wrap;
     justify-content: center;
     gap: 5px;
-    padding: clamp(8px, 2vw, 15px);
+    padding: clamp(5px, 1.5vw, 12px);
     background: rgba(255,255,255,0.15);
     border-radius: 20px;
 }
@@ -308,14 +308,47 @@ button {
 /* Math Lab stacks more than Math does (objects + notation + entry), so every
    band is sized off the shorter of vw/vh to keep it inside the play area on a
    phone with the numpad open. */
+/* Owns its box rather than growing past it. With the numpad open the play area
+   is only ~350px tall on a phone while the viewport is 915, so anything sized
+   off vh overflows — and `max-height` alone did not help, because the children
+   of an overflowing flex column still paint below the parent's clipped edge.
+   Height + overflow makes the objects row (below) the thing that gives, so the
+   notation, the answer and 🔊 can never end up behind the keyboard.
+
+   The top padding clears #score-display, which is absolutely positioned in this
+   same corner and used to sit on top of the question. */
 #mathlab-container {
     display: none;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    /* `safe` keeps a too-tall problem from centring itself back up under the
+       score and off the top; it falls back to start-aligned instead. */
+    justify-content: safe center;
     gap: clamp(6px, 1.5vh, 14px);
     z-index: 10;
-    padding: 0 10px;
-    max-height: 100%;
+    padding: 46px 10px 0;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#mathlab-question,
+#mathlab-entry {
+    flex-shrink: 0;
+}
+
+/* A plain block here would break the chain: the objects row can only give way
+   if every box between it and the container is a shrinkable flex item.
+   `auto` is the backstop for a method whose widget cannot give way at all (a
+   bar model, a ten frame) — it stays reachable instead of painting itself over
+   the answer and the 🔊 below. */
+#mathlab-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 #mathlab-container.active {
@@ -339,15 +372,62 @@ button {
     align-items: center;
     gap: clamp(6px, 1.5vh, 16px);
     font-size: clamp(1.2rem, min(4.5vw, 3.4vh), 2.6rem);
+    min-height: 0;
+}
+
+/* The notation carries the answer slot, so it never shrinks — only the objects
+   do. */
+.lab-workspace > * {
+    flex-shrink: 0;
 }
 
 .lab-objects {
+    --tap: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: clamp(6px, 2vw, 20px);
     flex-wrap: wrap;
     max-width: 92vw;
+    flex-shrink: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Two steps down, so the objects stay on one or two lines instead of scrolling
+   out of sight — see objectRow() in js/math/classical.js. */
+.lab-objects[data-crowded="tight"] {
+    --tap: clamp(34px, 8vw, 44px);
+    gap: clamp(4px, 1.2vw, 12px);
+}
+
+.lab-objects[data-crowded="packed"] {
+    --tap: clamp(28px, 6.5vw, 38px);
+    gap: clamp(3px, 1vw, 10px);
+}
+
+/* Everything else sharing the row gives way by the same amount — otherwise the
+   objects shrink and the operator, the eater and the ? box eat the space they
+   freed. */
+.lab-objects[data-crowded] .math-operator {
+    font-size: clamp(1.4rem, 4.5vw, 2.4rem);
+}
+
+.lab-objects[data-crowded] .emoji-group {
+    padding: clamp(4px, 1vw, 8px);
+}
+
+.lab-objects[data-crowded] .emoji-group.missing {
+    font-size: clamp(1.4rem, 4.5vw, 2.4rem);
+}
+
+/* Small enough to share the objects' line: wrapping the eater onto a row of its
+   own costs more height than the animal is worth, and it is the one thing the
+   child has to be able to reach. */
+.lab-objects[data-crowded] .eater-btn {
+    font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+    padding: 2px 6px;
+    border-width: 2px;
 }
 
 /* A wrong answer has to be visible even when the answer display is not — it is
@@ -396,7 +476,7 @@ button {
 }
 
 #mathlab-answer-display {
-    font-size: clamp(2rem, min(8vw, 7vh), 4.5rem);
+    font-size: clamp(1.8rem, 7vw, 3.6rem);
     font-weight: bold;
     color: white;
     text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
@@ -408,7 +488,8 @@ button {
     display: none;
 }
 
-/* Tappable manipulatives: real buttons, stripped back to look like objects. */
+/* Tappable manipulatives: real buttons, stripped back to look like objects.
+   44px unless the row it sits in says otherwise — see .lab-objects[data-crowded]. */
 .tap-item {
     background: none;
     border: none;
@@ -417,8 +498,8 @@ button {
     line-height: 1;
     color: inherit;
     cursor: pointer;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: var(--tap, 44px);
+    min-height: var(--tap, 44px);
 }
 
 .tap-item:focus-visible {
@@ -542,7 +623,21 @@ button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(4px, 1.2vh, 10px);
+    gap: clamp(3px, 1vh, 8px);
+    min-height: 0;
+}
+
+/* Numeral and frame side by side — see the numeralbuild branch in
+   js/math/singapore.js. */
+.sg-build {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 3vw, 24px);
+}
+
+.sg-build .numeral-card {
+    font-size: clamp(2.2rem, 11vw, 5rem);
 }
 
 .cc-label {
@@ -552,12 +647,24 @@ button {
     text-align: center;
 }
 
+/* Two frames plus the operator have to share one line: wrapped, the second
+   frame lands half off the bottom and make-a-ten is a strategy you cannot see
+   both halves of. That caps the cell size — 5 columns twice over, plus the +. */
 .cc-frames {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(6px, 2vw, 16px);
+    gap: clamp(4px, 1.5vw, 14px);
     flex-wrap: wrap;
+}
+
+.cc-frames .tf-cell {
+    width: clamp(24px, 5.6vw, 34px);
+    height: clamp(24px, 5.6vw, 34px);
+}
+
+.cc-frames .math-operator {
+    font-size: clamp(1.4rem, 4.5vw, 2.4rem);
 }
 
 .cc-peek {
@@ -581,9 +688,12 @@ button {
     border-radius: 12px;
 }
 
+/* `vh` is the full 915px viewport; the box this lives in is the ~350px play
+   area once the numpad is open, so the vh arm was always the generous one and
+   never the one that bound. Sized off vw with a real ceiling instead. */
 .tf-cell {
-    width: clamp(26px, min(8vw, 5.5vh), 52px);
-    height: clamp(26px, min(8vw, 5.5vh), 52px);
+    width: clamp(24px, 6vw, 44px);
+    height: clamp(24px, 6vw, 44px);
     background: rgba(255,255,255,0.12);
     border: 2px solid rgba(255,255,255,0.7);
     border-radius: 8px;
@@ -633,7 +743,9 @@ button {
 
 .nl-tick {
     flex: 0 0 auto;
-    min-width: clamp(20px, 4.6vw, 38px);
+    /* 24px is the floor for a target on a phone; the line scrolls sideways
+       rather than the ticks getting thinner than that. */
+    min-width: clamp(24px, 4.6vw, 38px);
     min-height: 44px;
     padding: 2px;
     font: inherit;
@@ -743,6 +855,50 @@ button {
     border-radius: 12px;
 }
 
+/* The written column and the blocks that explain it, on one line — see the
+   twoDigit branch of js/math/classical.js. */
+.lab-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(6px, 2vw, 18px);
+    max-width: 96vw;
+}
+
+/* Sharing a line means sharing the width, so both halves are drawn a size
+   smaller here than they are on their own. The pile can reach eighteen loose
+   ones on a regrouping sum — the widths below are what keep that three rows
+   rather than five. */
+.lab-column .column-sum {
+    font-size: clamp(1.1rem, 4.2vw, 1.9rem);
+    padding: clamp(6px, 1.5vw, 12px) clamp(8px, 2vw, 16px);
+}
+
+.lab-column .base-ten {
+    gap: clamp(6px, 2vw, 14px);
+    max-width: 68vw;
+    padding: 6px;
+}
+
+/* Wide enough for eight rods in one line. Squeezed narrower they stack three
+   deep, and three rows of rods is taller than the whole pile of ones. */
+.lab-column .btb-rods {
+    max-width: 50vw;
+}
+
+.lab-column .btb-ones {
+    max-width: 40vw;
+}
+
+.lab-column .btb-rod {
+    height: clamp(32px, 8vw, 60px);
+}
+
+.lab-column .btb-one {
+    width: clamp(24px, 6vw, 30px);
+    height: clamp(24px, 6vw, 30px);
+}
+
 .btb-rods,
 .btb-ones {
     display: flex;
@@ -753,9 +909,13 @@ button {
     max-width: 44vw;
 }
 
+/* Sized off vw with a real ceiling: the old `min(13vw, 16vh)` measured the full
+   viewport, so the rods were drawn for a screen three times the height of the
+   box they sit in. */
 .btb-rod {
     width: clamp(12px, 2.6vw, 20px);
-    height: clamp(60px, min(13vw, 16vh), 110px);
+    height: clamp(44px, 11vw, 84px);
+    padding: 0;
     border-radius: 4px;
     border: 2px solid rgba(255,255,255,0.8);
     background: repeating-linear-gradient(
@@ -763,6 +923,22 @@ button {
         #7CFF9B 0 10%,
         rgba(0,0,0,0.25) 10% 10.9%
     );
+}
+
+/* Tappable on take-away, where breaking one open is the borrow — so it has to
+   be wide enough to hit, unlike the decorative rods on the addition side. */
+button.btb-rod {
+    cursor: pointer;
+    min-width: 24px;
+    min-height: 0;
+}
+
+button.btb-rod:active {
+    transform: scaleX(1.4);
+}
+
+.btb-one.new {
+    animation: rod-snap 0.4s ease-out;
 }
 
 .btb-rod.new {
@@ -774,9 +950,11 @@ button {
     to { transform: none; opacity: 1; }
 }
 
+/* Selecting ten of these is the regroup — the single most important tap on the
+   two-digit rungs — and at 20px it was the smallest target in the app. */
 .btb-one {
-    width: clamp(20px, 4.4vw, 30px);
-    height: clamp(20px, 4.4vw, 30px);
+    width: clamp(28px, 7vw, 38px);
+    height: clamp(28px, 7vw, 38px);
     padding: 0;
     border-radius: 4px;
     border: 2px solid rgba(255,255,255,0.8);
@@ -933,7 +1111,13 @@ button {
 .bm-bar {
     display: flex;
     gap: 3px;
-    height: clamp(38px, min(9vw, 7vh), 58px);
+    height: clamp(30px, 8vw, 52px);
+}
+
+/* Two stacked bars plus the Tens/Ones buttons: the buttons are the whole
+   interaction on this rung and were the part that fell off the bottom. */
+.sg-bars .bm-bar {
+    height: clamp(26px, 6.5vw, 42px);
 }
 
 .bm-seg {
@@ -988,7 +1172,7 @@ button {
 .sg-bars {
     display: flex;
     flex-direction: column;
-    gap: clamp(6px, 1.5vh, 14px);
+    gap: clamp(4px, 1vh, 10px);
 }
 
 .sg-controls {
@@ -1010,6 +1194,26 @@ button {
     border: 2px solid white;
     border-radius: 24px;
     cursor: pointer;
+}
+
+.sg-total {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: clamp(1.2rem, 5vw, 1.8rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.sg-slot {
+    color: #ffe680;
+    min-width: 1.2em;
+    text-align: center;
+}
+
+.sg-slot.done {
+    color: #7CFF9B;
 }
 
 .sg-combine.used {

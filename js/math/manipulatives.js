@@ -279,11 +279,19 @@ export function undoHop(line) {
  * @param {number} rods
  * @param {number} ones
  */
-export function baseTenBlocks(rods, ones) {
+export function baseTenBlocks(rods, ones, { tappableRods = false } = {}) {
     const wrap = el('div', 'base-ten');
 
     const rodBox = el('div', 'btb-rods');
-    for (let i = 0; i < rods; i++) rodBox.appendChild(el('div', 'btb-rod'));
+    for (let i = 0; i < rods; i++) {
+        if (tappableRods) {
+            const rod = tapButton('btb-rod', '');
+            rod.setAttribute('aria-label', `Ten rod ${i + 1}. Tap to break it into ten ones.`);
+            rodBox.appendChild(rod);
+        } else {
+            rodBox.appendChild(el('div', 'btb-rod'));
+        }
+    }
     wrap.appendChild(rodBox);
 
     const oneBox = el('div', 'btb-ones');
@@ -303,6 +311,25 @@ export function blockCounts(wrap) {
         ones: wrap.querySelectorAll('.btb-one').length,
         selected: wrap.querySelectorAll('.btb-one.selected').length
     };
+}
+
+/**
+ * The mirror of snapTen: trade one ten rod for ten loose ones. That trade is
+ * what borrowing *is*, and until now it was the half of regrouping no widget
+ * could show. Returns false when there is no rod left to break.
+ */
+export function breakRod(wrap) {
+    const rod = wrap.querySelector('.btb-rod');
+    if (!rod) return false;
+
+    rod.remove();
+    const oneBox = wrap.querySelector('.btb-ones');
+    for (let i = 0; i < 10; i++) {
+        const cube = tapButton('btb-one new', '');
+        cube.setAttribute('aria-label', `Loose one from the broken ten, ${i + 1}`);
+        oneBox.appendChild(cube);
+    }
+    return true;
 }
 
 /**

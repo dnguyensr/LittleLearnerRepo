@@ -116,6 +116,11 @@ Generators set it; it is not inferred from magnitude. Magnitude gets it wrong in
 - [x] **L1 Count:** tap-to-count — each tap pops the object, speaks the running count (tapping again un-counts it, so a miscount is recoverable); then type the total.
 - [x] **L2 Add / L3 Subtract:** fact practice in **vertical (stacked) notation** alongside the emojis; after a correct answer, celebrate the fact family ("3 + 4… and 4 + 3!"). L3 turns the "eater" story into the manipulative: tap the animal to eat one object at a time, then count what's left.
 - [x] **L4 Double-digit:** interactive **column algorithm** — answer the ones column first; a carry/borrow animates as a little "1" flying to the tens column; then answer the tens column. Two-step entry, never auto-judged.
+- [x] **L4 blocks (2026-08-02):** **base-ten blocks beside the column.** These were the only rungs on the ladder with nothing to touch — a real gap on a site meant for tablets and phones, and the odd one out even here, since Common Core has blocks and an open number line on the same rungs and Singapore has bar models and the Tens/Ones buttons.
+
+  > The blocks are the same widget Common Core uses, doing the opposite job, which is what keeps the two curriculums distinct rather than duplicated. Common Core hands the child blocks **instead of** the written algorithm. Classical works the algorithm and puts the blocks under it, so the two regroupings are things you *make* rather than rules you are told: tap ten loose ones and they snap into a rod (that is the 1 you carry), or tap a rod and it breaks into ten ones (that is the borrow). `breakRod()` is new — `snapTen()` had existed since Phase C, but nothing could run it backwards, so the borrow had no concrete form.
+  >
+  > Laid out **side by side** with the column, not under it: the column is ~80px wide and the play area is ~350px tall with the numpad open, so this way the blocks cost no height at all. Stacked they did not fit, and `tests/mathlab-fit.spec.js` said so on the first run.
 
 ### Common Core (strategies + place value)
 
