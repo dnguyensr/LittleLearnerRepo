@@ -329,11 +329,16 @@ button {
     text-align: center;
 }
 
+/* One object size for the whole workspace, not just the rows that happen to sit
+   in .lab-objects — a counter or dot card dropped straight into the workspace
+   (Singapore's concrete/pictorial steps, classical's plain count) used to fall
+   back to the 16px body size and read half the size of everything else. */
 .lab-workspace {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: clamp(6px, 1.5vh, 16px);
+    font-size: clamp(1.2rem, min(4.5vw, 3.4vh), 2.6rem);
 }
 
 .lab-objects {
@@ -343,14 +348,18 @@ button {
     gap: clamp(6px, 2vw, 20px);
     flex-wrap: wrap;
     max-width: 92vw;
-    font-size: clamp(1.2rem, min(4.5vw, 3.4vh), 2.6rem);
 }
 
+/* Stacked, so the answer sits under the workspace and the 🔊 under the answer.
+   A method that owns an answer slot hides the display and only the button is
+   left, which is the layout the column algorithm already had — this gives the
+   methods without a slot the same shape instead of a "? 🔊" row. */
 #mathlab-entry {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: clamp(10px, 3vw, 20px);
+    gap: clamp(4px, 1vh, 10px);
 }
 
 #mathlab-prompt {
