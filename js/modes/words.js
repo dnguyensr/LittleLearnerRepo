@@ -122,7 +122,7 @@ export const wordsMode = {
     id: 'words',
     label: 'Words',
     icon: '📚',
-    oskLayout: 'qwerty',
+    oskLayout: 'letters',
     instructions: 'Type or tap the letters to spell the word! 📝',
 
     activate() {

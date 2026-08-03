@@ -27,14 +27,19 @@ export function displayLabel(key) {
 
 /* ---------- On-screen keyboard layouts ---------- */
 
+const letterRows = [
+    ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+    ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+    ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+    [' ']
+];
+
 const oskLayouts = {
-    qwerty: [
-        ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-        ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-        [' ']
-    ],
+    qwerty: [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ...letterRows],
+    // Letters and Words never ask for a digit, so they get the same board
+    // without the number row: one less row of keys for a small hand to fumble
+    // past, and one less row of screen the play area has to give up.
+    letters: letterRows,
     // Two rows, not a phone keypad's four. On a 681px-tall iPhone the 4-row
     // grid ate 252px — 37% of the screen — and pushed the Math Lab
     // manipulatives below the fold, so a toddler had to scroll to reach the

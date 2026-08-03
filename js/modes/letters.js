@@ -32,7 +32,7 @@ export const lettersMode = {
     id: 'letters',
     label: 'Letters',
     icon: '🔤',
-    oskLayout: 'qwerty',
+    oskLayout: 'letters',
     instructions: 'Press any letter to meet it! 🔤',
 
     activate() {

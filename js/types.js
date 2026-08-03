@@ -12,7 +12,8 @@
  * @property {string} id                       unique id; also the button id prefix
  * @property {string} label                    top-bar label
  * @property {string} icon                     emoji shown on the button
- * @property {'qwerty'|'numpad'|null} oskLayout on-screen keyboard, null to hide
+ * @property {'qwerty'|'letters'|'numpad'|null} oskLayout on-screen keyboard:
+ *   full board, board without the number row, two-row 1-5/6-0 pad, or null to hide
  * @property {string} instructions             one-line hint under the play area
  * @property {boolean} [beta]                  hidden unless the betaModes setting is on
  * @property {() => void} activate

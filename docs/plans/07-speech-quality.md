@@ -2,12 +2,14 @@
 
 Goal: the app should sound like a person, not a 1998 answering machine — on the devices it's actually used on.
 
-> **Status (2026-08-02):** Phases A, A2 and A3 done — voice selection fixed,
-> counting paced to the voice, and the iOS novelty-voice bug closed. Phase B is a
-> **spike, not a commitment**: a bundled neural engine costs 63–92 MB on a
-> child's tablet, and must clear a hardware gate on the real target device
-> before any of it is merged. **A3 is evidence against needing it at all** — the
-> worst-sounding device turned out to be a ranking bug, not a missing engine.
+> **Status (2026-08-02):** Phases A, A2, A3 and A4 done — voice selection fixed,
+> counting paced to the voice, the iOS novelty-voice bug closed and **confirmed
+> fixed on the actual iPhone**, and WebKit added to the test matrix.
+>
+> **Phase B is parked.** It was a spike, never a commitment, and the device
+> report that motivated it turned out to be a ranking bug rather than a missing
+> engine. There is now no live complaint to justify putting 63–92 MB on a
+> child's tablet. Do not start it without one.
 
 ## Where the bad voice actually comes from
 
@@ -77,6 +79,9 @@ as designed; it just made the app reliably pick the worst voice on the device.
       return the worse one.
 - [x] `tests/speech.spec.js` now ranks a realistic iOS list (novelty + Eloquence +
       Samantha, all `default: true`) and asserts Samantha wins from any list order.
+- [x] **Verified on the real iPhone 16 Pro (2026-08-02): it sounds fine.** The
+      whispering voice is gone, with no engine and no downloaded voice — the
+      preloaded set was always good enough, the picker just wasn't reaching it.
 
 **The read-out that closes this loop.** `currentVoiceName()` had been exported since
 Phase A and never used, so there was no way to tell a bad *voice* from a bad
@@ -176,11 +181,21 @@ The vocabulary is small and templated: digits 0–99, letter names, phonics soun
 
 Ship Phase A (done — it is needed on every path, since even a bundled engine needs a fallback), then **run the hardware gate and price the clips option before committing to a 63 MB dependency**. The engine is the expensive answer to a problem that is worst on Windows Chrome and mildest on the platforms most of the users are on.
 
-**A3 sharpens that.** The iPhone report looked like the strongest argument yet for
-Phase B, and it turned out to be six lines of ranking. Before spending 63 MB,
-confirm on the actual device — via the new voice read-out — that the app is now on
-Samantha (or an Enhanced voice, if one has been downloaded) and that it still
-sounds wrong. The cheapest remaining win is not an engine at all: **downloading an
-Enhanced or Premium en-US voice in iOS Settings → Accessibility → Spoken Content →
-Voices costs the parent one tap, is free, stays offline, and the ranking now prefers
-it automatically the moment it appears.** Price that before pricing WASM.
+**A3 retires the strongest argument for Phase B.** The iPhone report was the best
+evidence yet that the platform voices were not good enough — and it turned out to
+be six lines of ranking. **Confirmed on the device 2026-08-02: it sounds fine.**
+No engine, no download, no CDN exception.
+
+So Phase B is now a spike with no live complaint behind it, and it should not be
+started without one. If a device does sound wrong again, the order is:
+
+1. Read the voice read-out in the parent panel before theorising.
+2. `pitch: 1.1` in `speak()` is applied to every utterance and degrades weak
+   voices — a formant shift, not re-synthesis. Try 1.0 first; it is free.
+3. Download an Enhanced or Premium en-US voice (iOS Settings → Accessibility →
+   Spoken Content → Voices). One tap, free, offline intact, and the ranking
+   prefers it automatically the moment it appears.
+4. Only then price pre-generated clips — and note that generating them with a
+   cloud neural voice at **build time** (Azure's free tier covers the whole
+   ~10k-character vocabulary) beats Piper on quality at the same ~5–10 MB, with
+   no WASM and no runtime. That is the option to price, not the engine.

@@ -48,6 +48,22 @@ test.describe('Mode switching', () => {
         await expect(page.locator('.osk-key')).toHaveCount(12);
     });
 
+    test('Letters and Words drop the number row, Free Play keeps it', async ({ page }) => {
+        await gotoApp(page);
+        await ensureOskVisible(page);
+        await expect(page.locator('.osk-key[data-key="7"]')).toHaveCount(1);
+
+        for (const id of ['letters-btn', 'words-btn']) {
+            await page.locator(`#${id}`).click();
+            await expect(page.locator('.osk-key[data-key="7"]')).toHaveCount(0);
+            await expect(page.locator('.osk-key[data-key="Q"]')).toHaveCount(1);
+            await expect(page.locator('.osk-key')).toHaveCount(27);
+        }
+
+        await page.locator('#free-btn').click();
+        await expect(page.locator('.osk-key[data-key="7"]')).toHaveCount(1);
+    });
+
     test('score is shown in math/words and hidden in free play', async ({ page }) => {
         await gotoApp(page);
         await expect(page.locator('#score-display')).toBeHidden();
