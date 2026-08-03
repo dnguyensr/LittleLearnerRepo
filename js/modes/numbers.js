@@ -8,7 +8,9 @@ const numbersContainer = document.getElementById('numbers-container');
 const numberDisplay = document.getElementById('number-display');
 const numberObjects = document.getElementById('number-objects');
 
-const objectEmojis = ['🍎', '⭐', '🎈', '🐸', '🌸', '🍪', '🚗', '🐤'];
+// Exported so tests/emoji-roles.spec.js can check nothing decorative counts as
+// one of these.
+export const objectEmojis = ['🍎', '⭐', '🎈', '🐸', '🌸', '🍪', '🚗', '🐤'];
 
 // Pace used only when there is no voice to follow.
 const SILENT_PACE_MS = 650;

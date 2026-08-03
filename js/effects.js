@@ -1,4 +1,5 @@
 import { playSuccessSound } from './audio.js';
+import { celebrationEmojis } from './data/decor.js';
 
 const colors = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -12,8 +13,6 @@ const colors = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)'
 ];
-
-const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🎊', '🎈', '🎁', '❤️', '💜', '💙', '💚', '💛', '🧡'];
 
 const scoreDisplay = document.getElementById('score-display');
 const scoreCountEl = document.getElementById('word-count');
@@ -57,7 +56,7 @@ export function createStar(x, y) {
     if (reducedMotion.matches) return;
     const star = document.createElement('div');
     star.className = 'star';
-    star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    star.textContent = celebrationEmojis[Math.floor(Math.random() * celebrationEmojis.length)];
     star.style.left = x + 'px';
     star.style.top = y + 'px';
     document.body.appendChild(star);

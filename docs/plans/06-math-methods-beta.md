@@ -193,7 +193,9 @@ Parked while speech quality ([07](07-speech-quality.md)) takes priority; pick th
 
 **These came from a real iPhone 16 Pro running Safari, and that is worth recording on its own.** `playwright.config.js` declares `webkit` and `mobile-safari` projects, but the WebKit browser is not installed on the dev machine, so local runs and everything asserted in this plan were verified on **chromium and mobile-chrome only**. Safari is currently unexercised — device testing is the only thing catching these.
 
-- [ ] **Decoration and content are not disjoint sets.** Reported as: the ⭐ in the score badge blends into the ⭐ objects on a "count the STARS" problem. It is not only the badge, and not only Safari:
+  *(Updated 2026-08-02: WebKit was installed for [07](07-speech-quality.md), so `webkit` and `mobile-safari` now run locally — layout and JSC only, still no `speechSynthesis` or `AudioContext`.)*
+
+- [x] **Decoration and content are not disjoint sets.** *(Fixed 2026-08-02.)* Reported as: the ⭐ in the score badge blends into the ⭐ objects on a "count the STARS" problem. It is not only the badge, and not only Safari:
 
   | Source | Where |
   | --- | --- |
@@ -203,12 +205,30 @@ Parked while speech quality ([07](07-speech-quality.md)) takes priority; pick th
 
   **Four of the sixteen countable items — ⭐ ❤️ 🎈 🎁 — are also celebration particles.** So on a quarter of counting problems a decoration is indistinguishable from a thing to be counted, and on the STARS problem there is a third star sitting in the badge. This is a correctness hazard, not just visual noise: the task is *count exactly these objects*, and the screen shows objects that are not part of the count. It is visible in the mobile-chrome screenshots taken during the 2026-08-02 density pass (hearts drifting across the balloon rows on `tenAndSome`, sparkles over the ten frame) — Safari's larger, higher-contrast glyphs just made it obvious enough to notice.
 
-  Candidate fixes, cheapest first:
-  1. Make the two sets disjoint — drop ⭐ ❤️ 🎈 🎁 from the particle list in `js/effects.js`, keeping ✨ 💫 🎉 🎊 and the coloured hearts. Note 💜💙💚💛🧡 still read as "a heart" next to ❤️ HEARTS, so they likely have to go too.
-  2. Give the score badge a non-emoji mark, or drop its ⭐ in the counting modes.
-  3. Keep particles outside the workspace bounds rather than over it.
+  The rule adopted: **nothing that decorates may also be countable.** Fixed at
+  the particle list rather than by removing subjects, so all sixteen items
+  survive — ⭐/❤️/🎈/🎁 are among the most appealing to a toddler, and they are
+  the *content*. Option 3 from the original list (keep particles outside the
+  workspace bounds) was not needed once the sets were disjoint; the confetti
+  still flies over the whole screen.
 
-  The rule worth adopting either way: **nothing that decorates may also be countable.** Fixing it at the particle list rather than by removing subjects keeps all sixteen items, and ⭐/❤️/🎈/🎁 are among the most appealing to a toddler.
+  - [x] The particle list moved out of `js/effects.js` into **`js/data/decor.js`**,
+        where the rule is written down, and shrank to `✨ 💫 🎉 🎊 🌈 🎆 🎇`.
+        Dropped: ⭐ ❤️ 🎈 🎁 (countable), plus 🌟 and 💜💙💚💛🧡 as **lookalikes** —
+        a spec can prove a set is disjoint but not that 🌟 stops reading as a
+        star next to ⭐ STARS.
+  - [x] The score badge is **🏆**, not ⭐. It sits inside the play area
+        permanently, so it is decoration by the same rule.
+  - [x] The exclusion set is wider than math items: it also covers the eaters,
+        Numbers mode's objects (`js/modes/numbers.js` — ⭐ and 🎈 are countable
+        there too) and every word's picture in `js/data/words.js` (STAR ⭐,
+        POP/BALLOON 🎈, GIFT 🎁, LOVE ❤️, HEART 💖). A drifting duplicate of the
+        word's own picture is not a *counting* hazard, but it is the same
+        confusion, and excluding them cost nothing.
+  - [x] `tests/emoji-roles.spec.js` enforces it: it imports the four lists in
+        the page and asserts the intersection is empty, and that the badge
+        carries no content emoji. Verified non-vacuous by putting ⭐ back in
+        both places — two failures, both restored.
 
 - [ ] Other iPhone 16 Pro / Safari findings from the same session — **not yet captured**, ask before this is picked up.
 
