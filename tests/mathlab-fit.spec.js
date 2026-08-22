@@ -79,7 +79,7 @@ for (const method of ['classical', 'commoncore', 'singapore']) {
         const failures = [];
 
         for (const skill of SKILLS) {
-            await seedSettings(page, { betaModes: true, mathMethod: method, mathLabLevel: skill });
+            await seedSettings(page, { mathMethod: method, mathLabLevel: skill });
             await gotoApp(page);
             await page.locator('#mathlab-btn').click();
             await expect(page.locator('#mathlab-container')).toHaveClass(/active/);

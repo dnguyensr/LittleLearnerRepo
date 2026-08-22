@@ -37,7 +37,11 @@ async function openWithTwoDigitAnswer(page) {
     throw new Error('no two-digit answer after 30 attempts');
 }
 
-test.describe('Math mode', () => {
+// Skipped, not deleted: Math Lab replaced Math as the app's math mode, so
+// js/modes/math.js is no longer registered in js/main.js and #math-btn does not
+// exist. The module itself is still in the tree — un-skip this describe if it is
+// ever re-registered.
+test.describe.skip('Math mode (unregistered — see js/main.js)', () => {
     test.beforeEach(async ({ page }) => {
         await gotoApp(page);
         await page.locator('#math-btn').click();

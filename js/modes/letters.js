@@ -1,4 +1,4 @@
-import { getLetterInfo } from '../data/letters.js';
+import { getLetterInfo, spokenLetter } from '../data/letters.js';
 import { playKeyTone } from '../audio.js';
 import { randomBackground, createBubble, randomStar, setScoreVisible } from '../effects.js';
 import { speak, cancelSpeech } from '../speech.js';
@@ -20,7 +20,9 @@ function showLetter(letter) {
     letterExample.textContent = `${info.emoji} ${info.word}`;
 
     playKeyTone(letter);
-    speak(`${info.letter}! ${info.phonic}! ${info.word}!`, { interrupt: true });
+    // The letter is named via spokenLetter for the same reason Words does it:
+    // a lone "E" is read as "capital E" on iOS. See js/data/letters.js.
+    speak(`${spokenLetter(info.letter)}! ${info.phonic}! ${info.word}!`, { interrupt: true });
     randomBackground();
     createBubble();
     randomStar();

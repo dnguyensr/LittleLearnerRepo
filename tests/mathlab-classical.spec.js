@@ -4,7 +4,7 @@ const { gotoApp, ensureOskVisible, seedSettings } = require('./helpers');
 // Open Math Lab pinned to one skill, so each spec exercises a known layout.
 // `mathLabLevel` accepts an exact skill id as well as a stage id.
 async function openLab(page, skill) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: skill, speech: false });
+    await seedSettings(page, { mathMethod: 'classical', mathLabLevel: skill, speech: false });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -246,14 +246,19 @@ test.describe('Math Lab — classical, base-ten blocks under the column', () => 
 });
 
 test.describe('Math Lab — settings plumbing', () => {
-    test('score is kept separately from Math mode', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathLabLevel: 'count10' });
-        await page.addInitScript(() => localStorage.setItem('lls-score-math', '7'));
+    // Math Lab kept the mode id 'mathlab' when it took over as the math mode,
+    // precisely so a child's saved score and ladder progress carried across.
+    // The old Math mode's score lives under a different key and must not leak
+    // into it — nor be adopted by it.
+    test('scores under its own key, not the old Math mode\'s', async ({ page }) => {
+        await seedSettings(page, { mathLabLevel: 'count10' });
+        await page.addInitScript(() => {
+            localStorage.setItem('lls-score-math', '7');
+            localStorage.setItem('lls-score-mathlab', '3');
+        });
         await gotoApp(page);
 
-        await page.locator('#math-btn').click();
-        await expect(page.locator('#word-count')).toHaveText('7');
         await page.locator('#mathlab-btn').click();
-        await expect(page.locator('#word-count')).toHaveText('0');
+        await expect(page.locator('#word-count')).toHaveText('3');
     });
 });

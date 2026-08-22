@@ -5,7 +5,7 @@ const { gotoApp, seedSettings } = require('./helpers');
 // fixes the variant for most rungs. Where a rung still has two presentations
 // (counting can flash a subitizing frame), reload until the wanted one comes up.
 async function openLab(page, skill, variant, until) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: skill });
+    await seedSettings(page, { mathMethod: 'commoncore', mathLabLevel: skill });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -107,7 +107,7 @@ test.describe('Math Lab — Common Core, adding', () => {
 
     test('make-a-ten is never chosen for a sum that cannot cross ten', async ({ page }) => {
         // addWithin10 caps sums at 10, so the strategy never applies here
-        await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: 'addWithin10' });
+        await seedSettings(page, { mathMethod: 'commoncore', mathLabLevel: 'addWithin10' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
 
@@ -249,7 +249,7 @@ test.describe('Math Lab — Common Core, taking away and two-digit', () => {
 
 test.describe('Math Lab — method selection', () => {
     test('Common Core is selectable and swaps the manipulative live', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: 'addWithin10' });
+        await seedSettings(page, { mathMethod: 'classical', mathLabLevel: 'addWithin10' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('.vertical-sum')).toBeVisible();

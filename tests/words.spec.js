@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { gotoApp } = require('./helpers');
+const { gotoApp, stubSpeech, speechLog } = require('./helpers');
 
 async function getTargetWord(page) {
     return (await page.locator('.letter-box').allTextContents()).join('');
@@ -39,27 +39,31 @@ test.describe('Words mode', () => {
     // Regression: the final letter used to be cancelled by the word
     // celebration, so FLY was spoken "F, L, ...FLY". The celebration must queue
     // behind the letter rather than interrupt it.
-    test('the last letter is not cut off by the word celebration', async ({ page, browserName }) => {
-        // See learning.spec.js: Playwright's WebKit has no speechSynthesis to hook.
-        test.skip(browserName === 'webkit', 'speechSynthesis is absent in Playwright WebKit');
-        const spoken = [];
-        await page.exposeFunction('recordUtterance', text => spoken.push(text));
-        await page.evaluate(() => {
-            const record = /** @type {any} */ (window).recordUtterance;
-            const original = window.speechSynthesis.speak.bind(window.speechSynthesis);
-            window.speechSynthesis.speak = utterance => {
-                record(utterance.text);
-                original(utterance);
-            };
-            const cancel = window.speechSynthesis.cancel.bind(window.speechSynthesis);
-            window.speechSynthesis.cancel = () => { record('[cancel]'); cancel(); };
-        });
+    // Runs on webkit too — the recorder replaces the engine instead of wrapping
+    // it, so it doesn't need the browser to have one. See helpers.stubSpeech.
+    test('the last letter is not cut off by the word celebration', async ({ page }) => {
+        await stubSpeech(page);
+        await gotoApp(page);
+        await page.locator('#words-btn').click();
+        await expect(page.locator('#word-container')).toHaveClass(/active/);
 
         const word = await getTargetWord(page);
         for (const ch of word) await page.keyboard.press(ch.toLowerCase());
         await expect(page.locator('#word-count')).toHaveText('1');
 
-        const lastLetter = word[word.length - 1];
+        // The letter is spoken by name ("tee", not "T") so iOS does not read it
+        // as "capital T" — see js/data/letters.js.
+        const lastLetter = await page.evaluate(async letter => {
+            const path = '/js/data/letters.js';
+            const { spokenLetter } = await import(path);
+            return spokenLetter(letter);
+        }, word[word.length - 1]);
+        // Cancels are folded into the same sequence as the utterances, so the
+        // question this test asks — did anything cancel *between* these two —
+        // stays a matter of ordering.
+        const log = await speechLog(page);
+        const spoken = log.map(entry => entry.type === 'cancel' ? '[cancel]' : entry.text);
+
         const lastLetterAt = spoken.lastIndexOf(lastLetter);
         const celebrationAt = spoken.findIndex(t => t.startsWith(`${word}!`));
 

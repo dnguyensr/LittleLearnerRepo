@@ -18,9 +18,10 @@ import { singaporeMethod } from '../math/singapore.js';
 /** @typedef {import('../types.js').AnswerStep} AnswerStep */
 /** @typedef {import('../types.js').Mode} Mode */
 
-// Math Lab (beta): the same problems as Math, worked through a selectable
-// teaching method. The shell owns problem flow, answer entry and scoring; the
-// method owns everything the child sees and touches.
+// Math Lab: the app's math mode, worked through a selectable teaching method.
+// The shell owns problem flow, answer entry and scoring; the method owns
+// everything the child sees and touches. It replaced the original Math mode
+// (js/modes/math.js, now unregistered) after testing on a real device.
 
 const container = document.getElementById('mathlab-container');
 const questionEl = document.getElementById('mathlab-question');
@@ -337,13 +338,15 @@ window.addEventListener('lls-mathlab-progress-reset', () => {
 
 /** @type {Mode} */
 export const mathLabMode = {
+    // The id stays 'mathlab' even though it now presents as plain "Math": it
+    // keys the saved score (lls-score-mathlab) and the ladder progress, and
+    // renaming it would throw away every child's climbing.
     id: 'mathlab',
-    label: 'Math Lab',
-    icon: '🧮',
-    beta: true,
+    label: 'Math',
+    icon: '🔢',
     oskLayout: 'numpad',
     // Not "type the answer": one rung is answered by building it and tapping ✓.
-    instructions: 'Tap to work it out, then answer! 🧪',
+    instructions: 'Tap to work it out, then answer! 🔢',
 
     activate() {
         container.classList.add('active');

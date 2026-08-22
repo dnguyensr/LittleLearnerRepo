@@ -6,11 +6,14 @@ import { freeplayMode } from './modes/freeplay.js';
 import { pianoMode } from './modes/piano.js';
 import { lettersMode } from './modes/letters.js';
 import { numbersMode } from './modes/numbers.js';
-import { mathMode } from './modes/math.js';
 import { mathLabMode } from './modes/mathlab.js';
 import { wordsMode } from './modes/words.js';
 
-const modes = [freeplayMode, pianoMode, lettersMode, numbersMode, mathMode, mathLabMode, wordsMode];
+// Math Lab replaced the original Math mode once it had been tried on a real
+// device. js/modes/math.js and #math-container are deliberately left in the
+// tree, unreferenced, so the old mode can be re-registered here if Math Lab
+// turns out to regress for a child.
+const modes = [freeplayMode, pianoMode, lettersMode, numbersMode, mathLabMode, wordsMode];
 const defaultModeId = 'free';
 
 const instructions = document.getElementById('instructions');
@@ -71,6 +74,11 @@ function buildModeButtons() {
 // Beta modes are hidden entirely unless the parent turns them on; turning the
 // flag off while one is active drops back to Free Play rather than stranding
 // the child in an invisible mode.
+//
+// No mode is currently `beta: true` — Math Lab was the last one and has shipped
+// as the math mode — so this is a no-op loop and the parent panel has no row
+// for the flag. Both are kept ready for the next mode that needs them; adding
+// the row back to index.html is all it takes.
 function applyBetaGate() {
     const show = !!getSetting('betaModes');
     for (const mode of modes) {

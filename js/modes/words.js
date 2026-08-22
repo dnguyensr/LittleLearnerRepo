@@ -1,5 +1,5 @@
 import { easyWords } from '../data/words.js';
-import { getLetterInfo } from '../data/letters.js';
+import { getLetterInfo, spokenLetter } from '../data/letters.js';
 import { playKeyTone, playWrongSound } from '../audio.js';
 import { randomBackground, createBubble, randomStar, celebrate, setScoreVisible, setScoreMode } from '../effects.js';
 import { setOskHint } from '../input.js';
@@ -62,7 +62,10 @@ function speakLetter(letter) {
     if (getSetting('phonics') && info) {
         speak(info.phonic, { interrupt: true });
     } else {
-        speak(letter, { interrupt: true });
+        // spokenLetter, not the letter itself: iOS Safari reads a bare "E" as
+        // "capital E", so spelling EAT came out "capital E, capital A,
+        // capital T". See js/data/letters.js.
+        speak(spokenLetter(letter), { interrupt: true });
     }
 }
 

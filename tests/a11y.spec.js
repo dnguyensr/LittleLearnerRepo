@@ -15,7 +15,7 @@ test.describe('Reduced motion', () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } });
 
     test('key presses and celebrations spawn no bubbles, stars or flying keys', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: 'count10' });
+        await seedSettings(page, { mathMethod: 'classical', mathLabLevel: 'count10' });
         await gotoApp(page);
 
         // Free play: the flying key and its confetti are suppressed
@@ -41,7 +41,7 @@ test.describe('Accessibility (axe)', () => {
     // different set of controls.
     for (const method of ['classical', 'commoncore', 'singapore']) {
         test(`math lab (${method}) has no serious/critical violations`, async ({ page }) => {
-            await seedSettings(page, { betaModes: true, mathMethod: method });
+            await seedSettings(page, { mathMethod: method });
             await gotoApp(page);
             await page.locator('#mathlab-btn').click();
             await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -50,9 +50,8 @@ test.describe('Accessibility (axe)', () => {
         });
     }
 
-    for (const mode of ['free', 'piano', 'letters', 'numbers', 'math', 'mathlab', 'words']) {
+    for (const mode of ['free', 'piano', 'letters', 'numbers', 'mathlab', 'words']) {
         test(`${mode} mode has no serious/critical violations`, async ({ page }) => {
-            if (mode === 'mathlab') await seedSettings(page, { betaModes: true });
             await gotoApp(page);
             await page.locator(`#${mode}-btn`).click();
             if (mode === 'free' || mode === 'words') {

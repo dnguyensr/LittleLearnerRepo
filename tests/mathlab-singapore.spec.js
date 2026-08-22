@@ -7,7 +7,7 @@ const { gotoApp, seedSettings } = require('./helpers');
  * @param {{ variant?: string, until?: (q: any) => boolean }} [options]
  */
 async function openLab(page, skill, { variant, until } = {}) {
-    await seedSettings(page, { betaModes: true, mathMethod: 'singapore', mathLabLevel: skill });
+    await seedSettings(page, { mathMethod: 'singapore', mathLabLevel: skill });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -266,7 +266,7 @@ test.describe('Math Lab — Singapore, bar models', () => {
 // tests/mathlab-progression.spec.js — the spec for the last one to land.
 test.describe('Math Lab — method selection', () => {
     test('switching to Singapore swaps in its manipulative', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'commoncore', mathLabLevel: 'addWithin10' });
+        await seedSettings(page, { mathMethod: 'commoncore', mathLabLevel: 'addWithin10' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('.number-bond')).toHaveCount(0);

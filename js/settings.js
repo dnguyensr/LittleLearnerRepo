@@ -2,6 +2,10 @@ import { setSpeechEnabled, currentVoiceName, listVoices } from './speech.js';
 import { LEGACY_STAGE, loadProgress, clearProgress, describeProgress } from './math/ladder.js';
 
 const STORAGE_KEY = 'lls-settings';
+// mathTier and betaModes have no row in the panel any more: Math Lab took over
+// as the math mode, so mathTier is only read by the unregistered
+// js/modes/math.js, and no mode sets `beta: true`. Both are kept so that
+// re-registering a mode is a one-line change and so stored values survive.
 const defaults = {
     speech: true,
     phonics: false,
@@ -68,19 +72,13 @@ export function initSettingsUI() {
 
     const speechBox = input('set-speech');
     const phonicsBox = input('set-phonics');
-    const tierSelect = select('set-math-tier');
-    const betaBox = input('set-beta-modes');
     const methodSelect = select('set-math-method');
     const labLevelSelect = select('set-mathlab-level');
-    const betaRows = document.getElementById('beta-settings');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
-    tierSelect.value = String(settings.mathTier);
-    betaBox.checked = settings.betaModes;
     methodSelect.value = String(settings.mathMethod);
     labLevelSelect.value = String(settings.mathLabLevel);
-    betaRows.hidden = !settings.betaModes;
 
     /* ---- Math Lab progress: read-out + two-tap reset ---- */
 
@@ -165,11 +163,6 @@ export function initSettingsUI() {
 
     speechBox.addEventListener('change', () => setSetting('speech', speechBox.checked));
     phonicsBox.addEventListener('change', () => setSetting('phonics', phonicsBox.checked));
-    tierSelect.addEventListener('change', () => setSetting('mathTier', tierSelect.value));
-    betaBox.addEventListener('change', () => {
-        setSetting('betaModes', betaBox.checked);
-        betaRows.hidden = !betaBox.checked;
-    });
     methodSelect.addEventListener('change', () => setSetting('mathMethod', methodSelect.value));
     labLevelSelect.addEventListener('change', () => setSetting('mathLabLevel', labLevelSelect.value));
 }

@@ -104,7 +104,8 @@ object does not exist, and `SpeechSynthesisUtterance` is `undefined`. Nor is
 there an `AudioContext` under either spelling. And Apple's voices are iOS files
 that do not exist on a Windows machine, so no locally installed browser can ever
 enumerate them. The A3 bug was never findable locally and a future one won't be
-either. The two speech-contract specs now `test.skip` on webkit explicitly.
+either. The two speech-contract specs `test.skip` on webkit explicitly.
+(**Superseded 2026-08-22** — see Phase A5: they no longer skip anywhere.)
 
 **It immediately found a real bug, though — a boot crash.** `js/audio.js` built
 its `AudioContext` at module scope, unguarded. With neither spelling available
@@ -130,6 +131,59 @@ written up in `06-math-methods-beta.md`.
 
 Standing after all of it: **550 passed, 6 skipped, 0 failed** across four
 projects.
+
+## Phase A5 — "capital E" while spelling (done 2026-08-22)
+
+Reported from the iPhone: spelling **EAT** in Words was read back as *"capital
+E, capital A, capital T."* iOS Safari treats a one-character utterance as a
+character to describe rather than a letter to name, and case is part of that
+description.
+
+**There is no flag for this.** `SpeechSynthesisUtterance` carries only `text`,
+`lang`, `voice`, `rate`, `pitch` and `volume` — nothing about how to interpret
+the text — and Safari does not honour SSML, so `<say-as
+interpret-as="characters">` is read as markup or dropped. The only lever is the
+string handed to the engine.
+
+Lowercasing is the obvious fix and the wrong one: it dodges the "capital" prefix
+but hands the engine real words instead, so `a` becomes a schwa article. So each
+letter now carries a `spoken` respelling of its **name** (`E` → `ee`, `W` →
+`double you`) in `js/data/letters.js`, applied through `spokenLetter()` in both
+Words and Letters. Real words are used wherever one matches the letter name
+(`see`, `why`, `you`, `are`) since dictionaries pronounce those reliably.
+
+Covered by `tests/letter-speech.spec.js`, which asserts on the text the app
+hands the engine — the engine's half can't be tested here, but never passing it
+a lone capital is the whole fix. The per-letter spellings are the tunable part:
+if one lands oddly on the device, change that row.
+
+**Re-probed, because it is worth not taking on faith (2026-08-22):**
+`speechSynthesis` is still absent from Playwright's WebKit — headless *and*
+`--headed`, on both the `webkit` and `mobile-safari` projects. Note also that
+`mobile-safari` is **not** mobile Safari: it is the same desktop WebKit binary
+with an iPhone viewport and a spoofed UA, so it cannot diverge from `webkit` on
+anything engine-level. And the "capital E" reading is not WebKit's to reproduce
+in the first place — WebKit's Web Speech support is a shim over the platform
+engine (AVSpeechSynthesizer), and the normalisation happens inside Apple's voice
+files, which don't exist off an Apple device.
+
+The harder limit, which no browser choice fixes: **there is no API that reports
+what was spoken.** No audio stream, no phoneme hook; `boundary` events carry
+`charIndex`/`charLength`, which is segmentation, not pronunciation. A real-device
+cloud would buy real iOS Safari and still leave nothing to assert on. So the
+split is permanent: **the suite pins the input, a human confirms the output.**
+
+**What webkit coverage *is* worth here (done 2026-08-22).** The recorder in
+`tests/helpers.js` (`stubSpeech`) *replaces* `window.speechSynthesis` via
+`defineProperty` before the app's modules evaluate, rather than wrapping an
+existing one. That needs no engine, so the two specs that used to
+`test.skip(browserName === 'webkit')` — the counting queue in
+`learning.spec.js` and the word-celebration ordering in `words.spec.js` — now
+run on all four projects. Both were mutation-checked on webkit (flip the
+celebration to `interrupt: true`, flip `speakEach`'s `interrupt` to `false`) and
+both fail there as intended, so the coverage is real rather than vacuous. It
+also takes the real engine out of the loop on Chromium, where it is a single
+shared service that stalls under parallel workers.
 
 Not done, and deliberately: **a parent voice picker.** On Android the list contains voices that aren't installed, so the dropdown would offer choices that silently do nothing. Worth revisiting for desktop alone, or once the list can be validated by test-speaking a candidate.
 

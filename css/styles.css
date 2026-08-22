@@ -303,7 +303,7 @@ button {
     text-align: center;
 }
 
-/* ---------- Math Lab (beta) ---------- */
+/* ---------- Math Lab ---------- */
 
 /* Math Lab stacks more than Math does (objects + notation + entry), so every
    band is sized off the shorter of vw/vh to keep it inside the play area on a
@@ -1509,18 +1509,6 @@ button.btb-rod:active {
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-}
-
-#beta-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding-left: 14px;
-    border-left: 3px dashed #ccc;
-}
-
-#beta-settings[hidden] {
-    display: none;
 }
 
 #mathlab-progress-row {

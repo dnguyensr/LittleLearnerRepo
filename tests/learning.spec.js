@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { gotoApp, seedSettings } = require('./helpers');
+const { gotoApp, seedSettings, stubSpeech, speechLog, clearSpeechLog } = require('./helpers');
 
 test.describe('Letter Land', () => {
     test.beforeEach(async ({ page }) => {
@@ -69,38 +69,29 @@ test.describe('Number Fun', () => {
 });
 
 test.describe('Number Fun — the counting voice', () => {
-    test('the whole count is queued as one sequence, never interrupted', async ({ page, browserName }) => {
-        // Playwright's WebKit build ships no speechSynthesis API at all — not an
-        // empty voice list, the object is absent — so there is nothing to
-        // instrument. Real Safari has it; this browser is not Safari.
-        test.skip(browserName === 'webkit', 'speechSynthesis is absent in Playwright WebKit');
+    // Runs everywhere, webkit included: the engine is replaced by a recorder
+    // rather than wrapped, so the absence of speechSynthesis in Playwright's
+    // WebKit no longer forces a skip. What is asserted here — the order of the
+    // queue and the count of cancels — is the app's half of the contract, and
+    // is identical on every browser.
+    test('the whole count is queued as one sequence, never interrupted', async ({ page }) => {
+        await stubSpeech(page);
         await gotoApp(page);
         await page.locator('#numbers-btn').click();
         await expect(page.locator('#numbers-container')).toHaveClass(/active/);
-
-        await page.evaluate(() => {
-            const win = /** @type {any} */ (window);
-            win.__spoken = [];
-            win.__cancels = 0;
-            const speak = speechSynthesis.speak.bind(speechSynthesis);
-            speechSynthesis.speak = utterance => { win.__spoken.push(utterance.text); speak(utterance); };
-            const cancel = speechSynthesis.cancel.bind(speechSynthesis);
-            speechSynthesis.cancel = () => { win.__cancels++; cancel(); };
-        });
+        await clearSpeechLog(page);
 
         await page.keyboard.press('3');
 
         // Queued synchronously, so this needs no waiting on actual audio
-        const result = await page.evaluate(() => {
-            const win = /** @type {any} */ (window);
-            return { spoken: win.__spoken, cancels: win.__cancels };
-        });
+        const log = await speechLog(page);
 
         // The announcement then each number, in order and in one queue
-        expect(result.spoken).toEqual(['3!', '1', '2', '3']);
+        expect(log.filter(e => e.type === 'speak').map(e => e.text))
+            .toEqual(['3!', '1', '2', '3']);
         // Exactly one cancel: the interrupt clearing whatever came before. The
         // count itself never interrupts, which is what stops it being chopped.
-        expect(result.cancels).toBe(1);
+        expect(log.filter(e => e.type === 'cancel')).toHaveLength(1);
     });
 });
 

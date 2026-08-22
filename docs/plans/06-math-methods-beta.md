@@ -11,9 +11,15 @@
 > Math mode stays frozen as-is — the two are not converging, see the graduation
 > review.
 >
-> **It stays behind the beta flag.** The code is covered, but nothing here has
-> been tried on an actual child yet, and that's the only evidence that should
-> retire the flag.
+> **Graduated (2026-08-22):** the missing evidence below — a child actually
+> using it — now exists, so Math Lab has left beta and *replaced* Math as the
+> app's math mode. It presents as plain "Math 🔢"; the mode id stays `mathlab`
+> so saved scores and ladder progress carried over. `js/modes/math.js` and
+> `#math-container` are still in the tree but unregistered in `js/main.js`, and
+> `tests/math.spec.js` is `describe.skip`ped, so the old mode can come back if
+> this regresses. No mode is `beta: true` any more: the machinery and the
+> `betaModes` setting are kept, but the panel row that toggled it is gone, and
+> the method / stage / progress rows moved into the main parent panel.
 
 Goal: a new **Math Lab 🧪** beta module that teaches the same four skill levels through three selectable teaching methods — classical, Common Core, and Singapore — each with its own *interactive manipulatives* instead of only type-the-answer. The existing Math mode stays untouched; Math Lab is where the new interaction styles incubate.
 

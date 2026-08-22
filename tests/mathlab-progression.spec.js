@@ -19,7 +19,7 @@ async function seedProgress(page, progress) {
 }
 
 async function openLab(page, settings = {}) {
-    await seedSettings(page, { betaModes: true, mathLabLevel: 'auto', mathMethod: 'classical', ...settings });
+    await seedSettings(page, { mathLabLevel: 'auto', mathMethod: 'classical', ...settings });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();
     await expect(page.locator('#mathlab-container')).toHaveClass(/active/);
@@ -290,7 +290,7 @@ test.describe('Math Lab — stored progress is defended', () => {
     });
 
     test('an old numeric mathLabLevel setting maps onto a stage', async ({ page }) => {
-        await seedSettings(page, { betaModes: true, mathMethod: 'classical', mathLabLevel: '3' });
+        await seedSettings(page, { mathMethod: 'classical', mathLabLevel: '3' });
         await gotoApp(page);
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-stage', 'subtracting10');
@@ -373,7 +373,6 @@ test.describe('Math Lab — mix rotation', () => {
     });
 
     test('every method option is selectable', async ({ page }) => {
-        await seedSettings(page, { betaModes: true });
         await gotoApp(page);
         await page.locator('#settings-btn').dispatchEvent('pointerdown', { pointerId: 1 });
         await expect(page.locator('#settings-panel')).toBeVisible();
