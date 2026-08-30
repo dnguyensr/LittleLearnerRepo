@@ -51,8 +51,9 @@
             <div id="piano"></div>
         </div>
         <div id="letters-container">
-            <div id="letter-display">ABC</div>
-            <div id="letter-example">Press a letter!</div>
+            <button id="letter-display" type="button" disabled aria-label="Choose a letter first">ABC</button>
+            <button id="letter-example" type="button" disabled aria-label="Choose a letter first">Press a letter!</button>
+            <button id="letter-sound-btn" type="button" hidden aria-label="Hear how the letter sounds in the word">👂 Hear the sound</button>
         </div>
         <div id="numbers-container">
             <div id="number-display">123</div>
@@ -70,7 +71,7 @@
             <p class="settings-note">Opened by holding the ⚙️ button.</p>
             <label class="settings-row"><input type="checkbox" id="set-speech"> Speech sounds</label>
             <p class="settings-note" id="voice-readout">Voice: —</p>
-            <label class="settings-row"><input type="checkbox" id="set-phonics"> Letter sounds (phonics) instead of names</label>
+            <label class="settings-row"><input type="checkbox" id="set-phonics"> Emphasize letter sounds (phonics)</label>
             <details id="voice-list-row">
                 <summary>Voices on this device</summary>
                 <ul id="voice-list"></ul>

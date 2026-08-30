@@ -23,6 +23,7 @@ P1–P3 and the core of P4–P7 are shipped; each linked plan records remaining 
 | P5 | [Testing, tooling & accessibility](05-testing-tooling.md) | npm dev tooling, Playwright E2E, axe accessibility scans, CI. Phased last, but start it alongside P2 so the refactor is protected by tests. |
 | P6 | [Math readiness paths and guided learning](06-math-methods-beta.md) | **The shipped Math curriculum.** A shared evidence-led foundation branches into continued addition, subtraction, or Big Addition. Singapore mastery is the fresh default; Traditional practice, Visual strategies, and Balanced mix remain selectable lenses. Subtraction and place-value lessons are in an inline parent-enabled beta. |
 | P7 | [Speech quality](07-speech-quality.md) | Voice selection fixed (deterministic, locale-aware, resilient to each platform's broken `getVoices()`). A bundled neural engine (Kokoro/Piper, 63–92 MB) is a spike gated on measurements from the real target tablet — with pre-generated audio clips as the cheaper alternative to price first. |
+| P8 | [Toddler letter foundations](08-letter-foundations.md) | **The shipped Letters introduction.** Letter names, upper/lowercase forms, familiar sound-consistent examples, and separately replayable phonics are presented one relationship at a time. |
 
 ## Conventions
 

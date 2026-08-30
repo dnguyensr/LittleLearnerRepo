@@ -57,6 +57,9 @@ test.describe('Accessibility (axe)', () => {
             if (mode === 'free' || mode === 'words') {
                 await ensureOskVisible(page);
             }
+            if (mode === 'letters') {
+                await page.keyboard.press('a');
+            }
             const violations = await scan(page);
             expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
         });

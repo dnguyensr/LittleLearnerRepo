@@ -38,7 +38,7 @@ test.describe('Letter names are spoken, not described', () => {
         }
     });
 
-    test('Letters names the letter before its sound and example word', async ({ page }) => {
+    test('Letters introduces the name through one familiar example', async ({ page }) => {
         await gotoApp(page);
         await page.locator('#letters-btn').click();
         await clearSpeechLog(page);
@@ -46,7 +46,36 @@ test.describe('Letter names are spoken, not described', () => {
         await page.keyboard.press('e');
         const said = await spokenTexts(page);
         expect(said).toHaveLength(1);
-        expect(said[0]).toBe('ee! eh! EGG!');
+        expect(said[0]).toBe('ee. ee is for egg.');
+    });
+
+    test('Letters phonics setting emphasizes the sound relationship', async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('lls-settings', JSON.stringify({ phonics: true }));
+        });
+        await gotoApp(page);
+        await page.locator('#letters-btn').click();
+        await clearSpeechLog(page);
+
+        await page.keyboard.press('i');
+        expect(await spokenTexts(page)).toEqual(['eye says ih, at the start of igloo.']);
+    });
+
+    test('letter, word, and sound can be replayed independently', async ({ page }) => {
+        await gotoApp(page);
+        await page.locator('#letters-btn').click();
+        await page.keyboard.press('b');
+        await clearSpeechLog(page);
+
+        await page.locator('#letter-display').click();
+        await page.locator('#letter-example').click();
+        await page.locator('#letter-sound-btn').click();
+
+        expect(await spokenTexts(page)).toEqual([
+            'bee',
+            'ball',
+            'bee says buh, at the start of ball.'
+        ]);
     });
 
     test('phonics mode still speaks the sound, not the name', async ({ page }) => {

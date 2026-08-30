@@ -1,5 +1,7 @@
-// Letter name, an approximate phonic sound the TTS can pronounce,
-// and an example word + emoji for each letter.
+// Letter name, an approximate phonic sound the TTS can pronounce, and a
+// familiar example whose relevant sound matches the spelling. `position`
+// defaults to the beginning; X uses a final sound because English has no
+// toddler-friendly common word beginning with the usual /ks/ sound.
 //
 // `spoken` is the letter's *name* respelled for a speech engine. The Web Speech
 // API has no "read this as a character" control — an utterance carries only
@@ -20,13 +22,13 @@ export const letterData = [
     { letter: 'F', spoken: 'eff', phonic: 'fuh', word: 'FISH', emoji: '🐟' },
     { letter: 'G', spoken: 'jee', phonic: 'guh', word: 'GOAT', emoji: '🐐' },
     { letter: 'H', spoken: 'aitch', phonic: 'huh', word: 'HAT', emoji: '🎩' },
-    { letter: 'I', spoken: 'eye', phonic: 'ih', word: 'ICE', emoji: '🧊' },
+    { letter: 'I', spoken: 'eye', phonic: 'ih', word: 'IGLOO', emoji: '🧊' },
     { letter: 'J', spoken: 'jay', phonic: 'juh', word: 'JAM', emoji: '🫙' },
     { letter: 'K', spoken: 'kay', phonic: 'kuh', word: 'KITE', emoji: '🪁' },
     { letter: 'L', spoken: 'ell', phonic: 'luh', word: 'LION', emoji: '🦁' },
     { letter: 'M', spoken: 'em', phonic: 'muh', word: 'MOON', emoji: '🌙' },
     { letter: 'N', spoken: 'en', phonic: 'nuh', word: 'NOSE', emoji: '👃' },
-    { letter: 'O', spoken: 'oh', phonic: 'oh', word: 'OWL', emoji: '🦉' },
+    { letter: 'O', spoken: 'oh', phonic: 'short o', word: 'OCTOPUS', emoji: '🐙' },
     { letter: 'P', spoken: 'pee', phonic: 'puh', word: 'PIG', emoji: '🐷' },
     { letter: 'Q', spoken: 'cue', phonic: 'kwuh', word: 'QUEEN', emoji: '👸' },
     { letter: 'R', spoken: 'are', phonic: 'ruh', word: 'ROBOT', emoji: '🤖' },
@@ -35,7 +37,7 @@ export const letterData = [
     { letter: 'U', spoken: 'you', phonic: 'uh', word: 'UMBRELLA', emoji: '☂️' },
     { letter: 'V', spoken: 'vee', phonic: 'vuh', word: 'VIOLIN', emoji: '🎻' },
     { letter: 'W', spoken: 'double you', phonic: 'wuh', word: 'WHALE', emoji: '🐳' },
-    { letter: 'X', spoken: 'ex', phonic: 'ks', word: 'X-RAY', emoji: '🩻' },
+    { letter: 'X', spoken: 'ex', phonic: 'ks', word: 'FOX', emoji: '🦊', position: 'end' },
     { letter: 'Y', spoken: 'why', phonic: 'yuh', word: 'YO-YO', emoji: '🪀' },
     { letter: 'Z', spoken: 'zee', phonic: 'zzz', word: 'ZEBRA', emoji: '🦓' }
 ];

@@ -2,7 +2,7 @@
 
 Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add new modules. Guiding principles: no reading required to navigate, no dead ends, wrong answers always recoverable, audio reinforcement everywhere (via `speechSynthesis` — built into browsers, no dependencies).
 
-> **Status (2026-07-25):** core phase implemented — Math tiers/hints/confirm, Words tiers/speech/hints, Letter Land, Number Fun, settings panel, score persistence. Remaining: three more module ideas below. 78/78 tests passing.
+> **Status (2026-08-29):** core phase implemented — Math readiness paths, Words tiers and hints, toddler-first Letter Land, Number Fun, grown-up settings, and local score persistence. Remaining: the three module ideas below. Automated browser, mobile, speech-contract, layout, and accessibility coverage is active.
 
 ## Math improvements
 
@@ -29,7 +29,7 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 
 ## New module ideas (prioritized)
 
-- [x] **Letter Land** (`js/modes/letters.js`): press/tap any letter → big animated letter, speaks the name, phonic sound, and an example word with emoji ("B! buh! BALL!").
+- [x] **Letter Land** (`js/modes/letters.js`): press/tap any letter → uppercase and lowercase forms with a sound-consistent familiar example ("B. B is for ball."). The letter, word, and optional phonics relationship are separate replay targets so toddlers hear one association at a time.
 - [x] **Number Fun** (`js/modes/numbers.js`): press 0–9 → big numeral, spoken name, that many objects appear one by one with counting voice-over.
 - [ ] **Shapes & Colors**: "Tap the red circle!" — a few shapes on screen, tap the right one; spoken prompts, no keyboard needed at all.
 - [ ] **Sight Words** (K–1st): flashcards from the Dolch pre-K/K lists; app speaks the word, child finds it among 2–3 choices (recognition before spelling).
@@ -40,5 +40,5 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 
 - [x] One `celebrate()` helper in `js/effects.js` used by every scoring module (done in P2).
 - [x] Per-mode score persisted in `localStorage` (`lls-score-<mode>`; survives reloads, no accounts, no network).
-- [x] Parent settings panel (`⚙️` hold-to-open 600ms so toddlers can't): speech on/off, phonics vs letter names, math difficulty tier. *(volume control and per-module visibility still open)*
+- [x] Parent settings panel (`⚙️` hold-to-open 600ms so toddlers can't): speech on/off, phonics emphasis, and Math presentation/stage controls. *(volume control and per-module visibility still open)*
 - [x] `js/speech.js` wrapping `speechSynthesis`: cancel on mode switch, prefers an English/child-friendly voice, no-op if unsupported or disabled.
