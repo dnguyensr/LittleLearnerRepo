@@ -1,5 +1,8 @@
 import { setSpeechEnabled, currentVoiceName, listVoices } from './speech.js';
 import { LEGACY_STAGE, loadProgress, clearProgress, describeProgress } from './math/ladder.js';
+import {
+    clearWordsProgress, describeWordsProgress, loadWordsProgress
+} from './words/progress.js';
 
 const STORAGE_KEY = 'lls-settings';
 // mathTier and betaModes have no row in the panel any more: Math Lab took over
@@ -13,7 +16,8 @@ const defaults = {
     betaModes: false,
     mathMethod: 'singapore',
     mathLabLevel: 'auto',
-    guidedLessonsBeta: false
+    guidedLessonsBeta: false,
+    wordStage: 'auto'
 };
 
 function load() {
@@ -76,12 +80,14 @@ export function initSettingsUI() {
     const methodSelect = select('set-math-method');
     const labLevelSelect = select('set-mathlab-level');
     const guidedLessonsBox = input('set-guided-lessons-beta');
+    const wordStageSelect = select('set-word-stage');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
     methodSelect.value = String(settings.mathMethod);
     labLevelSelect.value = String(settings.mathLabLevel);
     guidedLessonsBox.checked = !!settings.guidedLessonsBeta;
+    wordStageSelect.value = String(settings.wordStage);
 
     const methodNote = document.getElementById('math-method-note');
     const methodNotes = {
@@ -99,6 +105,8 @@ export function initSettingsUI() {
 
     const progressLabel = document.getElementById('mathlab-progress-label');
     const resetBtn = document.getElementById('mathlab-progress-reset');
+    const wordsProgressLabel = document.getElementById('words-progress-label');
+    const wordsResetBtn = document.getElementById('words-progress-reset');
 
     // Which voice the ranking actually landed on. The list differs per device
     // and can't be reproduced on a desktop, so on a phone this read-out is the
@@ -135,6 +143,9 @@ export function initSettingsUI() {
         progressLabel.textContent = describeProgress(loadProgress());
         resetBtn.textContent = 'Start over';
         resetBtn.classList.remove('armed');
+        wordsProgressLabel.textContent = describeWordsProgress(loadWordsProgress());
+        wordsResetBtn.textContent = 'Start over';
+        wordsResetBtn.classList.remove('armed');
     }
     refreshProgressRow();
 
@@ -148,6 +159,17 @@ export function initSettingsUI() {
         }
         clearProgress();
         window.dispatchEvent(new CustomEvent('lls-mathlab-progress-reset'));
+        refreshProgressRow();
+    });
+
+    wordsResetBtn.addEventListener('click', () => {
+        if (!wordsResetBtn.classList.contains('armed')) {
+            wordsResetBtn.textContent = 'Tap again to erase';
+            wordsResetBtn.classList.add('armed');
+            return;
+        }
+        clearWordsProgress();
+        window.dispatchEvent(new CustomEvent('lls-words-progress-reset'));
         refreshProgressRow();
     });
 
@@ -186,4 +208,5 @@ export function initSettingsUI() {
     guidedLessonsBox.addEventListener('change', () => {
         setSetting('guidedLessonsBeta', guidedLessonsBox.checked);
     });
+    wordStageSelect.addEventListener('change', () => setSetting('wordStage', wordStageSelect.value));
 }

@@ -166,6 +166,71 @@
  * @property {'classical'|'commoncore'|'singapore'|'mix'} mathMethod
  * @property {'auto'|'1'|'2'|'3'|'4'} mathLabLevel
  * @property {boolean} guidedLessonsBeta
+ * @property {'auto'|'firstSoundsContinuous'|'firstSoundsStops'|'finalSounds'|'segmentSounds'|'missingLetter'|'continuousCvc'|'shortVowelCvc'|'wordChains'|'blends'|'digraphs'|'silentE'|'vowelTeams'|'wordParts'|'wordStars'} wordStage
+ */
+
+/**
+ * One sound-to-print relationship inside a regular word definition.
+ * `sequence` is what a physical keyboard must type for the displayed tile;
+ * it differs for authored tiles such as A…E.
+ *
+ * @typedef {object} WordPhoneme
+ * @property {string} id
+ * @property {string} grapheme
+ * @property {string} sequence
+ * @property {string} cue
+ * @property {string} [audio] relative path to a locally bundled reviewed clip
+ */
+
+/**
+ * Authored word curriculum entry. Sound boxes follow `phonemes`, never the
+ * character count of `word`. Irregular Word Stars instead reconstruct the
+ * explicit `spelling` array after direct teaching.
+ *
+ * @typedef {object} WordDefinition
+ * @property {string} id
+ * @property {string} word
+ * @property {string} label
+ * @property {string} emoji
+ * @property {string} pattern
+ * @property {WordPhoneme[]} phonemes
+ * @property {string[]} skills
+ * @property {string[]} [spelling]
+ * @property {number[]} [unexpected] spelling indexes to mark as a Word Star part
+ * @property {boolean} [irregular]
+ * @property {string} [chain]
+ */
+
+/**
+ * Recoverable in-progress child interaction.
+ *
+ * @typedef {object} WordsActivityState
+ * @property {string} skillId
+ * @property {string} wordId
+ * @property {string} mode
+ * @property {(string|null)[]} placements
+ * @property {string[]} tray
+ * @property {number[]} fixed indexes authored as already placed and not removable
+ * @property {number[]} guided
+ * @property {string|null} fromWordId previous word for a one-sound word chain
+ * @property {number} misses
+ * @property {boolean} hadWrong
+ * @property {boolean} hintUsed
+ * @property {'active'|'complete'} status
+ */
+
+/**
+ * Persisted Words readiness, path choice, lessons, and interrupted activity.
+ * Historical `lls-score-words` is deliberately separate and never migrates
+ * into mastery.
+ *
+ * @typedef {object} WordsProgress
+ * @property {1} version
+ * @property {string} currentSkill
+ * @property {'soundBuilding'|'practice'|'patterns'|'wordStars'|null} selectedPath
+ * @property {WordsActivityState|null} currentActivity
+ * @property {Record<string, {recentIndependent: boolean[], mastered: boolean}>} skills
+ * @property {Record<string, {status: 'unseen'|'inProgress'|'complete', scene: number}>} lessons
  */
 
 export {};

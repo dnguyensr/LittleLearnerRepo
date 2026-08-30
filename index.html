@@ -26,9 +26,25 @@
         <div id="score-display">🏆 Score: <span id="word-count">0</span></div>
         <div id="key-display">Tap or press a key!</div>
         <div id="word-container">
-            <div id="word-emoji"></div>
-            <div id="word-prompt">Type this word:</div>
-            <div id="target-word"></div>
+            <button id="word-paths-btn" type="button" hidden aria-label="Choose a word path">🗺️ Word Paths</button>
+            <div id="word-path-chooser" hidden></div>
+            <div id="word-activity">
+                <button id="word-picture" type="button" aria-label="Hear the word again">🖼️</button>
+                <div class="word-prompt-row">
+                    <div id="word-prompt" role="status" aria-live="polite">Listen for a sound.</div>
+                    <button id="word-speak-btn" type="button" class="speak-btn" aria-label="Hear the word again">🔊</button>
+                    <button id="word-sounds-btn" type="button" class="speak-btn" aria-label="Hear the sounds slowly">👂</button>
+                </div>
+                <div id="word-sound-boxes" role="group" aria-label="Sound boxes"></div>
+                <div id="word-feedback" role="status" aria-live="polite"></div>
+                <div id="word-tile-tray" role="group" aria-label="Letter choices"></div>
+                <button id="word-learn-together" type="button" hidden>🤝 Build It Together</button>
+                <div id="word-reveal" hidden></div>
+                <div id="word-next-actions" hidden>
+                    <button id="word-again-btn" type="button">🔁 Again</button>
+                    <button id="word-next-btn" type="button">➡️ Next Word</button>
+                </div>
+            </div>
         </div>
         <div id="math-container">
             <div id="math-question"></div>
@@ -102,6 +118,30 @@
             <div class="settings-row" id="mathlab-progress-row">
                 <span>Progress: <strong id="mathlab-progress-label"></strong></span>
                 <button id="mathlab-progress-reset" type="button" class="reset-btn">Start over</button>
+            </div>
+            <label class="settings-row">Words stage
+                <select id="set-word-stage">
+                    <option value="auto">Learning path</option>
+                    <option value="firstSoundsContinuous">First sounds: stretchy sounds</option>
+                    <option value="firstSoundsStops">First sounds: quick sounds</option>
+                    <option value="finalSounds">Last sounds</option>
+                    <option value="segmentSounds">Tap each sound</option>
+                    <option value="missingLetter">Finish a word</option>
+                    <option value="continuousCvc">Build stretchy-sound words</option>
+                    <option value="shortVowelCvc">Build short-vowel words</option>
+                    <option value="wordChains">Change a word</option>
+                    <option value="blends">Consonant blends</option>
+                    <option value="digraphs">Two letters, one sound</option>
+                    <option value="silentE">Silent E</option>
+                    <option value="vowelTeams">Vowel teams</option>
+                    <option value="wordParts">Word parts</option>
+                    <option value="wordStars">Word Stars</option>
+                </select>
+            </label>
+            <p class="settings-note">Words teaches sound-to-letter connections. With speech off or unavailable, the visual activity still works but its sound instruction is limited.</p>
+            <div class="settings-row" id="words-progress-row">
+                <span>Words progress: <strong id="words-progress-label"></strong></span>
+                <button id="words-progress-reset" type="button" class="reset-btn">Start over</button>
             </div>
             <button id="settings-close" type="button" class="top-btn">Done</button>
         </div>

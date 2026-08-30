@@ -17,7 +17,7 @@ async function readEmojiRoles(page) {
         const [decor, items, words, numbers] = await Promise.all([
             '/js/data/decor.js',
             '/js/data/math-items.js',
-            '/js/data/words.js',
+            '/js/words/curriculum.js',
             '/js/modes/numbers.js'
         ].map(path => import(path)));
 
@@ -26,7 +26,7 @@ async function readEmojiRoles(page) {
             content.add(item.emoji);
             if (item.eater) content.add(item.eater);
         }
-        for (const entry of words.easyWords) content.add(entry.emoji);
+        for (const entry of words.WORD_DEFINITIONS) content.add(entry.emoji);
         for (const emoji of numbers.objectEmojis) content.add(emoji);
 
         return {

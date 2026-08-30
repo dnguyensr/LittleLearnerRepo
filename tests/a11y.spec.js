@@ -61,7 +61,7 @@ test.describe('Accessibility (axe)', () => {
         test(`${mode} mode has no serious/critical violations`, async ({ page }) => {
             await gotoApp(page);
             await page.locator(`#${mode}-btn`).click();
-            if (mode === 'free' || mode === 'words') {
+            if (mode === 'free') {
                 await ensureOskVisible(page);
             }
             if (mode === 'letters') {

@@ -36,7 +36,7 @@ const letterRows = [
 
 const oskLayouts = {
     qwerty: [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ...letterRows],
-    // Letters and Words never ask for a digit, so they get the same board
+    // Letters never asks for a digit, so it gets the same board
     // without the number row: one less row of keys for a small hand to fumble
     // past, and one less row of screen the play area has to give up.
     letters: letterRows,

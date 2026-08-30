@@ -233,17 +233,4 @@ test.describe('Parent settings', () => {
         await expect(panel).toBeHidden();
     });
 
-    test('words hint highlights the expected letter on the OSK', async ({ page }) => {
-        await gotoApp(page);
-        await page.locator('#words-btn').click();
-        const word = (await page.locator('.letter-box').allTextContents()).join('');
-        const expected = word[0];
-        await expect(page.locator(`.osk-key[data-key="${expected}"]`)).toHaveClass(/hint/);
-
-        // two misses upgrade the hint to a strong pulse
-        const wrong = expected === 'Q' ? 'W' : 'Q';
-        await page.keyboard.press(wrong.toLowerCase());
-        await page.keyboard.press(wrong.toLowerCase());
-        await expect(page.locator(`.osk-key[data-key="${expected}"]`)).toHaveClass(/hint-strong/);
-    });
 });

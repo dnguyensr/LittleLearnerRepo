@@ -17,7 +17,7 @@ For the best experience, turn on sound and use a tablet, phone, or computer with
 | **Letters** | See and hear letter names or phonics sounds with familiar examples. |
 | **Numbers** | Connect numerals with spoken numbers and visible quantities. |
 | **Math** | Build counting and addition readiness, then choose continued addition, subtraction, or Big Addition paths. Interactive objects, visual strategies, and optional guided lessons support new concepts. |
-| **Words** | Practice spelling increasingly challenging words with pictures, speech, and hints. |
+| **Words** | Hear familiar words, find their sounds, and build them with letter and grapheme tiles. Children begin with first sounds, move into regular short words, and later choose continued practice, new spelling patterns, or Word Stars. |
 
 Children can move between modules at any time. Math path choices are also reversible, and changing paths does not erase completed work.
 
@@ -29,7 +29,8 @@ Press and hold the gear button to open the grown-up panel. From there, a caregiv
 - choose a Math presentation style;
 - allow automatic Math progression or pin a practice stage;
 - enable the guided-learning beta;
-- review or reset Math progress with a protected two-tap confirmation; and
+- choose a Words learning stage for observation or extra support;
+- review or reset Math and Words progress with protected two-tap confirmations; and
 - inspect which speech voice the device provides.
 
 Progress and preferences are saved only in that browser's local storage. The app has no accounts, analytics, advertising, or collection of personal data.

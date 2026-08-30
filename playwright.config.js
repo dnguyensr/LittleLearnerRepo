@@ -8,14 +8,10 @@ module.exports = defineConfig({
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
     reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+    globalSetup: require.resolve('./tests/global-setup.js'),
     use: {
         baseURL: 'http://localhost:8123',
         trace: 'on-first-retry'
-    },
-    webServer: {
-        command: 'node tools/serve.js',
-        port: 8123,
-        reuseExistingServer: !process.env.CI
     },
     projects: [
         {

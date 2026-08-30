@@ -2,7 +2,7 @@
 
 Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add new modules. Guiding principles: no reading required to navigate, no dead ends, wrong answers always recoverable, audio reinforcement everywhere (via `speechSynthesis` — built into browsers, no dependencies).
 
-> **Status (2026-08-29):** core phase implemented — Math readiness paths, Words tiers and hints, toddler-first Letter Land, Number Fun, grown-up settings, and local score persistence. Remaining: the three module ideas below. Automated browser, mobile, speech-contract, layout, and accessibility coverage is active.
+> **Status (2026-08-30):** core phase implemented — Math readiness paths, guided sound-led Words, toddler-first Letter Land, Number Fun, grown-up settings, and local score/readiness persistence. Shapes and Patterns remain. Automated browser, mobile, speech-contract, layout, and accessibility coverage is active.
 
 ## Math improvements
 
@@ -19,6 +19,8 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 
 ## Words improvements
 
+> These checked items describe the currently shipped visible-answer activity. [P10 — Guided Word Building](10-guided-word-building.md) will replace this design directly with a sound-led curriculum; the existing length tiers and answer-copying interaction are not the future target.
+
 - [x] Speak the word on presentation and completion; speak each letter as it's typed correctly.
 - [x] Phonics option: letter *sounds* instead of letter names (toggle in the parent settings panel).
 - [x] Hint mode: the OSK highlights the next expected letter (subtle gold); after 2 misses it pulses strongly.
@@ -32,7 +34,7 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 - [x] **Letter Land** (`js/modes/letters.js`): press/tap any letter → uppercase and lowercase forms with a sound-consistent familiar example ("B. B is for ball."). The letter, word, and optional phonics relationship are separate replay targets so toddlers hear one association at a time.
 - [x] **Number Fun** (`js/modes/numbers.js`): press 0–9 → big numeral, spoken name, that many objects appear one by one with counting voice-over.
 - [ ] **Shapes & Colors**: "Tap the red circle!" — a few shapes on screen, tap the right one; spoken prompts, no keyboard needed at all.
-- [ ] **Sight Words** (K–1st): flashcards from the Dolch pre-K/K lists; app speaks the word, child finds it among 2–3 choices (recognition before spelling).
+- [x] **Sight Words / Word Stars** (K–1st): shipped as the regular/irregular high-frequency branch inside Words rather than a competing top-level module; see [P10](10-guided-word-building.md).
 - [ ] **Patterns**: what comes next — 🔴🔵🔴🔵❓ with 2–3 tappable choices (pre-K sequencing skill).
 - [x] **Math Lab**: readiness-based skill paths with Singapore mastery, Traditional practice, Visual strategies, and Balanced mix presentation lenses; optional guided lessons remain in beta — see [06-math-methods-beta.md](06-math-methods-beta.md).
 

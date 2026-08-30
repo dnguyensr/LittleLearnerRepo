@@ -109,7 +109,7 @@ If an HTML report was generated, open it with:
 npx playwright show-report ./playwright-report
 ```
 
-The Playwright configuration starts `./tools/serve.js` automatically for tests. A separately running server on port 8123 is reused outside CI.
+Playwright's `./tests/global-setup.js` starts the same static server in the test runner and closes it after the suite. Keeping it in-process avoids the Windows shell teardown hang that previously left a fully reported run without an exit code. A separately running server on port 8123 is reused.
 
 ## Switching browser and device profiles
 
@@ -145,6 +145,7 @@ These profiles are test configurations, not learner profiles. The application cu
 | `./js/main.js` | Application startup and mode registration |
 | `./js/modes/` | Free Play, Piano, Letters, Numbers, Math, and Words controllers |
 | `./js/math/` | Math skill graph, problem generation, lessons, manipulatives, and presentation lenses |
+| `./js/words/` | Words curriculum definitions, readiness graph, normalization, and persistence |
 | `./js/data/` | Learning content and decorative data |
 | `./js/types.js` | Shared JSDoc contracts checked by TypeScript |
 | `./tests/` | Playwright behavior, layout, accessibility, migration, and compatibility tests |
@@ -161,9 +162,10 @@ The app stores data locally in the active browser:
 
 - `lls-settings` contains grown-up settings.
 - `lls-mathlab-progress` contains normalized versioned Math skill and lesson progress.
+- `lls-words-progress` contains normalized Words skill, path, lesson, and interrupted-activity progress.
 - `lls-score-<mode>` contains each scoring module's total.
 
-Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`.
+Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`; Words readiness and recovery are covered in `./tests/words.spec.js`.
 
 When modifying the learning experience, preserve these project constraints:
 
@@ -179,6 +181,8 @@ When modifying the learning experience, preserve these project constraints:
 Each active mode exports a mode controller from `./js/modes/`. Register shipped modes in the `modes` array in `./js/main.js`. A mode owns its activation, deactivation, input handling, instructions, and on-screen-keyboard layout.
 
 For shared Math contracts, update `./js/types.js` and keep curriculum skills independent from presentation lenses. New guided lessons belong in `./js/math/lessons.js`; readiness and persistence changes belong in `./js/math/ladder.js`.
+
+Words keeps authored phonemes, graphemes, spelling patterns, and word pools in `./js/words/curriculum.js`. Its 5-of-6 readiness history and recoverable activity state live in `./js/words/progress.js`; the interaction shell lives in `./js/modes/words.js`. The lifetime `lls-score-words` value is celebratory history only and must never be migrated into readiness.
 
 Before handing off a change, run at minimum:
 

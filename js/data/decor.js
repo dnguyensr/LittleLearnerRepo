@@ -9,7 +9,7 @@
 //
 // So nothing here may appear in js/data/math-items.js (countable subjects and
 // their eaters), js/modes/numbers.js (the objects Numbers mode reveals) or
-// js/data/words.js (a word's picture). tests/emoji-roles.spec.js enforces that,
+// js/words/curriculum.js (a word's picture). tests/emoji-roles.spec.js enforces that,
 // and also guards the score badge in index.html.
 //
 // What a spec cannot catch is a *lookalike*: 🌟 reads as a star next to ⭐
