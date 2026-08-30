@@ -1644,17 +1644,58 @@ button.btb-rod:active {
 }
 
 #number-objects {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(var(--count-columns, 1), 1em);
+    place-items: center;
+    gap: clamp(4px, 1.5vw, 10px);
     max-width: 90vw;
-    min-height: 1.5em;
+    min-height: 1em;
     font-size: clamp(2rem, 7vw, 4rem);
 }
 
 .count-object {
-    animation: pop 0.3s ease-out;
+    display: grid;
+    place-items: center;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    visibility: hidden;
+    transform: scale(0.72);
+    transition: transform 0.22s ease-out, filter 0.22s ease-out;
+}
+
+.count-object.is-revealed {
+    visibility: visible;
+    transform: scale(1);
+}
+
+.count-object.is-current {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 0.16em #ffeb3b);
+}
+
+#number-objects.is-complete .count-object.is-revealed {
+    animation: count-settle 0.35s ease-out;
+}
+
+@keyframes count-settle {
+    50% { transform: scale(1.08); }
+}
+
+#number-objects.is-zero {
+    width: min(60vw, 5em);
+    min-height: 1.15em;
+    border: 3px dashed rgba(255,255,255,0.72);
+    border-radius: 0.7em;
+    background: rgba(255,255,255,0.08);
+}
+
+#number-total {
+    min-height: 1.35em;
+    color: white;
+    font-size: clamp(1.25rem, 4.5vw, 2.2rem);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 /* ---------- Parent settings panel ---------- */

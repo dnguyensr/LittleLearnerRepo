@@ -55,10 +55,11 @@ async function openSettings(page) {
  * Speaks and cancels land in one ordered log so their interleaving can be
  * asserted: `[{ type: 'speak', text }, { type: 'cancel' }, …]`.
  */
-async function stubSpeech(page) {
-    await page.addInitScript(() => {
+async function stubSpeech(page, { autoComplete = true } = {}) {
+    await page.addInitScript(({ autoComplete }) => {
         const win = /** @type {any} */ (window);
         win.__speechLog = [];
+        win.__speechUtterances = [];
 
         class FakeUtterance extends EventTarget {
             constructor(text) {
@@ -77,11 +78,14 @@ async function stubSpeech(page) {
             configurable: true,
             value: {
                 speak(utterance) {
-                    win.__speechLog.push({ type: 'speak', text: utterance.text });
-                    // Fired inline: callers pace visuals off these, and a stub
-                    // that never fires them would strand the fallback timers.
+                    win.__speechLog.push({
+                        type: 'speak',
+                        text: utterance.text,
+                        revealed: document.querySelectorAll('#number-objects .is-revealed').length
+                    });
+                    win.__speechUtterances.push(utterance);
                     utterance.dispatchEvent(new Event('start'));
-                    utterance.dispatchEvent(new Event('end'));
+                    if (autoComplete) utterance.dispatchEvent(new Event('end'));
                 },
                 cancel() {
                     win.__speechLog.push({ type: 'cancel' });
@@ -90,7 +94,7 @@ async function stubSpeech(page) {
                 addEventListener() {}
             }
         });
-    });
+    }, { autoComplete });
 }
 
 /** The ordered log: `[{ type: 'speak', text }, { type: 'cancel' }, …]`. */

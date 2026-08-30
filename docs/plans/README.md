@@ -24,6 +24,7 @@ P1–P3 and the core of P4–P7 are shipped; each linked plan records remaining 
 | P6 | [Math readiness paths and guided learning](06-math-methods-beta.md) | **The shipped Math curriculum.** A shared evidence-led foundation branches into continued addition, subtraction, or Big Addition. Singapore mastery is the fresh default; Traditional practice, Visual strategies, and Balanced mix remain selectable lenses. Subtraction and place-value lessons are in an inline parent-enabled beta. |
 | P7 | [Speech quality](07-speech-quality.md) | Voice selection fixed (deterministic, locale-aware, resilient to each platform's broken `getVoices()`). A bundled neural engine (Kokoro/Piper, 63–92 MB) is a spike gated on measurements from the real target tablet — with pre-generated audio clips as the cheaper alternative to price first. |
 | P8 | [Toddler letter foundations](08-letter-foundations.md) | **The shipped Letters introduction.** Letter names, upper/lowercase forms, familiar sound-consistent examples, and separately replayable phonics are presented one relationship at a time. |
+| P9 | [Stable, meaningful counting](09-number-foundations.md) | **The shipped Numbers introduction.** Stable object slots coordinate visual and spoken one-to-one counting, then connect the final number word to the whole set's quantity. |
 
 ## Conventions
 

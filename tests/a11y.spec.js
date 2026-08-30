@@ -30,6 +30,13 @@ test.describe('Reduced motion', () => {
         await page.keyboard.press('Enter');
         await expect(page.locator('#word-count')).toHaveText('1');
         expect(await page.locator('.bubble, .star').count()).toBe(0);
+
+        // Numbers reserves and reveals its slots without motion transitions.
+        await page.locator('#numbers-btn').click();
+        await page.keyboard.press('3');
+        await expect(page.locator('.count-object')).toHaveCount(3);
+        expect(await page.locator('.count-object').first().evaluate(element =>
+            parseFloat(getComputedStyle(element).transitionDuration))).toBeLessThanOrEqual(0.001);
     });
 
     // The inverse — effects DO spawn with motion allowed — is already covered
@@ -59,6 +66,9 @@ test.describe('Accessibility (axe)', () => {
             }
             if (mode === 'letters') {
                 await page.keyboard.press('a');
+            }
+            if (mode === 'numbers') {
+                await page.keyboard.press('4');
             }
             const violations = await scan(page);
             expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
