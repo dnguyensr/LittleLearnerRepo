@@ -2,7 +2,7 @@ import { speak, cancelSpeech } from '../speech.js';
 import { closestEl } from '../dom.js';
 import {
     tapCounter, countAloud, eaterButton, eatOne, numeralCard, el, numberLine, hopTo,
-    baseTenBlocks, blockCounts, snapTen, breakRod
+    baseTenBlocks, blockCounts, snapTen, breakRod, tenFrame, frameCount, fillCell, checkButton
 } from './manipulatives.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
@@ -127,13 +127,27 @@ function columnSum(problem) {
 /** @type {MathMethod} */
 export const classicalMethod = {
     id: 'classical',
-    label: 'Classical',
+    label: 'Traditional practice',
 
     render(problem, container) {
         container.innerHTML = '';
         const workspace = el('div', 'lab-workspace');
 
-        if (isPlainCount(problem)) {
+        if (problem.task === 'buildQuantity') {
+            const build = el('div', 'sg-build');
+            build.appendChild(numeralCard(problem.a));
+            build.appendChild(tenFrame(0));
+            workspace.appendChild(build);
+            workspace.appendChild(checkButton());
+        } else if (problem.task === 'recognizeQuantity') {
+            const frame = tenFrame(problem.a, { interactive: false });
+            frame.classList.add('flashing');
+            workspace.appendChild(frame);
+            const peek = el('button', 'cc-peek', '👀 Peek');
+            peek.type = 'button';
+            workspace.appendChild(peek);
+            setTimeout(() => frame.classList.add('covered'), 1600);
+        } else if (isPlainCount(problem)) {
             workspace.appendChild(tapCounter(problem.item.emoji, problem.a, {
                 label: problem.item.singular.toLowerCase()
             }));
@@ -180,6 +194,9 @@ export const classicalMethod = {
     },
 
     steps(problem) {
+        if (problem.task === 'buildQuantity') {
+            return [{ id: 'total', expect: problem.answer, speak: null, taps: true }];
+        }
         if (!problem.twoDigit || problem.op === 'count') {
             return [{ id: 'total', expect: problem.answer, speak: null }];
         }
@@ -204,6 +221,15 @@ export const classicalMethod = {
      * press, so `question` says so out loud — see below.
      */
     question(problem) {
+        if (problem.task === 'buildQuantity') {
+            return {
+                html: `Show me ${problem.a}!`,
+                speak: `Show me ${problem.a}. Tap that many boxes, then tap check it.`
+            };
+        }
+        if (problem.task === 'recognizeQuantity') {
+            return { html: 'How many do you see?', speak: 'How many dots do you see?' };
+        }
         if (hasEater(problem)) {
             const { item, a, b } = problem;
             const eaten = b === 1 ? item.singular : item.name;
@@ -232,6 +258,24 @@ export const classicalMethod = {
     },
 
     onTap(target, problem, container) {
+        if (problem.task === 'recognizeQuantity' && closestEl(target, '.cc-peek')) {
+            const frame = container.querySelector('.ten-frame');
+            frame.classList.remove('covered');
+            setTimeout(() => frame.classList.add('covered'), 800);
+            return;
+        }
+        if (problem.task === 'recognizeQuantity') {
+            const frame = container.querySelector('.ten-frame');
+            frame.classList.remove('covered');
+            speak('Look at the group, then say how many you saw.');
+        } else if (problem.task === 'buildQuantity') {
+            const cell = closestEl(target, '.tf-cell');
+            if (cell) {
+                cell.classList.toggle('filled');
+                speak(String(frameCount(closestEl(cell, '.ten-frame'))), { interrupt: true });
+            }
+            return;
+        }
         const tick = closestEl(target, '.nl-tick');
         if (tick) {
             speak(String(hopTo(closestEl(tick, '.number-line'), Number(tick.dataset.value))), {
@@ -290,10 +334,24 @@ export const classicalMethod = {
         return null;
     },
 
+    readAnswer(container) {
+        const frame = container.querySelector('.ten-frame');
+        const count = frame ? frameCount(frame) : 0;
+        return count > 0 ? count : null;
+    },
+
     hint(problem, container, stillValid) {
         cancelSpeech();
 
-        if (isPlainCount(problem)) {
+        if (problem.task === 'buildQuantity') {
+            const frame = container.querySelector('.ten-frame');
+            speak(`Tap ${problem.a} boxes.`);
+            for (let i = 0; i < problem.a; i++) {
+                setTimeout(() => {
+                    if (stillValid()) fillCell(frame);
+                }, 500 + i * 450);
+            }
+        } else if (isPlainCount(problem)) {
             speak('Let us count together!');
             countAloud(container.querySelector('.tap-counter'), stillValid);
         } else if (isCountBack(problem)) {

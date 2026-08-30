@@ -3,7 +3,7 @@ import { closestEl } from '../dom.js';
 import {
     el, tapCounter, tenFrame, frameCount, fillCell, emptyCell,
     numberLine, hopTo, openNumberLine, hopBy, undoHop,
-    baseTenBlocks, blockCounts, snapTen
+    baseTenBlocks, blockCounts, snapTen, checkButton, numeralCard
 } from './manipulatives.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
@@ -41,7 +41,8 @@ function ones(n) {
  * @param {Problem} problem
  */
 function pickVariant(problem) {
-    if (problem.skill === 'subitize') return 'subitize';
+    if (problem.task === 'buildQuantity') return 'numeralbuild';
+    if (problem.task === 'recognizeQuantity') return 'subitize';
     if (problem.skill === 'countOn') return 'counton';
 
     if (problem.op === 'count') {
@@ -99,7 +100,7 @@ function peekButton() {
 /** @type {MathMethod} */
 export const commonCoreMethod = {
     id: 'commoncore',
-    label: 'Common Core',
+    label: 'Visual strategies',
 
     render(problem, container) {
         container.innerHTML = '';
@@ -107,7 +108,13 @@ export const commonCoreMethod = {
         container.dataset.variant = variant;
         const workspace = el('div', 'lab-workspace cc');
 
-        if (variant === 'subitize') {
+        if (variant === 'numeralbuild') {
+            const build = el('div', 'sg-build');
+            build.appendChild(numeralCard(problem.a));
+            build.appendChild(tenFrame(0));
+            workspace.appendChild(build);
+            workspace.appendChild(checkButton());
+        } else if (variant === 'subitize') {
             // Flash the full frame, then hide it: the child answers from the
             // shape they saw, which is the whole point of subitizing.
             const frame = tenFrame(problem.a, { interactive: false });
@@ -170,13 +177,28 @@ export const commonCoreMethod = {
     // Every Common Core strategy produces the whole answer in one go, so there
     // is never more than one entry step (unlike the classical column algorithm).
     steps(problem) {
-        return [{ id: 'total', expect: problem.answer, speak: null }];
+        return [{
+            id: 'total', expect: problem.answer, speak: null,
+            taps: problem.task === 'buildQuantity'
+        }];
+    },
+
+    readAnswer(container) {
+        const frame = container.querySelector('.ten-frame');
+        const count = frame ? frameCount(frame) : 0;
+        return count > 0 ? count : null;
     },
 
     question(problem, container) {
         const variant = variantOf(container);
         const { a, b, total, item } = problem;
 
+        if (variant === 'numeralbuild') {
+            return {
+                html: `Show me ${a}!`,
+                speak: `Show me ${a}. Tap that many boxes, then tap check it.`
+            };
+        }
         if (variant === 'subitize') {
             return { html: 'How many did you see? 👀', speak: 'How many did you see?' };
         }
@@ -230,7 +252,7 @@ export const commonCoreMethod = {
         const cell = closestEl(target, '.tf-cell');
         if (cell) {
             const frame = closestEl(cell, '.ten-frame');
-            if (variant === 'tenframe') {
+            if (variant === 'tenframe' || variant === 'numeralbuild') {
                 cell.classList.toggle('filled');
                 speak(String(frameCount(frame)), { interrupt: true });
             } else if (variant === 'maketen' && frame.dataset.frame === 'b' && cell.classList.contains('filled')) {
@@ -283,6 +305,16 @@ export const commonCoreMethod = {
         cancelSpeech();
         const variant = variantOf(container);
 
+        if (variant === 'numeralbuild') {
+            const frame = container.querySelector('.ten-frame');
+            speak(`Tap ${problem.a} boxes.`);
+            for (let i = 0; i < problem.a; i++) {
+                setTimeout(() => {
+                    if (stillValid()) fillCell(frame);
+                }, 500 + i * 450);
+            }
+            return;
+        }
         if (variant === 'subitize') {
             const frame = container.querySelector('.ten-frame');
             frame.classList.remove('covered');

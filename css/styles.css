@@ -355,6 +355,141 @@ button {
     display: flex;
 }
 
+.math-paths-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 2px solid white;
+    border-radius: 22px;
+    background: rgba(0,0,0,0.24);
+    color: white;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.math-paths-btn[hidden] {
+    display: none;
+}
+
+.math-path-chooser {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(8px, 2vw, 18px);
+    width: min(94vw, 760px);
+}
+
+.math-path-card {
+    min-height: clamp(130px, 28vh, 220px);
+    padding: clamp(10px, 2vw, 20px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 3px solid white;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.22);
+    color: white;
+    font: inherit;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+.math-path-card:active,
+.lesson-action:active {
+    transform: scale(0.96);
+}
+
+.path-icon {
+    font-size: clamp(2.6rem, 9vw, 5rem);
+}
+
+.math-path-card strong {
+    font-size: clamp(1rem, 3.2vw, 1.6rem);
+}
+
+.math-path-card small {
+    font-size: clamp(0.75rem, 2.3vw, 1rem);
+}
+
+.lesson-scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1.5vh, 14px);
+    width: min(94vw, 720px);
+}
+
+.lesson-scene-title {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    font-weight: bold;
+    color: white;
+}
+
+.lesson-instruction {
+    font-size: clamp(0.9rem, 2.8vw, 1.25rem);
+    color: rgba(255,255,255,0.95);
+    text-align: center;
+}
+
+.lesson-object-row,
+.lesson-block-groups,
+.lesson-choices {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 18px);
+    max-width: 94vw;
+}
+
+.lesson-block-groups .base-ten {
+    max-width: 42vw;
+}
+
+.lesson-equation {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.lesson-plus {
+    color: white;
+    font-weight: bold;
+}
+
+.lesson-action,
+.learn-together-btn {
+    min-width: 64px;
+    min-height: 48px;
+    padding: 8px 18px;
+    border: 3px solid white;
+    border-radius: 24px;
+    background: rgba(76,175,80,0.5);
+    color: white;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.lesson-choice {
+    font-size: clamp(1.4rem, 5vw, 2.4rem);
+}
+
+.lesson-action:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.lesson-choice.try-again {
+    animation: shake 0.5s ease;
+    background: rgba(244,67,54,0.5);
+}
+
 #mathlab-question {
     font-size: clamp(0.95rem, min(3.2vw, 2.2vh), 1.6rem);
     color: rgba(255,255,255,0.9);
@@ -982,10 +1117,10 @@ button.btb-rod:active {
 }
 
 .dot {
-    width: clamp(20px, min(5vw, 4vh), 34px);
-    height: clamp(20px, min(5vw, 4vh), 34px);
-    min-width: 0;
-    min-height: 0;
+    width: clamp(44px, min(8vw, 7vh), 52px);
+    height: clamp(44px, min(8vw, 7vh), 52px);
+    min-width: 44px;
+    min-height: 44px;
     padding: 0;
     border: none;
     border-radius: 50%;
@@ -1504,6 +1639,15 @@ button.btb-rod:active {
     font-style: italic;
 }
 
+.beta-pill {
+    padding: 2px 6px;
+    border-radius: 8px;
+    background: #7650a8;
+    color: white;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
 .settings-row {
     display: flex;
     align-items: center;
@@ -1716,5 +1860,25 @@ button.btb-rod:active {
 
     .key-history {
         display: none !important;
+    }
+
+    .math-path-chooser {
+        grid-template-columns: 1fr;
+        width: min(88vw, 420px);
+        max-height: 52vh;
+        overflow-y: auto;
+    }
+
+    .math-path-card {
+        min-height: 92px;
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        grid-template-rows: auto auto;
+        text-align: left;
+    }
+
+    .math-path-card .path-icon {
+        grid-row: 1 / 3;
+        font-size: 2.8rem;
     }
 }

@@ -45,6 +45,9 @@ function make(fields) {
         regroups: op === 'add'
             ? (a % 10) + (other % 10) >= 10
             : op === 'sub' && a % 10 < other % 10,
+        task: op === 'add' ? 'combine'
+            : op === 'sub' ? 'separate'
+                : op === 'missing' ? 'findPart' : 'countSet',
         ...fields
     };
 }
@@ -56,6 +59,8 @@ function counting(skill, max) {
     const n = rand(1, max);
     return make({
         skill,
+        task: skill === 'subitize' ? 'recognizeQuantity'
+            : skill === 'numeralMatch' ? 'buildQuantity' : 'countSet',
         op: 'count',
         a: n,
         answer: n,
@@ -71,6 +76,7 @@ function countBack() {
     const n = rand(2, 10);
     return make({
         skill: 'countBack',
+        task: 'numberSequence',
         op: 'count',
         a: n,
         answer: n - 1,
@@ -212,6 +218,7 @@ function tensAndOnes() {
     const askTens = Math.random() < 0.5;
     return make({
         skill: 'tensAndOnes',
+        task: 'placeValue',
         op: 'count',
         a: n,
         answer: askTens ? Math.floor(n / 10) : n % 10,

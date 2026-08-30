@@ -47,6 +47,8 @@
  *
  * @typedef {object} Problem
  * @property {string} skill              skill id from the table in problems.js
+ * @property {'countSet'|'recognizeQuantity'|'buildQuantity'|'numberSequence'|'combine'|'separate'|'findPart'|'placeValue'} task
+ *   semantic goal shared by every presentation lens
  * @property {'count'|'add'|'sub'|'missing'} op
  * @property {number} a                  first operand, or the number to count
  * @property {number|null} b             second operand; null when counting or missing-addend
@@ -73,19 +75,20 @@
  */
 
 /**
- * Persisted progression. `spine` is shared across methods so switching
- * curriculum keeps the child's place; `done` records which detours each method
- * has had, since those are per-curriculum.
+ * Persisted readiness graph. Skill history, path choice, and lesson position
+ * all survive mode switches and reloads.
  *
  * @typedef {object} LabProgress
- * @property {number} spine
- * @property {number} streak                 correct answers in a row on the current rung
- * @property {Record<string, string[]>} done detour skill ids, keyed by method id
+ * @property {2} version
+ * @property {null|'additionPractice'|'subtraction'|'bigAddition'} selectedPath
+ * @property {string} currentSkill
+ * @property {Record<string, {recentIndependent: boolean[], mastered: boolean}>} skills
+ * @property {Record<string, {status: 'unseen'|'inProgress'|'complete', scene: number}>} lessons
  */
 
 /**
- * One stage of answer entry. Levels 1–3 have a single `total` step; the
- * classical column algorithm splits level 4 into `ones` then `tens`, matched
+ * One stage of answer entry. Most skills have a single `total` step; the
+ * traditional column algorithm splits two-digit work into `ones` then `tens`, matched
  * to a `[data-slot]` element in the rendered manipulative.
  *
  * @typedef {object} AnswerStep
@@ -141,6 +144,18 @@
  */
 
 /**
+ * A short, inline, tap-first guided lesson.
+ *
+ * @typedef {object} LessonDefinition
+ * @property {string} id
+ * @property {'subtraction'|'bigAddition'} path
+ * @property {string} title
+ * @property {number} sceneCount
+ * @property {(scene: number, container: HTMLElement) => Question} render
+ * @property {(scene: number, target: HTMLElement, container: HTMLElement) => {advance?: boolean}} onTap
+ */
+
+/**
  * Parent-facing settings, persisted as one JSON blob in localStorage.
  *
  * @typedef {object} Settings
@@ -150,6 +165,7 @@
  * @property {boolean} betaModes
  * @property {'classical'|'commoncore'|'singapore'|'mix'} mathMethod
  * @property {'auto'|'1'|'2'|'3'|'4'} mathLabLevel
+ * @property {boolean} guidedLessonsBeta
  */
 
 export {};

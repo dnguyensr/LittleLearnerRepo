@@ -11,8 +11,9 @@ const defaults = {
     phonics: false,
     mathTier: 'auto',
     betaModes: false,
-    mathMethod: 'classical',
-    mathLabLevel: 'auto'
+    mathMethod: 'singapore',
+    mathLabLevel: 'auto',
+    guidedLessonsBeta: false
 };
 
 function load() {
@@ -74,11 +75,25 @@ export function initSettingsUI() {
     const phonicsBox = input('set-phonics');
     const methodSelect = select('set-math-method');
     const labLevelSelect = select('set-mathlab-level');
+    const guidedLessonsBox = input('set-guided-lessons-beta');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
     methodSelect.value = String(settings.mathMethod);
     labLevelSelect.value = String(settings.mathLabLevel);
+    guidedLessonsBox.checked = !!settings.guidedLessonsBeta;
+
+    const methodNote = document.getElementById('math-method-note');
+    const methodNotes = {
+        singapore: 'Build it, see it, then write it.',
+        classical: 'Count, practise facts, and use column math.',
+        commoncore: 'Use ten frames, number lines, and blocks.',
+        mix: 'Rotate through all three ways of seeing the same skill.'
+    };
+    function refreshMethodNote() {
+        methodNote.textContent = methodNotes[methodSelect.value] || '';
+    }
+    refreshMethodNote();
 
     /* ---- Math Lab progress: read-out + two-tap reset ---- */
 
@@ -163,6 +178,12 @@ export function initSettingsUI() {
 
     speechBox.addEventListener('change', () => setSetting('speech', speechBox.checked));
     phonicsBox.addEventListener('change', () => setSetting('phonics', phonicsBox.checked));
-    methodSelect.addEventListener('change', () => setSetting('mathMethod', methodSelect.value));
+    methodSelect.addEventListener('change', () => {
+        setSetting('mathMethod', methodSelect.value);
+        refreshMethodNote();
+    });
     labLevelSelect.addEventListener('change', () => setSetting('mathLabLevel', labLevelSelect.value));
+    guidedLessonsBox.addEventListener('change', () => {
+        setSetting('guidedLessonsBeta', guidedLessonsBox.checked);
+    });
 }

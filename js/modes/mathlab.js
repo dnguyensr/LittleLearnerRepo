@@ -4,9 +4,11 @@ import { speak, cancelSpeech } from '../speech.js';
 import { getSetting, onSettingChange } from '../settings.js';
 import { generateProblem, rand } from '../math/problems.js';
 import {
-    currentRung, advance, emptyProgress, loadProgress, saveProgress,
-    skillsForSetting, stageOf, labelOf, STREAK_TO_ADVANCE
+    emptyProgress, loadProgress, saveProgress, skillsForSetting, stageOf, labelOf,
+    currentSkillForProgress, recordSkillResult, practicePool, isForkUnlocked,
+    selectPath, LESSON_FOR_PATH, lessonState, startLesson, advanceLesson
 } from '../math/ladder.js';
+import { lessons } from '../math/lessons.js';
 import { handleCounterTap } from '../math/manipulatives.js';
 import { closestEl } from '../dom.js';
 import { classicalMethod } from '../math/classical.js';
@@ -29,6 +31,7 @@ const workspaceEl = document.getElementById('mathlab-workspace');
 const answerDisplay = document.getElementById('mathlab-answer-display');
 const promptEl = document.getElementById('mathlab-prompt');
 const speakBtn = document.getElementById('mathlab-speak-btn');
+const pathsBtn = document.getElementById('mathlab-paths-btn');
 
 /** @type {Record<string, MathMethod>} */
 const methods = {
@@ -42,7 +45,7 @@ let problem = null;
 /** @type {import('../types.js').Question|null} */
 let question = null;
 /** @type {MathMethod} */
-let method = classicalMethod;
+let method = singaporeMethod;
 /** @type {AnswerStep[]} */
 let steps = [];
 let stepIndex = 0;
@@ -52,17 +55,16 @@ let correctThisSession = 0;
 let hintToken = 0;
 let locked = false;
 let mixIndex = 0;
+let problemHadWrong = false;
+let hintUsed = false;
+let view = 'problem';
+let activeLessonId = null;
 
 /* ---------- Progression ----------
  *
- * Progress is persisted rather than session-scoped. A toddler bounces out to
- * Free Play and back constantly; resetting them each time made auto mode feel
- * like it punished exploring. The streak toward the next rung survives too, so a
- * mode switch never costs work already done.
- *
- * Advancement needs a streak of correct answers *in a row*, so guessing can't
- * climb the ladder. A wrong answer resets the streak but never drops a rung —
- * failing backwards reads as punishment at this age.
+ * Readiness is per skill and persists across sessions. Five independent
+ * outcomes in a six-problem window master a skill; assistance still earns a
+ * celebration but cannot silently push a child into a new concept.
  */
 
 /** @type {import('../types.js').LabProgress} */
@@ -74,35 +76,19 @@ function isAutoLevel() {
 }
 
 /**
- * Which skill to ask about next. On auto that's the child's current rung for
- * the active method; pinned to a stage, it's any skill from that stage, so a
- * parent parking a child on "Counting" still gets variety.
+ * Which skill to ask next. Auto follows the foundation or selected child path;
+ * a parent-pinned stage still draws from its own practice pool.
  */
-function nextSkill(methodId) {
-    if (isAutoLevel()) return currentRung(progress, methodId).skill;
+function nextSkill() {
+    if (isAutoLevel()) {
+        if (progress.selectedPath === 'additionPractice') {
+            const pool = practicePool(progress);
+            return pool[rand(0, pool.length - 1)];
+        }
+        return currentSkillForProgress(progress);
+    }
     const pool = skillsForSetting(String(getSetting('mathLabLevel')));
     return pool[rand(0, pool.length - 1)];
-}
-
-// Returns the rung just unlocked, or null if this answer didn't unlock one.
-function recordCorrect(methodId) {
-    correctThisSession++;
-    if (!isAutoLevel()) return null;
-
-    progress.streak++;
-    if (progress.streak < STREAK_TO_ADVANCE) {
-        saveProgress(progress);
-        return null;
-    }
-    const { rung } = advance(progress, methodId);
-    saveProgress(progress);
-    return rung;
-}
-
-function recordWrong() {
-    if (!isAutoLevel() || progress.streak === 0) return;
-    progress.streak = 0;
-    saveProgress(progress);
 }
 
 // `mix` rotates rather than picking at random, so every method gets equal time
@@ -113,7 +99,7 @@ function resolveMethod() {
         const available = Object.values(methods);
         return available[mixIndex++ % available.length];
     }
-    return methods[setting] || classicalMethod;
+    return methods[setting] || singaporeMethod;
 }
 
 function currentStep() {
@@ -150,14 +136,108 @@ function updateDisplays() {
     answerDisplay.hidden = !!slot || !!(step && step.taps);
 }
 
+function updatePathsButton() {
+    pathsBtn.hidden = !isAutoLevel() || !isForkUnlocked(progress) || view === 'chooser';
+}
+
+function showPathChooser() {
+    hintToken++;
+    view = 'chooser';
+    activeLessonId = null;
+    problem = null;
+    question = {
+        html: 'What would you like to do?',
+        speak: 'Choose a math path. Keep adding, learn take away, or try big addition.'
+    };
+    locked = false;
+    workspaceEl.textContent = '';
+    workspaceEl.dataset.view = 'chooser';
+    delete workspaceEl.dataset.skill;
+    delete workspaceEl.dataset.stage;
+    const chooser = document.createElement('div');
+    chooser.className = 'math-path-chooser';
+    const cards = [
+        ['additionPractice', '➕', 'Keep Adding', 'More addition to ten'],
+        ['subtraction', '🍎', 'Learn Take Away', 'Make a group smaller'],
+        ['bigAddition', '🔟', 'Big Addition', 'Tens and ones']
+    ];
+    for (const [id, icon, title, subtitle] of cards) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'math-path-card';
+        button.dataset.path = id;
+        button.innerHTML = `<span class="path-icon">${icon}</span><strong>${title}</strong><small>${subtitle}</small>`;
+        button.setAttribute('aria-label', `${title}. ${subtitle}.`);
+        chooser.appendChild(button);
+    }
+    workspaceEl.appendChild(chooser);
+    questionEl.innerHTML = question.html;
+    promptEl.textContent = 'Tap a picture to choose';
+    answerDisplay.hidden = true;
+    pathsBtn.hidden = true;
+    speak(question.speak, { interrupt: true });
+}
+
+function renderLesson() {
+    const definition = lessons[activeLessonId];
+    if (!definition) {
+        activeLessonId = null;
+        newProblem();
+        return;
+    }
+    view = 'lesson';
+    locked = false;
+    const state = lessonState(progress, definition.id);
+    workspaceEl.dataset.view = 'lesson';
+    workspaceEl.dataset.lesson = definition.id;
+    delete workspaceEl.dataset.skill;
+    delete workspaceEl.dataset.stage;
+    question = definition.render(Math.min(state.scene, definition.sceneCount - 1), workspaceEl);
+    questionEl.innerHTML = question.html;
+    promptEl.textContent = `Step ${Math.min(state.scene + 1, definition.sceneCount)} of ${definition.sceneCount}`;
+    answerDisplay.hidden = true;
+    updatePathsButton();
+    speak(question.speak, { interrupt: true });
+}
+
+function beginLesson(lessonId, { replay = false } = {}) {
+    activeLessonId = lessonId;
+    startLesson(progress, lessonId, { replay });
+    saveProgress(progress);
+    renderLesson();
+}
+
+function choosePath(pathId) {
+    selectPath(progress, pathId);
+    saveProgress(progress);
+    const lessonId = LESSON_FOR_PATH[pathId];
+    if (lessonId && getSetting('guidedLessonsBeta')
+        && lessonState(progress, lessonId).status !== 'complete') {
+        beginLesson(lessonId);
+        return;
+    }
+    newProblem();
+}
+
 function newProblem() {
     hintToken++;
+    view = 'problem';
+    activeLessonId = null;
+    delete workspaceEl.dataset.lesson;
+    delete workspaceEl.dataset.view;
+    const skillId = nextSkill();
+    if (!skillId) {
+        showPathChooser();
+        return;
+    }
     method = resolveMethod();
-    problem = generateProblem(nextSkill(method.id));
+    problem = generateProblem(skillId);
     steps = method.steps(problem);
     stepIndex = 0;
     buffer = '';
     wrongAttempts = 0;
+    problemHadWrong = false;
+    hintUsed = false;
     locked = false;
 
     // render first: a method's question may depend on which variant it drew.
@@ -180,11 +260,13 @@ function newProblem() {
     promptEl.textContent = steps.length > 1 ? 'Ones first, then ✓' : '';
     answerDisplay.style.color = 'white';
     updateDisplays();
+    updatePathsButton();
 
     speak(question.speak, { interrupt: true });
 }
 
 function showHint() {
+    hintUsed = true;
     const token = ++hintToken;
     method.hint(problem, workspaceEl, () => token === hintToken);
 }
@@ -232,18 +314,32 @@ function finish() {
     // answer means (uncovering a bar segment) rather than only what comes next.
     if (method.onStepDone) method.onStepDone(step, problem, workspaceEl);
 
-    // Unlocking a new rung is the bigger news, so it takes the follow-up line
-    // if both it and the method's celebration land on the same answer.
-    const unlocked = recordCorrect(method.id);
-    const unlockedLabel = unlocked && labelOf(unlocked.skill);
-    const extra = unlockedLabel
-        ? `New challenge! ${unlockedLabel}.`
-        : (method.celebrationText && method.celebrationText(problem));
-    promptEl.textContent = unlockedLabel ? `New: ${unlockedLabel} 🎉` : '';
+    correctThisSession++;
+    let transition = null;
+    if (isAutoLevel()) {
+        transition = recordSkillResult(progress, problem.skill, !problemHadWrong && !hintUsed);
+        saveProgress(progress);
+    }
+    const unlockedLabel = transition?.becameMastered && transition.nextSkill
+        ? labelOf(transition.nextSkill) : null;
+    const extra = transition?.forkReady
+        ? 'You are ready to choose your math path!'
+        : transition?.pathComplete
+            ? 'You finished this path. Choose what comes next!'
+            : unlockedLabel
+                ? `New challenge! ${unlockedLabel}.`
+                : (method.celebrationText && method.celebrationText(problem));
+    promptEl.textContent = transition?.forkReady || transition?.pathComplete
+        ? 'New paths unlocked! 🎉'
+        : unlockedLabel ? `New: ${unlockedLabel} 🎉` : '';
 
     const token = hintToken;
     if (extra) setTimeout(() => token === hintToken && speak(extra), 1400);
-    setTimeout(() => token === hintToken && newProblem(), extra ? 3400 : 1800);
+    setTimeout(() => {
+        if (token !== hintToken) return;
+        if (transition?.forkReady || transition?.pathComplete) showPathChooser();
+        else newProblem();
+    }, extra ? 3400 : 1800);
 }
 
 function submitAnswer() {
@@ -261,7 +357,7 @@ function submitAnswer() {
     }
 
     wrongAttempts++;
-    recordWrong();
+    problemHadWrong = true;
     // Locked through the red flash so a fast tapper can't stack up several
     // wrong answers on digits typed before they saw the first one land.
     locked = true;
@@ -284,7 +380,21 @@ function submitAnswer() {
         workspaceEl.classList.remove('wrong');
         answerDisplay.style.color = 'white';
     }, 800);
-    if (wrongAttempts >= 2) showHint();
+    if (wrongAttempts >= 2) {
+        showHint();
+        const lessonId = problem.op === 'sub'
+            ? 'subtractionIntro'
+            : (problem.twoDigit && problem.op === 'add' ? 'placeValueAdditionIntro' : null);
+        if (lessonId && getSetting('guidedLessonsBeta')) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'learn-together-btn';
+            button.dataset.lesson = lessonId;
+            button.textContent = '👋 Learn Together';
+            promptEl.textContent = '';
+            promptEl.appendChild(button);
+        }
+    }
 }
 
 /**
@@ -306,9 +416,41 @@ function judgeIfDecided() {
 }
 
 container.addEventListener('pointerdown', e => {
-    if (locked || !problem) return;
     const target = closestEl(e.target, 'button');
     if (!target || target === speakBtn) return;
+    if (target === pathsBtn) {
+        showPathChooser();
+        return;
+    }
+
+    const pathCard = closestEl(target, '[data-path]');
+    if (pathCard) {
+        choosePath(pathCard.dataset.path);
+        return;
+    }
+    const learnTogether = closestEl(target, '[data-lesson]');
+    if (learnTogether && learnTogether.classList.contains('learn-together-btn')) {
+        beginLesson(learnTogether.dataset.lesson, { replay: true });
+        return;
+    }
+    if (view === 'lesson' && activeLessonId) {
+        const definition = lessons[activeLessonId];
+        const state = lessonState(progress, activeLessonId);
+        const result = definition.onTap(state.scene, target, workspaceEl);
+        if (result.advance) {
+            const complete = advanceLesson(progress, activeLessonId, definition.sceneCount);
+            saveProgress(progress);
+            if (complete) {
+                speak('Lesson complete! Now let us practise.', { interrupt: true });
+                activeLessonId = null;
+                setTimeout(newProblem, 900);
+            } else {
+                renderLesson();
+            }
+        }
+        return;
+    }
+    if (locked || !problem) return;
     handleCounterTap(target);
     if (method.onTap) method.onTap(target, problem, workspaceEl);
     // The numpad's ✓ still judges, but a child who is working the widget should
@@ -325,7 +467,7 @@ speakBtn.addEventListener('click', () => {
 // new shape rather than a stale one.
 onSettingChange(key => {
     if (!container.classList.contains('active')) return;
-    if (key === 'mathMethod' || key === 'mathLabLevel') newProblem();
+    if (key === 'mathMethod' || key === 'mathLabLevel' || key === 'guidedLessonsBeta') newProblem();
 });
 
 // The settings panel clears stored progress via ladder.js and announces it
@@ -357,18 +499,25 @@ export const mathLabMode = {
         correctThisSession = 0;
         mixIndex = 0;
         progress = loadProgress();
-        newProblem();
+        const resumableLesson = LESSON_FOR_PATH[progress.selectedPath];
+        const shouldResumeLesson = resumableLesson
+            && isAutoLevel()
+            && getSetting('guidedLessonsBeta')
+            && lessonState(progress, resumableLesson).status === 'inProgress';
+        if (shouldResumeLesson) beginLesson(resumableLesson);
+        else newProblem();
     },
 
     deactivate() {
         container.classList.remove('active');
         hintToken++;
         locked = true;
+        view = 'problem';
         cancelSpeech();
     },
 
     onKey(key) {
-        if (locked) return;
+        if (locked || view !== 'problem') return;
         const step = currentStep();
         if (!step) return;
 

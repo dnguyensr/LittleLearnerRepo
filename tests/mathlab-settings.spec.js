@@ -23,10 +23,11 @@ test.describe('Math Lab settings', () => {
         await openSettings(page);
 
         await expect(page.locator('#set-math-method')).toBeVisible();
-        await expect(page.locator('#set-math-method')).toHaveValue('classical');
+        await expect(page.locator('#set-math-method')).toHaveValue('singapore');
         await expect(page.locator('#set-mathlab-level')).toBeVisible();
         await expect(page.locator('#set-mathlab-level')).toHaveValue('auto');
         await expect(page.locator('#mathlab-progress-row')).toBeVisible();
+        await expect(page.locator('#set-guided-lessons-beta')).not.toBeChecked();
     });
 
     test('the settings choice survives a reload', async ({ page }) => {

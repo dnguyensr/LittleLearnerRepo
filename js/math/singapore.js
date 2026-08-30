@@ -61,7 +61,8 @@ function splitOf(problem) {
  * @param {Problem} problem
  */
 function pickVariant(problem, session) {
-    if (problem.skill === 'numeralMatch') return 'numeralbuild';
+    if (problem.task === 'buildQuantity') return 'numeralbuild';
+    if (problem.task === 'recognizeQuantity') return 'subitize';
 
     if (problem.op === 'count') {
         if (problem.twoDigit) return 'placevaluebar';
@@ -109,7 +110,7 @@ function combineButton(label, which) {
 /** @type {MathMethod} */
 export const singaporeMethod = {
     id: 'singapore',
-    label: 'Singapore',
+    label: 'Singapore mastery',
 
     render(problem, container, session) {
         container.innerHTML = '';
@@ -117,7 +118,15 @@ export const singaporeMethod = {
         container.dataset.variant = variant;
         const workspace = el('div', 'lab-workspace sg');
 
-        if (variant === 'concrete') {
+        if (variant === 'subitize') {
+            const frame = tenFrame(problem.a, { interactive: false });
+            frame.classList.add('flashing');
+            workspace.appendChild(frame);
+            const peek = el('button', 'cc-peek', '👀 Peek');
+            peek.type = 'button';
+            workspace.appendChild(peek);
+            setTimeout(() => frame.classList.add('covered'), 1600);
+        } else if (variant === 'concrete') {
             workspace.appendChild(tapCounter(problem.item.emoji, problem.a, {
                 label: problem.item.singular.toLowerCase()
             }));
@@ -200,7 +209,7 @@ export const singaporeMethod = {
             id: 'total',
             expect: problem.answer,
             speak: null,
-            taps: problem.skill === 'numeralMatch'
+            taps: problem.task === 'buildQuantity'
         }];
     },
 
@@ -218,6 +227,9 @@ export const singaporeMethod = {
         const variant = variantOf(container);
         const { a, b, item } = problem;
 
+        if (variant === 'subitize') {
+            return { html: 'How many did you see? 👀', speak: 'How many did you see?' };
+        }
         if (variant === 'concrete') {
             return {
                 html: `Count the ${item.name}!`,
@@ -252,6 +264,13 @@ export const singaporeMethod = {
 
     onTap(target, problem, container) {
         const variant = variantOf(container);
+
+        if (variant === 'subitize' && closestEl(target, '.cc-peek')) {
+            const frame = container.querySelector('.ten-frame');
+            frame.classList.remove('covered');
+            setTimeout(() => frame.classList.add('covered'), 800);
+            return;
+        }
 
         if (variant === 'numeralbuild') {
             const cell = closestEl(target, '.tf-cell');
@@ -308,6 +327,13 @@ export const singaporeMethod = {
     hint(problem, container, stillValid) {
         cancelSpeech();
         const variant = variantOf(container);
+
+        if (variant === 'subitize') {
+            const frame = container.querySelector('.ten-frame');
+            frame.classList.remove('covered');
+            speak('Look at the group, then say how many you saw.');
+            return;
+        }
 
         if (variant === 'concrete' || variant === 'pictorial') {
             speak('Let us count together!');
