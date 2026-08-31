@@ -15,7 +15,7 @@
         <div class="top-buttons">
             <button id="keyboard-btn" type="button" class="top-btn" aria-pressed="false" aria-label="Toggle on-screen keyboard">⌨️<span class="btn-label"> Keyboard</span></button>
             <button id="fullscreen-btn" type="button" class="top-btn" aria-label="Fullscreen">🖥️<span class="btn-label"> Fullscreen</span></button>
-            <button id="settings-btn" type="button" class="top-btn" aria-label="Parent settings (press and hold)">⚙️</button>
+            <button id="settings-btn" type="button" class="top-btn" aria-label="Grown-up settings" aria-controls="settings-panel" aria-expanded="false">⚙️<span class="btn-label"> Grown-ups</span></button>
         </div>
     </header>
 
@@ -83,9 +83,9 @@
     <div id="osk" aria-hidden="true"></div>
 
     <div id="settings-panel" hidden>
-        <div id="settings-card" role="dialog" aria-label="Parent settings">
-            <h2>Grown-Ups Only 🔒</h2>
-            <p class="settings-note">Opened by holding the ⚙️ button.</p>
+        <div id="settings-card" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1">
+            <h2 id="settings-title">Grown-up settings ⚙️</h2>
+            <p class="settings-note">Choose how learning activities look and sound on this device.</p>
             <label class="settings-row"><input type="checkbox" id="set-speech"> Speech sounds</label>
             <p class="settings-note" id="voice-readout">Voice: —</p>
             <label class="settings-row"><input type="checkbox" id="set-phonics"> Emphasize letter sounds (phonics)</label>
@@ -114,7 +114,6 @@
                     <option value="twodigit">All two-digit math</option>
                 </select>
             </label>
-            <label class="settings-row"><input type="checkbox" id="set-guided-lessons-beta"> Guided Learn lessons <span class="beta-pill">BETA</span></label>
             <div class="settings-row" id="mathlab-progress-row">
                 <span>Progress: <strong id="mathlab-progress-label"></strong></span>
                 <button id="mathlab-progress-reset" type="button" class="reset-btn">Start over</button>

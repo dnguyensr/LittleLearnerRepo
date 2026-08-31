@@ -23,12 +23,12 @@ Children can move between modules at any time. Math path choices are also revers
 
 ## Grown-up settings
 
-Press and hold the gear button to open the grown-up panel. From there, a caregiver can:
+Tap the **⚙️ Grown-ups** button to open the grown-up panel. From there, a caregiver can:
 
 - turn speech on or off and choose whether to emphasize phonics;
 - choose a Math presentation style;
 - allow automatic Math progression or pin a practice stage;
-- enable the guided-learning beta;
+- review Math presentation and stage choices; guided lessons are included automatically when a child starts subtraction or Big Addition;
 - choose a Words learning stage for observation or extra support;
 - review or reset Math and Words progress with protected two-tap confirmations; and
 - inspect which speech voice the device provides.

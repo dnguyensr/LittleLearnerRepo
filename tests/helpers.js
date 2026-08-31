@@ -17,20 +17,18 @@ async function ensureOskVisible(page) {
     await expect(osk).toHaveClass(/visible/);
 }
 
-// Write parent settings straight into localStorage before the app boots, so a
-// spec can pin a mode/level without driving the hold-to-open panel.
+// Write grown-up settings straight into localStorage before the app boots, so
+// a spec can pin a mode/level without driving the panel.
 async function seedSettings(page, settings) {
     await page.addInitScript(value => {
         localStorage.setItem('lls-settings', JSON.stringify(value));
     }, settings);
 }
 
-// The ⚙️ button is hold-to-open (600ms) so toddlers can't stumble into it.
+// The clearly labelled ⚙️ control opens the grown-up panel with one tap.
 async function openSettings(page) {
-    const btn = page.locator('#settings-btn');
-    await btn.dispatchEvent('pointerdown', { pointerId: 1 });
-    await expect(page.locator('#settings-panel')).toBeVisible({ timeout: 3000 });
-    await btn.dispatchEvent('pointerup', { pointerId: 1 });
+    await page.locator('#settings-btn').click();
+    await expect(page.locator('#settings-panel')).toBeVisible();
 }
 
 /* ---------- Speech recorder ---------- */

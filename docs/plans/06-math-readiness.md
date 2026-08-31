@@ -1,9 +1,9 @@
 # Math: readiness paths and guided learning
 
-> **Status (2026-08-29):** Math Lab is the shipped Math mode. Its old linear
-> spine has been replaced by a versioned readiness graph. Guided Learn lessons
-> for subtraction and place-value addition are available behind the
-> `guidedLessonsBeta` parent setting.
+> **Status (2026-08-30):** Math Lab and its subtraction and place-value Guided
+> Learn lessons ship as one main Math experience. The former beta preference is
+> ignored for compatibility, so an older stored “off” value cannot hide the
+> instruction from a child entering a new path.
 
 ## Product model
 
@@ -50,12 +50,13 @@ independent outcomes among the latest six permanently master the skill.
 Corrected and hinted work still scores and celebrates, but is recorded as
 assisted. An unfinished problem is ignored.
 
-## Guided Learn beta
+## Guided Learn lessons
 
-`guidedLessonsBeta` defaults off. When enabled, the first entry into subtraction
-or Big Addition opens a three-scene inline lesson. Lesson scenes are tap-first,
-persist across reloads, award no score, and may be replayed through **Learn
-Together** after two misses.
+The first entry into subtraction or Big Addition opens a three-scene inline
+lesson. Lesson scenes are tap-first, persist across reloads, award no score, and
+may be replayed through **Learn Together** after two misses. A completed lesson
+is skipped on later path changes unless the child intentionally chooses the
+replay support.
 
 - **Introduction to Subtraction:** watch a group shrink, remove a requested
   number of objects, then choose the amount left.
@@ -63,7 +64,7 @@ Together** after two misses.
   block groups, then solve one no-regroup sum.
 
 The reusable `LessonDefinition` contract keeps new lessons out of the Math mode
-shell. See [math-learn-beta-checklist.md](math-learn-beta-checklist.md) for the
+shell. See [math-learn-observation-checklist.md](math-learn-observation-checklist.md) for the
 local-only observation protocol.
 
 ## Persistence and compatibility
@@ -93,8 +94,9 @@ clears the whole graph and lesson state after its existing two-tap confirmation.
 - Test runs terminate normally. The apparent teardown hang was a lesson test
   waiting on a disabled control after its counter state failed to advance; the
   interaction and regression test now complete correctly.
-- Each beta lesson needs three observed sessions meeting the checklist before
-  its beta flag can be removed.
+- The lessons have graduated into the main path and no longer have a runtime
+  beta flag. The caregiver checklist remains useful for ongoing usability review
+  and for deciding what to improve before adding later lessons.
 
 ## Next curriculum work
 

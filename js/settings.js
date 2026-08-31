@@ -5,18 +5,16 @@ import {
 } from './words/progress.js';
 
 const STORAGE_KEY = 'lls-settings';
-// mathTier and betaModes have no row in the panel any more: Math Lab took over
-// as the math mode, so mathTier is only read by the unregistered
-// js/modes/math.js, and no mode sets `beta: true`. Both are kept so that
-// re-registering a mode is a one-line change and so stored values survive.
+// mathTier has no row in the panel any more: Math Lab took over as the math
+// mode, so it is only read by the unregistered js/modes/math.js. It remains in
+// the stored contract so re-registering that legacy mode would preserve its
+// setting.
 const defaults = {
     speech: true,
     phonics: false,
     mathTier: 'auto',
-    betaModes: false,
     mathMethod: 'singapore',
     mathLabLevel: 'auto',
-    guidedLessonsBeta: false,
     wordStage: 'auto'
 };
 
@@ -49,8 +47,7 @@ export function getSetting(key) {
 
 const listeners = [];
 
-// Notified on every setSetting call, so things outside the panel (the mode
-// bar's beta gate, an active mode's level) can react without polling.
+// Notified on every setSetting call so an active mode can react without polling.
 export function onSettingChange(fn) {
     listeners.push(fn);
 }
@@ -62,9 +59,7 @@ export function setSetting(key, value) {
     for (const fn of listeners) fn(key, value);
 }
 
-/* ---------- Parent settings panel (gear is hold-to-open) ---------- */
-
-const HOLD_MS = 600;
+/* ---------- Grown-up settings panel ---------- */
 
 export function initSettingsUI() {
     setSpeechEnabled(settings.speech);
@@ -79,14 +74,12 @@ export function initSettingsUI() {
     const phonicsBox = input('set-phonics');
     const methodSelect = select('set-math-method');
     const labLevelSelect = select('set-mathlab-level');
-    const guidedLessonsBox = input('set-guided-lessons-beta');
     const wordStageSelect = select('set-word-stage');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
     methodSelect.value = String(settings.mathMethod);
     labLevelSelect.value = String(settings.mathLabLevel);
-    guidedLessonsBox.checked = !!settings.guidedLessonsBeta;
     wordStageSelect.value = String(settings.wordStage);
 
     const methodNote = document.getElementById('math-method-note');
@@ -173,29 +166,30 @@ export function initSettingsUI() {
         refreshProgressRow();
     });
 
-    let holdTimer = null;
-
-    settingsBtn.addEventListener('pointerdown', () => {
-        holdTimer = setTimeout(() => {
-            panel.hidden = false;
-            refreshProgressRow();
-            refreshVoiceRow();
-        }, HOLD_MS);
-    });
-    for (const evt of ['pointerup', 'pointerleave', 'pointercancel']) {
-        settingsBtn.addEventListener(evt, () => clearTimeout(holdTimer));
+    function openPanel() {
+        panel.hidden = false;
+        settingsBtn.setAttribute('aria-expanded', 'true');
+        refreshProgressRow();
+        refreshVoiceRow();
+        document.getElementById('settings-card').focus();
     }
 
-    // Closing the panel disarms a half-finished reset.
-    closeBtn.addEventListener('click', () => {
+    function closePanel() {
         panel.hidden = true;
+        settingsBtn.setAttribute('aria-expanded', 'false');
         refreshProgressRow();
-    });
+        settingsBtn.focus();
+    }
+
+    settingsBtn.addEventListener('click', openPanel);
+
+    // Closing the panel disarms a half-finished reset.
+    closeBtn.addEventListener('click', closePanel);
     panel.addEventListener('pointerdown', e => {
-        if (e.target === panel) {
-            panel.hidden = true;
-            refreshProgressRow();
-        }
+        if (e.target === panel) closePanel();
+    });
+    panel.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closePanel();
     });
 
     speechBox.addEventListener('change', () => setSetting('speech', speechBox.checked));
@@ -205,8 +199,5 @@ export function initSettingsUI() {
         refreshMethodNote();
     });
     labLevelSelect.addEventListener('change', () => setSetting('mathLabLevel', labLevelSelect.value));
-    guidedLessonsBox.addEventListener('change', () => {
-        setSetting('guidedLessonsBeta', guidedLessonsBox.checked);
-    });
     wordStageSelect.addEventListener('change', () => setSetting('wordStage', wordStageSelect.value));
 }

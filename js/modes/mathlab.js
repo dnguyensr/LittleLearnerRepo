@@ -211,8 +211,7 @@ function choosePath(pathId) {
     selectPath(progress, pathId);
     saveProgress(progress);
     const lessonId = LESSON_FOR_PATH[pathId];
-    if (lessonId && getSetting('guidedLessonsBeta')
-        && lessonState(progress, lessonId).status !== 'complete') {
+    if (lessonId && lessonState(progress, lessonId).status !== 'complete') {
         beginLesson(lessonId);
         return;
     }
@@ -385,7 +384,7 @@ function submitAnswer() {
         const lessonId = problem.op === 'sub'
             ? 'subtractionIntro'
             : (problem.twoDigit && problem.op === 'add' ? 'placeValueAdditionIntro' : null);
-        if (lessonId && getSetting('guidedLessonsBeta')) {
+        if (lessonId) {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'learn-together-btn';
@@ -467,7 +466,7 @@ speakBtn.addEventListener('click', () => {
 // new shape rather than a stale one.
 onSettingChange(key => {
     if (!container.classList.contains('active')) return;
-    if (key === 'mathMethod' || key === 'mathLabLevel' || key === 'guidedLessonsBeta') newProblem();
+    if (key === 'mathMethod' || key === 'mathLabLevel') newProblem();
 });
 
 // The settings panel clears stored progress via ladder.js and announces it
@@ -502,7 +501,6 @@ export const mathLabMode = {
         const resumableLesson = LESSON_FOR_PATH[progress.selectedPath];
         const shouldResumeLesson = resumableLesson
             && isAutoLevel()
-            && getSetting('guidedLessonsBeta')
             && lessonState(progress, resumableLesson).status === 'inProgress';
         if (shouldResumeLesson) beginLesson(resumableLesson);
         else newProblem();

@@ -271,7 +271,7 @@ test.describe('Math Lab — method selection', () => {
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('.number-bond')).toHaveCount(0);
 
-        await page.locator('#settings-btn').dispatchEvent('pointerdown', { pointerId: 1 });
+        await page.locator('#settings-btn').click();
         await expect(page.locator('#settings-panel')).toBeVisible();
         await page.locator('#set-math-method').selectOption('singapore');
         await page.locator('#settings-close').click();

@@ -1,14 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const { gotoApp, seedSettings, openSettings } = require('./helpers');
 
-// Math Lab used to sit behind the `betaModes` flag with a 🧪 badge, alongside
-// the original Math mode. It now ships as *the* math mode, so the things this
-// file guards are the opposite of what it once did: the button is there without
-// any opt-in, it carries no beta marking, and its settings sit in the main
-// parent panel rather than behind a disclosure.
+// Math and its guided lessons now ship as one experience. There is no beta
+// opt-in or beta marking in the child navigation or grown-up panel.
 
 test.describe('Math Lab settings', () => {
-    test('ships as the math mode, with no beta opt-in', async ({ page }) => {
+    test('ships Math and guided lessons with no beta UI', async ({ page }) => {
         await gotoApp(page);
         await expect(page.locator('#mathlab-btn')).toBeVisible();
         await expect(page.locator('#mathlab-btn')).toHaveText(/Math/);
@@ -16,6 +13,8 @@ test.describe('Math Lab settings', () => {
         // The old Math mode is unregistered, and the flag it hid behind is gone
         await expect(page.locator('#math-btn')).toHaveCount(0);
         await expect(page.locator('#set-beta-modes')).toHaveCount(0);
+        await expect(page.locator('#set-guided-lessons-beta')).toHaveCount(0);
+        await expect(page.locator('.beta-pill')).toHaveCount(0);
     });
 
     test('method and stage are set straight from the parent panel', async ({ page }) => {
@@ -27,7 +26,7 @@ test.describe('Math Lab settings', () => {
         await expect(page.locator('#set-mathlab-level')).toBeVisible();
         await expect(page.locator('#set-mathlab-level')).toHaveValue('auto');
         await expect(page.locator('#mathlab-progress-row')).toBeVisible();
-        await expect(page.locator('#set-guided-lessons-beta')).not.toBeChecked();
+        await expect(page.locator('#set-guided-lessons-beta')).toHaveCount(0);
     });
 
     test('the settings choice survives a reload', async ({ page }) => {

@@ -36,11 +36,11 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 - [ ] **Shapes & Colors**: "Tap the red circle!" — a few shapes on screen, tap the right one; spoken prompts, no keyboard needed at all.
 - [x] **Sight Words / Word Stars** (K–1st): shipped as the regular/irregular high-frequency branch inside Words rather than a competing top-level module; see [P10](10-guided-word-building.md).
 - [ ] **Patterns**: what comes next — 🔴🔵🔴🔵❓ with 2–3 tappable choices (pre-K sequencing skill).
-- [x] **Math Lab**: readiness-based skill paths with Singapore mastery, Traditional practice, Visual strategies, and Balanced mix presentation lenses; optional guided lessons remain in beta — see [06-math-methods-beta.md](06-math-methods-beta.md).
+- [x] **Math Lab**: readiness-based skill paths with Singapore mastery, Traditional practice, Visual strategies, and Balanced mix presentation lenses; guided subtraction and place-value lessons are part of the main path — see [06-math-readiness.md](06-math-readiness.md).
 
 ## Shared infrastructure
 
 - [x] One `celebrate()` helper in `js/effects.js` used by every scoring module (done in P2).
 - [x] Per-mode score persisted in `localStorage` (`lls-score-<mode>`; survives reloads, no accounts, no network).
-- [x] Parent settings panel (`⚙️` hold-to-open 600ms so toddlers can't): speech on/off, phonics emphasis, and Math presentation/stage controls. *(volume control and per-module visibility still open)*
+- [x] Grown-up settings panel (`⚙️ Grown-ups`, one tap to open): speech on/off, phonics emphasis, and Math/Words presentation and stage controls. Destructive progress resets retain a separate two-tap confirmation. *(volume control and per-module visibility still open)*
 - [x] `js/speech.js` wrapping `speechSynthesis`: cancel on mode switch, prefers an English/child-friendly voice, no-op if unsupported or disabled.

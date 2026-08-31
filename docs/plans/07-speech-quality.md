@@ -86,7 +86,7 @@ as designed; it just made the app reliably pick the worst voice on the device.
 **The read-out that closes this loop.** `currentVoiceName()` had been exported since
 Phase A and never used, so there was no way to tell a bad *voice* from a bad
 *engine* on a device that can't be debugged locally. The parent panel now shows the
-resolved voice under the speech toggle, and — behind the beta toggle — `listVoices()`
+resolved voice under the speech toggle, and the diagnostic `listVoices()` section
 dumps the **full inventory**: every voice the device exposes, in ranked order, with
 its lang, its score, and its `voiceURI`, with the chosen one marked. On iOS that is
 the only way to see which voices are actually present, since it depends on what the
@@ -127,7 +127,7 @@ instead of `iPhone 14` (390x664).
 It also found a pre-existing Math Lab layout defect the moment `mobile-safari`
 was pointed at a true phone viewport: with the numpad open, half the rungs put
 the manipulative below the fold. Fixed by reshaping the numpad to two rows —
-written up in `06-math-methods-beta.md`.
+written up in `06-math-readiness.md`.
 
 Standing after all of it: **550 passed, 6 skipped, 0 failed** across four
 projects.

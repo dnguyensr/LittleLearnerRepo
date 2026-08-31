@@ -33,6 +33,13 @@ function forkReady(overrides = {}) {
     });
 }
 
+function completedLessons() {
+    return {
+        subtractionIntro: { status: 'complete', scene: 0 },
+        placeValueAdditionIntro: { status: 'complete', scene: 0 }
+    };
+}
+
 async function seedProgress(page, progress) {
     await page.addInitScript(([key, value]) => {
         localStorage.setItem(key, JSON.stringify(value));
@@ -125,15 +132,15 @@ test.describe('Child-facing math paths', () => {
     });
 
     test('Big Addition starts with place value and never deals subtraction', async ({ page }) => {
-        await seedProgress(page, forkReady());
-        await openLab(page, { guidedLessonsBeta: false });
+        await seedProgress(page, forkReady({ lessons: completedLessons() }));
+        await openLab(page);
         await page.locator('[data-path="bigAddition"]').click();
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'tensAndOnes');
         await expect(page.locator('#mathlab-question')).not.toContainText('−');
     });
 
     test('the Paths button switches routes without clearing mastery', async ({ page }) => {
-        await seedProgress(page, forkReady());
+        await seedProgress(page, forkReady({ lessons: completedLessons() }));
         await openLab(page);
         await page.locator('[data-path="additionPractice"]').click();
         await page.locator('#mathlab-paths-btn').dispatchEvent('pointerdown', { pointerId: 1 });
@@ -146,10 +153,10 @@ test.describe('Child-facing math paths', () => {
     });
 });
 
-test.describe('Guided Learn beta', () => {
-    test('subtraction path starts the inline lesson when beta is enabled', async ({ page }) => {
+test.describe('Guided Learn', () => {
+    test('subtraction path starts the inline lesson as part of the main experience', async ({ page }) => {
         await seedProgress(page, forkReady());
-        await openLab(page, { guidedLessonsBeta: true });
+        await openLab(page);
         await page.locator('[data-path="subtraction"]').click();
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'subtractionIntro');
         await expect(page.locator('#mathlab-prompt')).toHaveText('Step 1 of 3');
@@ -158,7 +165,7 @@ test.describe('Guided Learn beta', () => {
 
     test('a lesson resumes its saved scene after a mode switch', async ({ page }) => {
         await seedProgress(page, forkReady());
-        await openLab(page, { guidedLessonsBeta: true });
+        await openLab(page);
         await page.locator('[data-path="subtraction"]').click();
         await page.locator('.lesson-next').click();
         await expect(page.locator('#mathlab-prompt')).toHaveText('Step 2 of 3');
@@ -168,17 +175,16 @@ test.describe('Guided Learn beta', () => {
         await expect(page.locator('#mathlab-prompt')).toHaveText('Step 2 of 3');
     });
 
-    test('beta off goes directly to practice', async ({ page }) => {
+    test('a legacy beta-off preference cannot hide a shipped lesson', async ({ page }) => {
         await seedProgress(page, forkReady());
         await openLab(page, { guidedLessonsBeta: false });
         await page.locator('[data-path="subtraction"]').click();
-        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subWithin5');
-        await expect(page.locator('#mathlab-workspace')).not.toHaveAttribute('data-lesson');
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'subtractionIntro');
     });
 
     test('two misses offer Learn Together on a supported concept', async ({ page }) => {
         await seedProgress(page, forkReady({ selectedPath: 'subtraction', currentSkill: 'subWithin5' }));
-        await openLab(page, { guidedLessonsBeta: true });
+        await openLab(page);
         await page.keyboard.press('0');
         await page.waitForTimeout(900);
         await page.keyboard.press('0');

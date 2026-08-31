@@ -1,4 +1,4 @@
-# Guided Learn beta — caregiver checklist
+# Guided Learn — caregiver observation checklist
 
 Use one checklist for each observed lesson session. Do not record the child's
 name, voice, image, or other personal data.
@@ -14,8 +14,11 @@ name, voice, image, or other personal data.
 - Any navigation dead end or pause longer than 30 seconds? No / Yes
 - Brief observation (no identifying information): __________________________
 
-## Graduation rule
+## Observation target
 
-A lesson remains beta until three observed sessions with appropriately ready
-children complete it with no more than one adult prompt, recover from a wrong
-action, make an intentional path choice, and encounter no navigation dead end.
+For every new or materially changed lesson, seek at least three sessions in which
+appropriately ready children complete it with no more than one adult prompt,
+recover from a wrong action, make an intentional path choice, and encounter no
+navigation dead end. The current subtraction and place-value lessons are part of
+the main Math path; this checklist now guides continued refinement rather than a
+runtime beta switch.

@@ -254,7 +254,7 @@ test.describe('Math Lab — method selection', () => {
         await page.locator('#mathlab-btn').click();
         await expect(page.locator('.vertical-sum')).toBeVisible();
 
-        await page.locator('#settings-btn').dispatchEvent('pointerdown', { pointerId: 1 });
+        await page.locator('#settings-btn').click();
         await expect(page.locator('#settings-panel')).toBeVisible();
         await page.locator('#set-math-method').selectOption('commoncore');
         await page.locator('#settings-close').click();

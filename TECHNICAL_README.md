@@ -150,7 +150,7 @@ These profiles are test configurations, not learner profiles. The application cu
 | `./js/types.js` | Shared JSDoc contracts checked by TypeScript |
 | `./tests/` | Playwright behavior, layout, accessibility, migration, and compatibility tests |
 | `./tools/serve.js` | Local static HTTP server used by developers and Playwright |
-| `./docs/plans/` | Shipped design history, current roadmap, and beta acceptance material |
+| `./docs/plans/` | Shipped design history, current roadmap, and caregiver observation material |
 | `./playwright.config.js` | Browser projects, test server, retries, traces, and reporters |
 | `./.github/workflows/ci.yml` | Pull-request and `main` branch validation |
 

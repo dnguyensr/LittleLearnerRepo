@@ -29,7 +29,7 @@ async function openChooser(page) {
         localStorage.setItem(key, JSON.stringify(value));
     }, [PROGRESS_KEY, forkReady()]);
     await seedSettings(page, {
-        mathLabLevel: 'auto', mathMethod: 'singapore', guidedLessonsBeta: true, speech: false
+        mathLabLevel: 'auto', mathMethod: 'singapore', speech: false
     });
     await gotoApp(page);
     await page.locator('#mathlab-btn').click();

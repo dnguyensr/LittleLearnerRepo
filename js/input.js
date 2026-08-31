@@ -4,6 +4,7 @@ import { closestEl } from './dom.js';
 const oskEl = document.getElementById('osk');
 const keyboardBtn = document.getElementById('keyboard-btn');
 const playArea = document.getElementById('play-area');
+const settingsPanel = document.getElementById('settings-panel');
 
 export const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 
@@ -145,6 +146,7 @@ function dispatchKey(key, source) {
 }
 
 function handleKeyDown(e) {
+    if (!settingsPanel.hidden) return true;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -156,6 +158,7 @@ function handleKeyDown(e) {
 }
 
 function handleKeyUp(e) {
+    if (!settingsPanel.hidden) return true;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
@@ -169,6 +172,7 @@ function handleKeyUp(e) {
 }
 
 function swallowKeyEvent(e) {
+    if (!settingsPanel.hidden) return true;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();

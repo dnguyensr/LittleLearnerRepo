@@ -15,7 +15,6 @@
  * @property {'qwerty'|'letters'|'numpad'|null} oskLayout on-screen keyboard:
  *   full board, board without the number row, two-row 1-5/6-0 pad, or null to hide
  * @property {string} instructions             one-line hint under the play area
- * @property {boolean} [beta]                  hidden unless the betaModes setting is on
  * @property {() => void} activate
  * @property {() => void} deactivate
  * @property {(key: string, source?: 'physical'|'onscreen') => void} onKey
@@ -162,10 +161,8 @@
  * @property {boolean} speech
  * @property {boolean} phonics
  * @property {'auto'|'1'|'2'|'3'|'4'} mathTier
- * @property {boolean} betaModes
  * @property {'classical'|'commoncore'|'singapore'|'mix'} mathMethod
  * @property {'auto'|'1'|'2'|'3'|'4'} mathLabLevel
- * @property {boolean} guidedLessonsBeta
  * @property {'auto'|'firstSoundsContinuous'|'firstSoundsStops'|'finalSounds'|'segmentSounds'|'missingLetter'|'continuousCvc'|'shortVowelCvc'|'wordChains'|'blends'|'digraphs'|'silentE'|'vowelTeams'|'wordParts'|'wordStars'} wordStage
  */
 

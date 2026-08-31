@@ -216,21 +216,20 @@ test.describe('Number Fun — the counting voice', () => {
 });
 
 test.describe('Parent settings', () => {
-    test('gear opens on hold, not on tap', async ({ page }) => {
+    test('the labelled gear opens on one tap and Escape returns focus', async ({ page }) => {
         await gotoApp(page);
         const gear = page.locator('#settings-btn');
         const panel = page.locator('#settings-panel');
 
         await gear.click();
-        await expect(panel).toBeHidden();
-
-        await gear.dispatchEvent('pointerdown', { pointerId: 1 });
-        await page.waitForTimeout(800);
-        await gear.dispatchEvent('pointerup', { pointerId: 1 });
         await expect(panel).toBeVisible();
+        await expect(gear).toHaveAttribute('aria-expanded', 'true');
+        await expect(page.locator('#settings-card')).toBeFocused();
 
-        await page.locator('#settings-close').click();
+        await page.keyboard.press('Escape');
         await expect(panel).toBeHidden();
+        await expect(gear).toHaveAttribute('aria-expanded', 'false');
+        await expect(gear).toBeFocused();
     });
 
 });

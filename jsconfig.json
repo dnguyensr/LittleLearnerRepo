@@ -12,7 +12,7 @@
     // field on a shared contract (Problem, MathMethod, Mode), which these
     // flags do. `strictNullChecks` would instead report ~150 `getElementById`
     // results that the app knows are present — that's a separate annotation
-    // pass, tracked in docs/plans/06-math-methods-beta.md.
+    // pass, tracked in docs/plans/06-math-readiness.md.
     "strictNullChecks": false,
     "noImplicitAny": false,
     "noImplicitThis": true,

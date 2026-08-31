@@ -1,7 +1,7 @@
 import { initInput, setOskLayout } from './input.js';
 import { unlockAudio } from './audio.js';
 import { cancelSpeech } from './speech.js';
-import { initSettingsUI, getSetting, onSettingChange } from './settings.js';
+import { initSettingsUI } from './settings.js';
 import { freeplayMode } from './modes/freeplay.js';
 import { pianoMode } from './modes/piano.js';
 import { lettersMode } from './modes/letters.js';
@@ -53,11 +53,6 @@ function buildModeButtons() {
         btn.id = `${mode.id}-btn`;
         btn.setAttribute('aria-pressed', 'false');
         btn.innerHTML = `${mode.icon}<span class="btn-label"> ${mode.label}</span>`;
-        if (mode.beta) {
-            btn.classList.add('beta');
-            btn.insertAdjacentHTML('beforeend', '<span class="beta-badge" aria-hidden="true">🧪</span>');
-            btn.setAttribute('aria-label', `${mode.label} (beta)`);
-        }
         btn.addEventListener('click', () => {
             // Tapping the active mode's button hops back to Free Play
             if (activeMode === mode && mode.id !== defaultModeId) {
@@ -68,23 +63,6 @@ function buildModeButtons() {
         });
         topButtons.insertBefore(btn, keyboardBtn);
         modeButtons[mode.id] = btn;
-    }
-}
-
-// Beta modes are hidden entirely unless the parent turns them on; turning the
-// flag off while one is active drops back to Free Play rather than stranding
-// the child in an invisible mode.
-//
-// No mode is currently `beta: true` — Math Lab was the last one and has shipped
-// as the math mode — so this is a no-op loop and the parent panel has no row
-// for the flag. Both are kept ready for the next mode that needs them; adding
-// the row back to index.html is all it takes.
-function applyBetaGate() {
-    const show = !!getSetting('betaModes');
-    for (const mode of modes) {
-        if (!mode.beta) continue;
-        modeButtons[mode.id].hidden = !show;
-        if (!show && activeMode === mode) setMode(defaultModeId);
     }
 }
 
@@ -111,9 +89,5 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 buildModeButtons();
 initInput(() => activeMode);
 initSettingsUI();
-onSettingChange(key => {
-    if (key === 'betaModes') applyBetaGate();
-});
-applyBetaGate();
 setMode(defaultModeId);
 unlockAudio();

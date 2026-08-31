@@ -1358,17 +1358,6 @@ button.btb-rod:active {
     animation: nb-grow 0.4s ease-out;
 }
 
-/* Beta modes get a badge so parents can tell them apart at a glance. */
-.top-btn.beta {
-    border-style: dashed;
-}
-
-.beta-badge {
-    font-size: 0.7em;
-    margin-left: 4px;
-    vertical-align: super;
-}
-
 .speak-btn {
     font-size: 1.6rem;
     min-width: 56px;
@@ -1861,15 +1850,6 @@ button.btb-rod:active {
     font-size: 0.85rem;
     color: #777;
     font-style: italic;
-}
-
-.beta-pill {
-    padding: 2px 6px;
-    border-radius: 8px;
-    background: #7650a8;
-    color: white;
-    font-size: 0.7em;
-    font-weight: bold;
 }
 
 .settings-row {
