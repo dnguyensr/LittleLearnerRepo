@@ -59,6 +59,14 @@ Recommendation 2 of the [IES *Foundational Skills to Support Reading for Underst
 
 The guide specifically recommends continuous consonants initially because they are easier to elongate and distinguish. It also warns educators to avoid adding a schwa after stop consonants during blending.
 
+### Speech pacing and instructional pauses
+
+The IES guide repeatedly describes saying a word slowly, elongating continuous consonants, blending sound by sound, and giving children ample time to focus on a newly introduced sound–spelling pattern. Those recommendations support clearly separating the whole word, its target phoneme, and the sound–letter explanation rather than playing near-duplicate prompts back to back.
+
+The research reviewed here does **not** establish one universally correct pause duration for a toddler phonics application. An observational study of 38 caregiver–preschooler pairs found that longer appropriately placed pauses during shared storybook reading were associated with better immediate recall; the observed appropriate pauses averaged about 0.39 seconds. The study concerned story comprehension, not phoneme instruction, and cannot establish causality or prescribe this interface’s timing. [Zuk and colleagues, caregiver oral-reading prosody study](https://pmc.ncbi.nlm.nih.gov/articles/PMC12704921/)
+
+Accordingly, the application uses a 450 ms boundary between the whole word, one modeled sound, and the relationship statement. This is a conservative product calibration near the observed pause scale, not an evidence-derived mastery threshold. The utterance itself remains at the normal child-facing rate: explicit boundaries are preferable here to globally stretching every syllable. The timing should be adjusted after observed-child sessions if children anticipate the next part, lose attention, or cannot distinguish the modeled units.
+
 A study of 60 English-speaking preschool nonreaders compared phonemic-segmentation instruction using letters and articulation pictures, letters alone, and controls. Both trained groups outperformed controls on segmentation, spelling, word reading, and nonword repetition. The study supports connecting sound segmentation with print, although it does not establish the ideal digital interface. [ERIC record for Boyer and Ehri’s study](https://eric.ed.gov/?id=EJ933946)
 
 ### Word building and instructional sequence
@@ -104,6 +112,7 @@ Ehri describes orthographic mapping as forming letter–sound connections that b
 | Teach word chains and patterns rather than unrelated length tiers | Direct IES recommendation | Changing one phoneme or letter makes reusable structure visible. |
 | Separate irregular high-frequency words | Direct IES recommendation | Whole-word memory and regular sound-based encoding are different instructional demands. |
 | Use curated local phoneme audio | Product response to IES pronunciation guidance and measured browser limitations | Browser text-to-speech cannot reliably produce isolated phonemes without distortion or an added schwa. |
+| Put a deliberate boundary between word, phoneme, and explanation | Direct IES support for slow modeling and ample focus time; exact 450 ms duration is a documented product inference | Prevents the target sound from being rapidly duplicated while keeping each spoken unit natural. |
 | Keep independent handwriting outside the app’s claims | Evidence limitation | Tapping tiles can support sound–print mapping but does not replace handwriting or open-ended composition. |
 
 ## Boundaries and unresolved questions
@@ -113,6 +122,7 @@ Ehri describes orthographic mapping as forming letter–sound connections that b
 - English dialects differ in vowel realization and, sometimes, phoneme count. Initial content should use broadly stable examples and never treat a child’s spoken accent as an error.
 - Emojis can be ambiguous. Whole-word narration is required, and unclear images should be replaced rather than expecting a child to infer the intended label.
 - The cited research does not determine the ideal tile count, mastery threshold, animation, reward schedule, or whether children prefer drag-and-drop over tapping. Those are product decisions requiring observation and usability testing.
+- The cited research also does not prescribe a precise pause duration for digital phoneme modeling. The 450 ms value is deliberately configurable and belongs in the observed-child review.
 - Speech-off mode can remain visually operable, but a sound–letter activity without sound cannot deliver the same instructional experience. Parent-facing copy should state that limitation plainly.
 
 ## Product conclusion

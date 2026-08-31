@@ -23,6 +23,14 @@ let enabled = true;
 let chosenName = null;
 let chosenURI = null;
 let lastListSize = -1;
+let pacedGeneration = 0;
+let pacedTimer = null;
+
+function stopPacedSequence() {
+    pacedGeneration++;
+    if (pacedTimer !== null) clearTimeout(pacedTimer);
+    pacedTimer = null;
+}
 
 function isEnglish(voice) {
     return /^en(-|_|$)/i.test(voice.lang || '');
@@ -212,7 +220,10 @@ export function listVoices() {
 export function speak(text, { rate = 0.9, pitch = 1.1, interrupt = false, onStart = null, onEnd = null } = {}) {
     if (!synth || !enabled || !text) return false;
     try {
-        if (interrupt) synth.cancel();
+        if (interrupt) {
+            stopPacedSequence();
+            synth.cancel();
+        }
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = rate;
         utterance.pitch = pitch;
@@ -266,7 +277,61 @@ export function speakEach(phrases, { onPhraseStart = null, interrupt = false, ra
     return queued;
 }
 
+/**
+ * Speak phrases one at a time with a real silence after each completed
+ * utterance. This is for instructional boundaries such as word → phoneme →
+ * sound/letter relationship; counting should continue using speakEach so its
+ * visuals remain paced directly by the voice.
+ *
+ * The default 450 ms is a product calibration, not a claimed universal
+ * learning threshold. It sits near the appropriate-pause duration observed in
+ * preschool shared reading and must still be checked with children and the
+ * actual voices used by families.
+ *
+ * @param {string[]} phrases
+ * @param {{ pauseMs?: number, onPhraseStart?: ((index: number) => void)|null,
+ *           interrupt?: boolean, rate?: number, pitch?: number }} [options]
+ * @returns {boolean}
+ */
+export function speakPaced(phrases, {
+    pauseMs = 450, onPhraseStart = null, interrupt = false, rate, pitch
+} = {}) {
+    if (!synth || !enabled || !phrases.length) return false;
+
+    stopPacedSequence();
+    const generation = pacedGeneration;
+    if (interrupt) synth.cancel();
+    let index = 0;
+
+    const next = () => {
+        if (generation !== pacedGeneration || index >= phrases.length) return;
+        let ended = false;
+        const phraseIndex = index;
+        const onEnd = () => {
+            if (ended || generation !== pacedGeneration) return;
+            ended = true;
+            index++;
+            if (index >= phrases.length) return;
+            pacedTimer = setTimeout(() => {
+                pacedTimer = null;
+                next();
+            }, Math.max(0, pauseMs));
+        };
+        const spoke = speak(phrases[phraseIndex], {
+            rate,
+            pitch,
+            onStart: onPhraseStart ? () => onPhraseStart(phraseIndex) : null,
+            onEnd
+        });
+        if (!spoke) onEnd();
+    };
+
+    next();
+    return true;
+}
+
 export function cancelSpeech() {
+    stopPacedSequence();
     try {
         synth?.cancel();
     } catch (err) { /* ignore */ }

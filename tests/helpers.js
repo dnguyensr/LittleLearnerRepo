@@ -81,6 +81,7 @@ async function stubSpeech(page, { autoComplete = true } = {}) {
                     win.__speechLog.push({
                         type: 'speak',
                         text: utterance.text,
+                        at: performance.now(),
                         revealed: document.querySelectorAll('#number-objects .is-revealed').length
                     });
                     win.__speechUtterances.push(utterance);

@@ -1,7 +1,7 @@
 import { playKeyTone } from '../audio.js';
 import { celebrate, setScoreVisible, setScoreMode } from '../effects.js';
 import { closestEl } from '../dom.js';
-import { speak, speakEach, cancelSpeech } from '../speech.js';
+import { speak, speakPaced, cancelSpeech } from '../speech.js';
 import { getSetting, onSettingChange } from '../settings.js';
 import { playWordPhoneme, stopWordAudio } from '../words/audio.js';
 import {
@@ -48,6 +48,7 @@ const PATH_DETAILS = {
     patterns: { emoji: '🔗', note: 'Change words and learn new patterns.' },
     wordStars: { emoji: '⭐', note: 'Remember special everyday words.' }
 };
+const WORD_SPEECH_PAUSE_MS = 450;
 
 /** @type {WordsProgress} */
 let progress = emptyWordsProgress();
@@ -212,12 +213,19 @@ function promptForActivity() {
 function speakWord({ model = false } = {}) {
     if (!word || !activity) return;
     if (activity.mode === 'wordStar') {
-        const spelling = (word.spelling || [...word.word]).join(', ');
-        speak(`${word.label}. This is a special Word Star. It is spelled ${spelling}. Now build ${word.label}.`, { interrupt: true });
+        const spelling = (word.spelling || [...word.word]).map(letter => letter.toLowerCase());
+        speakPaced([
+            word.label,
+            'This is a special Word Star.',
+            ...spelling,
+            `Now build ${word.label}.`
+        ], { interrupt: true, pauseMs: WORD_SPEECH_PAUSE_MS });
         return;
     }
     if (model && !word.irregular) {
-        speakEach([word.label, ...word.phonemes.map(item => item.cue), word.label], { interrupt: true });
+        speakPaced([word.label, ...word.phonemes.map(item => item.cue), word.label], {
+            interrupt: true, pauseMs: WORD_SPEECH_PAUSE_MS
+        });
         return;
     }
     const addition = activity.mode === 'firstSound' ? 'Listen for the first sound.'
@@ -230,7 +238,9 @@ function speakWord({ model = false } = {}) {
 
 function replaySounds() {
     if (!word) return;
-    speakEach([...word.phonemes.map(item => item.cue), word.label], { interrupt: true });
+    speakPaced([...word.phonemes.map(item => item.cue), word.label], {
+        interrupt: true, pauseMs: WORD_SPEECH_PAUSE_MS
+    });
 }
 
 function replayPhoneme(index) {
@@ -342,11 +352,11 @@ function announceNewActivity() {
         const index = activity.mode === 'firstSound' ? 0 : word.phonemes.length - 1;
         const relationship = word.phonemes[index];
         const place = activity.mode === 'firstSound' ? 'starts' : 'ends';
-        speakEach([
+        speakPaced([
             word.label,
             relationship.cue,
-            `${relationship.cue}. ${relationship.grapheme} ${place} ${word.label}. Now you try.`
-        ], { interrupt: true });
+            `${relationship.grapheme.toLowerCase()} ${place} ${word.label}. Now you try.`
+        ], { interrupt: true, pauseMs: WORD_SPEECH_PAUSE_MS });
     } else {
         speakWord({ model });
     }
@@ -431,7 +441,7 @@ function handleMismatch(tile) {
     keyBuffer = '';
     const cue = cueForGrapheme(tile);
     feedbackEl.textContent = `That tile says “${cue}.” Listen to the word again.`;
-    speakEach([cue, word.label], { interrupt: true });
+    speakPaced([cue, word.label], { interrupt: true, pauseMs: WORD_SPEECH_PAUSE_MS });
     saveActivity();
     learnBtn.hidden = activity.misses < 2;
 }

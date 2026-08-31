@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { gotoApp, openSettings, seedSettings, stubSpeech, spokenTexts } = require('./helpers');
+const { gotoApp, openSettings, seedSettings, stubSpeech, speechLog, spokenTexts } = require('./helpers');
 
 async function openWords(page) {
     await page.locator('#words-btn').click();
@@ -258,14 +258,29 @@ test.describe('Guided Words replacement', () => {
         expect(saved.skills).toEqual({});
     });
 
-    test('authored sound cues, not bare capital letters, are spoken for placed tiles', async ({ page }) => {
+    test('the first-sound model says the cue once with deliberate pauses', async ({ page }) => {
         await stubSpeech(page);
         await page.reload();
         await expect(page.locator('#free-btn')).toBeVisible();
+        await page.evaluate(async () => {
+            localStorage.removeItem('lls-words-progress');
+            const settingsPath = '/js/settings.js';
+            const settings = await import(settingsPath);
+            settings.setSetting('speech', true);
+        });
         await openWords(page);
-        const { targets } = await activityData(page);
-        await clickTile(page, targets[0]);
+        const { word } = await activityData(page);
+        await expect.poll(async () => (await spokenTexts(page)).length).toBe(3);
         const said = await spokenTexts(page);
+        expect(said).toEqual([
+            word.label,
+            word.phonemes[0].cue,
+            `${word.phonemes[0].grapheme.toLowerCase()} starts ${word.label}. Now you try.`
+        ]);
+        expect(said.filter(text => text === word.phonemes[0].cue)).toHaveLength(1);
         expect(said.some(text => /^[A-Z]$/.test(text))).toBe(false);
+        const timed = (await speechLog(page)).filter(entry => entry.type === 'speak');
+        expect(timed[1].at - timed[0].at).toBeGreaterThanOrEqual(400);
+        expect(timed[2].at - timed[1].at).toBeGreaterThanOrEqual(400);
     });
 });

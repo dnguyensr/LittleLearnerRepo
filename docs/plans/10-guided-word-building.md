@@ -170,6 +170,7 @@ Add a normalized local-only `lls-words-progress` structure:
 - Continue using browser speech synthesis for the picture label, prompts, encouragement, and blended whole word.
 - Bundle concise human-reviewed phoneme clips for isolated sounds. Clips must avoid adding a schwa to stop consonants.
 - A grapheme replay may first play the phoneme and then, on a separate optional control, its letter name. Do not replace the spelling sound with the letter name.
+- Pace modeled sequences as distinct word → phoneme → relationship units. Use one target-sound model rather than rapid duplication; the initial 450 ms boundary is a usability calibration documented in the evidence review, not a claimed universal threshold.
 - Keep phonics and letter-name controls consistent with Letters, but the Words task’s instructional audio is governed by its authored phoneme data rather than approximate TTS strings.
 - With speech disabled, keep all placement, highlighting, and completion controls usable. The grown-up panel should explain that sound–letter instruction is limited without audio.
 - Cancel queued prompts and local audio on new activity, mode change, and reload restoration.
