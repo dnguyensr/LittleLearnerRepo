@@ -146,6 +146,7 @@ These profiles are test configurations, not learner profiles. The application cu
 | `./js/modes/` | Free Play, Piano, Letters, Numbers, Math, and Words controllers |
 | `./js/math/` | Math skill graph, problem generation, lessons, manipulatives, and presentation lenses |
 | `./js/words/` | Words curriculum definitions, readiness graph, normalization, and persistence |
+| `./js/numbers/` | The Numbers observation record a grown-up can read; deliberately not a readiness ladder |
 | `./js/data/` | Learning content and decorative data |
 | `./js/types.js` | Shared JSDoc contracts checked by TypeScript |
 | `./tests/` | Playwright behavior, layout, accessibility, migration, and compatibility tests |
@@ -163,9 +164,10 @@ The app stores data locally in the active browser:
 - `lls-settings` contains grown-up settings.
 - `lls-mathlab-progress` contains normalized versioned Math skill and lesson progress.
 - `lls-words-progress` contains normalized Words skill, path, lesson, and interrupted-activity progress.
+- `lls-numbers-progress` contains the Numbers observation record: which numerals have been demonstrated, counted independently, and re-counted after a rearrangement. It is read only by the grown-up panel and is never written into Math progress.
 - `lls-score-<mode>` contains each scoring module's total.
 
-Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`; Words readiness and recovery are covered in `./tests/words.spec.js`.
+Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`; Words readiness and recovery are covered in `./tests/words.spec.js`; the Numbers record and its two-tap reset are covered in `./tests/numbers.spec.js`.
 
 When modifying the learning experience, preserve these project constraints:
 

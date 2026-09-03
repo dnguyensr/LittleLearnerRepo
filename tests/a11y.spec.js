@@ -74,4 +74,26 @@ test.describe('Accessibility (axe)', () => {
             expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
         });
     }
+
+    // The scan above catches Numbers as the app counts it. These are the states
+    // P11 added, where the objects are buttons the child operates: role="img"
+    // would be a violation here, which is why #number-objects is a group.
+    test('numbers stays clean while the child counts and after moving the set', async ({ page }) => {
+        await seedSettings(page, { speech: false, numbersCounting: 'tap' });
+        await gotoApp(page);
+        await page.locator('#numbers-btn').click();
+        await page.keyboard.press('4');
+        await expect(page.locator('.count-object')).toHaveCount(4);
+
+        const objects = page.locator('.count-object');
+        await objects.nth(0).click();
+        const midCount = await scan(page);
+        expect(midCount, JSON.stringify(midCount, null, 2)).toEqual([]);
+
+        for (const index of [1, 2, 3]) await objects.nth(index).click();
+        await expect(page.locator('#number-move-btn')).toBeVisible();
+        await page.locator('#number-move-btn').click();
+        const rearranged = await scan(page);
+        expect(rearranged, JSON.stringify(rearranged, null, 2)).toEqual([]);
+    });
 });

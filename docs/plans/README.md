@@ -12,7 +12,7 @@ Touch input, ES modules, responsive layouts, and automated browser coverage are 
 
 ## Priorities
 
-P1–P3 and the core of P4–P7 are shipped; each linked plan records remaining follow-up work.
+P1–P3 and the core of P4–P10 are shipped; each linked plan records remaining follow-up work. P11 is the active plan.
 
 | Priority | Plan | Why this order |
 | --- | --- | --- |
@@ -26,6 +26,7 @@ P1–P3 and the core of P4–P7 are shipped; each linked plan records remaining 
 | P8 | [Toddler letter foundations](08-letter-foundations.md) | **The shipped Letters introduction.** Letter names, upper/lowercase forms, familiar sound-consistent examples, and separately replayable phonics are presented one relationship at a time. |
 | P9 | [Stable, meaningful counting](09-number-foundations.md) | **The shipped Numbers introduction.** Stable object slots coordinate visual and spoken one-to-one counting, then connect the final number word to the whole set's quantity. |
 | P10 | [Guided word building](10-guided-word-building.md) | **Implemented direct replacement for Words.** Spoken-word segmentation, sound boxes, authored grapheme tiles, 5-of-6 readiness, recoverable guidance, reversible paths, later spelling patterns, and Word Stars replace visible-answer copying and length tiers. Reviewed local phoneme recordings and observed-child release sessions remain pre-release gates. |
+| P11 | [Interactive counting](11-interactive-counting.md) | **Active plan.** Numbers moves from a narrated demonstration to a child-performed activity: tap-to-count with order irrelevance, conservation of number, and more than one representation of the same quantity. Supersedes P9's open follow-on notes. |
 
 ## Conventions
 

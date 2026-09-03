@@ -3,6 +3,9 @@ import { LEGACY_STAGE, loadProgress, clearProgress, describeProgress } from './m
 import {
     clearWordsProgress, describeWordsProgress, loadWordsProgress
 } from './words/progress.js';
+import {
+    clearNumbersProgress, describeNumbersProgress, loadNumbersProgress
+} from './numbers/progress.js';
 
 const STORAGE_KEY = 'lls-settings';
 // mathTier has no row in the panel any more: Math Lab took over as the math
@@ -15,7 +18,8 @@ const defaults = {
     mathTier: 'auto',
     mathMethod: 'singapore',
     mathLabLevel: 'auto',
-    wordStage: 'auto'
+    wordStage: 'auto',
+    numbersCounting: 'auto'
 };
 
 function load() {
@@ -75,12 +79,14 @@ export function initSettingsUI() {
     const methodSelect = select('set-math-method');
     const labLevelSelect = select('set-mathlab-level');
     const wordStageSelect = select('set-word-stage');
+    const numbersCountingSelect = select('set-numbers-counting');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
     methodSelect.value = String(settings.mathMethod);
     labLevelSelect.value = String(settings.mathLabLevel);
     wordStageSelect.value = String(settings.wordStage);
+    numbersCountingSelect.value = String(settings.numbersCounting);
 
     const methodNote = document.getElementById('math-method-note');
     const methodNotes = {
@@ -89,6 +95,17 @@ export function initSettingsUI() {
         commoncore: 'Use ten frames, number lines, and blocks.',
         mix: 'Rotate through all three ways of seeing the same skill.'
     };
+    const countingNote = document.getElementById('numbers-counting-note');
+    const countingNotes = {
+        auto: 'Numbers counts the first set for them, then hands the counting over.',
+        watch: 'Numbers always counts out loud for them.',
+        tap: 'Numbers always waits for them to touch each object.'
+    };
+    function refreshCountingNote() {
+        countingNote.textContent = countingNotes[numbersCountingSelect.value] || '';
+    }
+    refreshCountingNote();
+
     function refreshMethodNote() {
         methodNote.textContent = methodNotes[methodSelect.value] || '';
     }
@@ -100,6 +117,8 @@ export function initSettingsUI() {
     const resetBtn = document.getElementById('mathlab-progress-reset');
     const wordsProgressLabel = document.getElementById('words-progress-label');
     const wordsResetBtn = document.getElementById('words-progress-reset');
+    const numbersProgressLabel = document.getElementById('numbers-progress-label');
+    const numbersResetBtn = document.getElementById('numbers-progress-reset');
 
     // Which voice the ranking actually landed on. The list differs per device
     // and can't be reproduced on a desktop, so on a phone this read-out is the
@@ -139,6 +158,9 @@ export function initSettingsUI() {
         wordsProgressLabel.textContent = describeWordsProgress(loadWordsProgress());
         wordsResetBtn.textContent = 'Start over';
         wordsResetBtn.classList.remove('armed');
+        numbersProgressLabel.textContent = describeNumbersProgress(loadNumbersProgress());
+        numbersResetBtn.textContent = 'Start over';
+        numbersResetBtn.classList.remove('armed');
     }
     refreshProgressRow();
 
@@ -163,6 +185,17 @@ export function initSettingsUI() {
         }
         clearWordsProgress();
         window.dispatchEvent(new CustomEvent('lls-words-progress-reset'));
+        refreshProgressRow();
+    });
+
+    numbersResetBtn.addEventListener('click', () => {
+        if (!numbersResetBtn.classList.contains('armed')) {
+            numbersResetBtn.textContent = 'Tap again to erase';
+            numbersResetBtn.classList.add('armed');
+            return;
+        }
+        clearNumbersProgress();
+        window.dispatchEvent(new CustomEvent('lls-numbers-progress-reset'));
         refreshProgressRow();
     });
 
@@ -200,4 +233,8 @@ export function initSettingsUI() {
     });
     labLevelSelect.addEventListener('change', () => setSetting('mathLabLevel', labLevelSelect.value));
     wordStageSelect.addEventListener('change', () => setSetting('wordStage', wordStageSelect.value));
+    numbersCountingSelect.addEventListener('change', () => {
+        setSetting('numbersCounting', numbersCountingSelect.value);
+        refreshCountingNote();
+    });
 }

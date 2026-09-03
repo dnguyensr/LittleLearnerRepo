@@ -163,6 +163,8 @@
  * @property {'auto'|'1'|'2'|'3'|'4'} mathTier
  * @property {'classical'|'commoncore'|'singapore'|'mix'} mathMethod
  * @property {'auto'|'1'|'2'|'3'|'4'} mathLabLevel
+ * @property {'auto'|'watch'|'tap'} numbersCounting  who performs the count in Numbers:
+ *   model once then hand over, always model, or always child-led
  * @property {'auto'|'firstSoundsContinuous'|'firstSoundsStops'|'finalSounds'|'segmentSounds'|'missingLetter'|'continuousCvc'|'shortVowelCvc'|'wordChains'|'blends'|'digraphs'|'silentE'|'vowelTeams'|'wordParts'|'wordStars'} wordStage
  */
 
@@ -228,6 +230,16 @@
  * @property {WordsActivityState|null} currentActivity
  * @property {Record<string, {recentIndependent: boolean[], mastered: boolean}>} skills
  * @property {Record<string, {status: 'unseen'|'inProgress'|'complete', scene: number}>} lessons
+ */
+
+/**
+ * A grown-up-facing observation record for Numbers. It is not a ladder and
+ * never reaches the child: Numbers stays score-free. Keys are the digit as a
+ * string.
+ *
+ * @typedef {object} NumbersProgress
+ * @property {1} version
+ * @property {Record<string, {modeled: boolean, counted: number, conserved: number}>} digits
  */
 
 export {};

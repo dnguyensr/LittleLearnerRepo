@@ -46,6 +46,9 @@ The sources do not prescribe this application's exact grid. Reserving every obje
 
 ## Follow-on observations
 
+> These are now planned work. See [P11 — Interactive Counting](11-interactive-counting.md),
+> which takes up tap-to-count, conservation, and multiple representations.
+
 - Observe whether children ages 2½–5 spontaneously recognize sets of one to three before counting; if so, pilot a brief “How many?” subitizing pause for those quantities.
 - Add an optional child-controlled replay or tap-to-count interaction only if observation shows children want more control than numeral selection already provides.
 - Later vary object arrangement after one-to-one correspondence is secure, so children learn that quantity remains constant when spacing or order changes.

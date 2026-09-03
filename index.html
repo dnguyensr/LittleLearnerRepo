@@ -73,8 +73,21 @@
         </div>
         <div id="numbers-container">
             <div id="number-display">123</div>
-            <div id="number-objects" role="img" aria-label="Choose a number to see a set"></div>
+            <!-- role="group", not role="img": the objects are buttons the child
+                 counts by touching, and role="img" may not contain interactive
+                 descendants. -->
+            <div id="number-objects" role="group" aria-label="Choose a number to see a set"></div>
             <div id="number-total" role="status" aria-live="polite"></div>
+            <div id="number-controls" hidden>
+                <button id="number-show-btn" type="button">👀 Show me</button>
+                <button id="number-count-btn" type="button">👉 Count them!</button>
+                <button id="number-move-btn" type="button">🔀 Move them!</button>
+            </div>
+            <div id="number-views" role="group" aria-label="Show this number another way" hidden>
+                <button id="number-view-objects" type="button" class="number-view-btn" data-view="objects" aria-pressed="true" aria-label="Show real things">🧸</button>
+                <button id="number-view-frame" type="button" class="number-view-btn" data-view="frame" aria-pressed="false" aria-label="Show a ten frame">🔳</button>
+                <button id="number-view-dots" type="button" class="number-view-btn" data-view="dots" aria-pressed="false" aria-label="Show dots">⚫</button>
+            </div>
         </div>
     </main>
 
@@ -93,6 +106,18 @@
                 <summary>Voices on this device</summary>
                 <ul id="voice-list"></ul>
             </details>
+            <label class="settings-row">Counting in Numbers
+                <select id="set-numbers-counting">
+                    <option value="auto">Show once, then let them count</option>
+                    <option value="watch">Always count for them</option>
+                    <option value="tap">Always let them count</option>
+                </select>
+            </label>
+            <p class="settings-note" id="numbers-counting-note"></p>
+            <div class="settings-row" id="numbers-progress-row">
+                <span>Counting seen: <strong id="numbers-progress-label"></strong></span>
+                <button id="numbers-progress-reset" type="button" class="reset-btn">Start over</button>
+            </div>
             <label class="settings-row">Math method
                 <select id="set-math-method">
                     <option value="singapore">Singapore mastery</option>

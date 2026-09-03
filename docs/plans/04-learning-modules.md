@@ -32,7 +32,7 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 ## New module ideas (prioritized)
 
 - [x] **Letter Land** (`js/modes/letters.js`): press/tap any letter → uppercase and lowercase forms with a sound-consistent familiar example ("B. B is for ball."). The letter, word, and optional phonics relationship are separate replay targets so toddlers hear one association at a time.
-- [x] **Number Fun** (`js/modes/numbers.js`): press 0–9 → big numeral, spoken name, that many objects appear one by one with counting voice-over.
+- [x] **Number Fun** (`js/modes/numbers.js`): press 0–9 → big numeral, spoken name, that many objects appear one by one with counting voice-over. The child then performs the count themselves, and can rearrange the set to see the quantity hold — see [11-interactive-counting.md](11-interactive-counting.md).
 - [ ] **Shapes & Colors**: "Tap the red circle!" — a few shapes on screen, tap the right one; spoken prompts, no keyboard needed at all.
 - [x] **Sight Words / Word Stars** (K–1st): shipped as the regular/irregular high-frequency branch inside Words rather than a competing top-level module; see [P10](10-guided-word-building.md).
 - [ ] **Patterns**: what comes next — 🔴🔵🔴🔵❓ with 2–3 tappable choices (pre-K sequencing skill).

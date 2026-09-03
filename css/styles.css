@@ -1685,8 +1685,22 @@ button.btb-rod:active {
     display: flex;
 }
 
+/* Owns its box rather than growing past it, the way Math Lab does. "safe"
+   centring falls back to start-aligned instead of pushing a tall stack up
+   underneath the top bar. */
+#numbers-container {
+    justify-content: safe center;
+    gap: clamp(6px, 1.5vh, 14px);
+    max-height: 100%;
+    min-height: 0;
+}
+
+/* P11 added two control rows below the objects, and the numeral is what gives
+   up the room for them. It is still the largest thing on screen, but it can no
+   longer push the objects and their controls out of the play area on a phone
+   with the numpad open. */
 #number-display {
-    font-size: min(22vw, 38vh);
+    font-size: min(14vw, 20vh);
     font-weight: bold;
     color: white;
     text-shadow: 5px 5px 10px rgba(0,0,0,0.3);
@@ -1756,6 +1770,8 @@ button.btb-rod:active {
     opacity: 1;
 }
 
+/* The lower bound is 2.75rem, not 2rem: each object is a button the child
+   counts by touching, so 1em is also its touch target and must clear 44px. */
 #number-objects {
     display: grid;
     grid-template-columns: repeat(var(--count-columns, 1), 1em);
@@ -1763,28 +1779,102 @@ button.btb-rod:active {
     gap: clamp(4px, 1.5vw, 10px);
     max-width: 90vw;
     min-height: 1em;
-    font-size: clamp(2rem, 7vw, 4rem);
+    font-size: clamp(2.75rem, 7vw, 4rem);
+}
+
+/* ---- Arrangements (P11 conservation) ----
+   Spacing changes only. Nothing is absolutely positioned and no coordinates
+   are computed, so a rearranged set can never escape the play area, and the
+   44px targets survive every arrangement. */
+
+#number-objects.arr-spread {
+    gap: clamp(12px, 4vw, 30px);
+}
+
+#number-objects.arr-bunch {
+    grid-template-columns: repeat(var(--bunch-columns, 1), 1em);
+    gap: 0;
 }
 
 .count-object {
+    position: relative;
     display: grid;
     place-items: center;
     width: 1em;
     height: 1em;
+    padding: 0;
+    border: none;
+    background: transparent;
     line-height: 1;
+    font: inherit;
+    color: inherit;
     visibility: hidden;
-    transform: scale(0.72);
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.72);
     transition: transform 0.22s ease-out, filter 0.22s ease-out;
+    cursor: default;
+}
+
+#number-objects.is-tappable .count-object {
+    cursor: pointer;
 }
 
 .count-object.is-revealed {
     visibility: visible;
-    transform: scale(1);
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1);
 }
 
 .count-object.is-current {
-    transform: scale(1.12);
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1.12);
     filter: drop-shadow(0 0 0.16em #ffeb3b);
+}
+
+/* The FLIP inverse offset is applied without a transition, then released. */
+.count-object.is-shifting {
+    transition: none;
+}
+
+.count-object:focus-visible {
+    outline: 4px solid #ffeb3b;
+    outline-offset: 2px;
+    border-radius: 0.2em;
+}
+
+.count-face {
+    grid-area: 1 / 1;
+    font-size: 0.82em;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* Absolutely positioned so a badge appearing cannot change the button's box —
+   P9's slot-stability guarantee is measured in offsetWidth/offsetHeight. */
+.count-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(28%, -18%);
+    min-width: 0.42em;
+    padding: 0 0.06em;
+    border-radius: 0.5em;
+    background: rgba(0,0,0,0.55);
+    color: #ffeb3b;
+    font-size: 0.34em;
+    font-weight: bold;
+    line-height: 1.25;
+    text-align: center;
+    pointer-events: none;
+}
+
+.count-object:not(.is-counted) .count-badge {
+    display: none;
+}
+
+/* The last number word names the whole set. Emphasising that badge at the end
+   is the cardinality principle made visible as well as audible. */
+#number-objects.is-complete .count-object.is-last .count-badge {
+    background: #ffeb3b;
+    color: #3a2c00;
+    transform: translate(28%, -18%) scale(1.25);
 }
 
 #number-objects.is-complete .count-object.is-revealed {
@@ -1792,7 +1882,7 @@ button.btb-rod:active {
 }
 
 @keyframes count-settle {
-    50% { transform: scale(1.08); }
+    50% { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(1.08); }
 }
 
 #number-objects.is-zero {
@@ -1801,6 +1891,95 @@ button.btb-rod:active {
     border: 3px dashed rgba(255,255,255,0.72);
     border-radius: 0.7em;
     background: rgba(255,255,255,0.08);
+}
+
+/* ---- Alternate representations (P11) ----
+   The ten frame and dot card come from js/math/manipulatives.js and keep their
+   own CSS, so the same quantity reads the same here as it does in Math Lab. */
+
+#number-objects.view-frame,
+#number-objects.view-dots {
+    grid-template-columns: 1fr;
+}
+
+/* Math Lab's frame sits in a play area shared with the numpad and clamps its
+   cells down to 24px. Here each cell holds an object the child has to touch,
+   so the cells are re-sized to clear 44px. */
+#number-objects .numbers-frame .tf-cell {
+    width: clamp(44px, 11vw, 56px);
+    height: clamp(44px, 11vw, 56px);
+    cursor: default;
+}
+
+#number-objects .numbers-frame .count-object {
+    width: 100%;
+    height: 100%;
+}
+
+#number-objects .numbers-dots {
+    display: grid;
+    grid-template-columns: repeat(var(--count-columns, 1), auto);
+    gap: clamp(4px, 1.5vw, 10px);
+}
+
+/* The dot card is a light surface, so the dots take Math Lab's dot colour
+   rather than the white used against the app's gradient. */
+#number-objects .numbers-dots .count-face {
+    width: 0.62em;
+    height: 0.62em;
+    border-radius: 50%;
+    background: #4a3f8f;
+}
+
+/* ---- Controls ---- */
+
+#number-controls,
+#number-views {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+#number-controls[hidden],
+#number-views[hidden] {
+    display: none;
+}
+
+#number-controls button,
+.number-view-btn {
+    min-width: 44px;
+    min-height: 48px;
+    padding: 10px 18px;
+    border: 2px solid white;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.18);
+    color: white;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+#number-count-btn {
+    background: rgba(76, 175, 80, 0.55);
+}
+
+.number-view-btn[aria-pressed="true"] {
+    border-color: #ffeb3b;
+    background: rgba(255, 235, 59, 0.32);
+}
+
+/* visibility, not display: a control appearing or leaving mid-count would
+   resize this row and shift the objects above it. */
+#number-controls button.is-blank {
+    visibility: hidden;
+}
+
+#number-controls button:focus-visible,
+.number-view-btn:focus-visible {
+    outline: 4px solid #ffeb3b;
+    outline-offset: 3px;
 }
 
 #number-total {
