@@ -12,6 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "playwright test",
+    "test:quick": "playwright test --project=chromium",
+    "test:quiet": "playwright test --workers=2",
     "test:ui": "playwright test --ui"
   },
   "devDependencies": {

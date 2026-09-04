@@ -109,6 +109,27 @@ If an HTML report was generated, open it with:
 npx playwright show-report ./playwright-report
 ```
 
+### Keeping the machine usable while tests run
+
+Playwright's local default is half the logical cores — ten browsers on a
+20-core machine — which is enough to make the desktop unresponsive. There is no
+memory or CPU quota in Playwright; worker count is the lever, and
+`./playwright.config.js` caps local runs at six. CI still uses the whole
+machine.
+
+Measured on a 20-core machine, all four browser projects: ~250s at ten workers,
+277s at six, 417s at four. Six gives back 40% of the concurrent browsers for
+about a tenth of the runtime; four is where the curve turns bad.
+
+```sh
+npm run test:quick    # Chromium only — ~60s, the inner-loop run
+npm run test:quiet    # two workers, for when the machine is needed elsewhere
+npm test -- --workers=10   # or PW_WORKERS=10, when nothing else is running
+```
+
+Run the full four-project suite before pushing; `test:quick` does not cover
+WebKit, Pixel or iPhone layout.
+
 Playwright's `./tests/global-setup.js` starts the same static server in the test runner and closes it after the suite. Keeping it in-process avoids the Windows shell teardown hang that previously left a fully reported run without an exit code. A separately running server on port 8123 is reused.
 
 ## Switching browser and device profiles
