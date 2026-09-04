@@ -163,6 +163,7 @@
  * @property {'auto'|'1'|'2'|'3'|'4'} mathTier
  * @property {'classical'|'commoncore'|'singapore'|'mix'} mathMethod
  * @property {'auto'|'1'|'2'|'3'|'4'} mathLabLevel
+ * @property {'auto'|'ab'|'aab'|'abb'|'abc'} patternStage
  * @property {'auto'|'watch'|'tap'} numbersCounting  who performs the count in Numbers:
  *   model once then hand over, always model, or always child-led
  * @property {'auto'|'firstSoundsContinuous'|'firstSoundsStops'|'finalSounds'|'segmentSounds'|'missingLetter'|'continuousCvc'|'shortVowelCvc'|'wordChains'|'blends'|'digraphs'|'silentE'|'vowelTeams'|'wordParts'|'wordStars'} wordStage
@@ -240,6 +241,28 @@
  * @typedef {object} NumbersProgress
  * @property {1} version
  * @property {Record<string, {modeled: boolean, counted: number, conserved: number}>} digits
+ */
+
+/**
+ * One rung of the Patterns ladder. Difficulty is the structure of the repeating
+ * unit, not the length of the row.
+ *
+ * @typedef {object} PatternDefinition
+ * @property {string} id
+ * @property {string} label
+ * @property {string[]} unit          slot names, e.g. ['a', 'a', 'b']
+ * @property {number} distinct        how many different items the unit needs
+ * @property {number} repetitions     full repetitions shown before the partial one
+ */
+
+/**
+ * Persisted Patterns readiness. Uses the same 5-of-6 window as Math and Words
+ * so the three modules agree on what "ready" means.
+ *
+ * @typedef {object} PatternsProgress
+ * @property {1} version
+ * @property {string} currentType
+ * @property {Record<string, {recentIndependent: boolean[], mastered: boolean}>} types
  */
 
 export {};

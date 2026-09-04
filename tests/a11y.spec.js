@@ -2,11 +2,12 @@ const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const { gotoApp, ensureOskVisible, seedSettings } = require('./helpers');
 
-// color-contrast is disabled for now: the white-on-pastel-gradient palette
-// needs a design pass (tracked in docs/plans/05-testing-tooling.md).
+// color-contrast is enabled. It was disabled while the white-on-pastel palette
+// was failing 83 of 90 combinations; docs/plans/12-readable-contrast.md replaced
+// that palette. axe only judges whichever gradient is showing when it scans, so
+// tests/contrast.spec.js checks every stop in the palette as well.
 async function scan(page) {
     const results = await new AxeBuilder({ page })
-        .disableRules(['color-contrast'])
         .analyze();
     return results.violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
 }
@@ -57,7 +58,7 @@ test.describe('Accessibility (axe)', () => {
         });
     }
 
-    for (const mode of ['free', 'piano', 'letters', 'numbers', 'mathlab', 'words']) {
+    for (const mode of ['free', 'piano', 'letters', 'numbers', 'patterns', 'mathlab', 'words']) {
         test(`${mode} mode has no serious/critical violations`, async ({ page }) => {
             await gotoApp(page);
             await page.locator(`#${mode}-btn`).click();
@@ -74,6 +75,25 @@ test.describe('Accessibility (axe)', () => {
             expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
         });
     }
+
+    // Letters with the tracing worksheet on screen (P13): the live waypoint is
+    // a labelled button and the rest are aria-hidden markings, which is exactly
+    // the sort of thing a scan should confirm rather than trust.
+    test('letters stays clean while the child is making a letter', async ({ page }) => {
+        await seedSettings(page, { speech: false });
+        await gotoApp(page);
+        await page.locator('#letters-btn').click();
+        await page.keyboard.press('s');
+        await page.locator('#letter-make-btn').click();
+        await expect(page.locator('.trace-dot.is-active')).toHaveCount(1, { timeout: 15000 });
+
+        const tracing = await scan(page);
+        expect(tracing, JSON.stringify(tracing, null, 2)).toEqual([]);
+
+        await page.locator('.trace-dot.is-active').click();
+        const midway = await scan(page);
+        expect(midway, JSON.stringify(midway, null, 2)).toEqual([]);
+    });
 
     // The scan above catches Numbers as the app counts it. These are the states
     // P11 added, where the objects are buttons the child operates: role="img"

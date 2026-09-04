@@ -14,11 +14,12 @@ async function readEmojiRoles(page) {
     return await page.evaluate(async () => {
         // Paths go through a variable so the typecheck reads them as the
         // server URLs they are, rather than trying to resolve them on disk.
-        const [decor, items, words, numbers] = await Promise.all([
+        const [decor, items, words, numbers, patterns] = await Promise.all([
             '/js/data/decor.js',
             '/js/data/math-items.js',
             '/js/words/curriculum.js',
-            '/js/modes/numbers.js'
+            '/js/modes/numbers.js',
+            '/js/patterns/curriculum.js'
         ].map(path => import(path)));
 
         const content = new Set();
@@ -28,6 +29,7 @@ async function readEmojiRoles(page) {
         }
         for (const entry of words.WORD_DEFINITIONS) content.add(entry.emoji);
         for (const emoji of numbers.objectEmojis) content.add(emoji);
+        for (const emoji of patterns.patternEmojis) content.add(emoji);
 
         return {
             decoration: decor.celebrationEmojis,

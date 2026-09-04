@@ -18,7 +18,9 @@ body {
     display: flex;
     flex-direction: column;
     font-family: 'Comic Sans MS', 'Chalkboard', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Matches the first entry of the palette in js/effects.js so the first
+       paint and the first keypress agree. See docs/plans/12-readable-contrast.md. */
+    background: linear-gradient(135deg, #4a3f8f 0%, #764ba2 100%);
     transition: background 0.3s ease;
 }
 
@@ -50,9 +52,12 @@ button {
     white-space: nowrap;
 }
 
+/* Solid white, de-emphasised by size and weight rather than by alpha:
+   translucent white over a gradient fails contrast even against the darkest
+   stop in the palette. */
 #tagline {
     font-size: 0.85rem;
-    color: rgba(255,255,255,0.7);
+    color: white;
     font-style: italic;
 }
 
@@ -67,7 +72,7 @@ button {
     padding: 10px 16px;
     min-height: 48px;
     font-size: 1rem;
-    background: rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.26);
     border: 2px solid white;
     border-radius: 30px;
     color: white;
@@ -77,12 +82,12 @@ button {
 }
 
 .top-btn:hover {
-    background: rgba(255,255,255,0.4);
+    background: rgba(0,0,0,0.42);
     transform: scale(1.05);
 }
 
 .top-btn.active {
-    background: rgba(76, 175, 80, 0.6);
+    background: #2e7d32;
     border-color: #4CAF50;
 }
 
@@ -168,7 +173,7 @@ button {
 
 #instructions {
     padding: 6px 12px;
-    color: rgba(255,255,255,0.7);
+    color: white;
     font-size: clamp(0.85rem, 2.5vw, 1.2rem);
     text-align: center;
 }
@@ -186,7 +191,7 @@ button {
 
 .history-key {
     padding: 8px 12px;
-    background: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.34);
     border-radius: 10px;
     color: white;
     font-size: 1.3rem;
@@ -251,7 +256,7 @@ button {
     justify-content: center;
     gap: 5px;
     padding: clamp(5px, 1.5vw, 12px);
-    background: rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.20);
     border-radius: 20px;
 }
 
@@ -392,7 +397,7 @@ button {
     gap: 8px;
     border: 3px solid white;
     border-radius: 22px;
-    background: rgba(255,255,255,0.22);
+    background: rgba(0,0,0,0.28);
     color: white;
     font: inherit;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -469,7 +474,7 @@ button {
     padding: 8px 18px;
     border: 3px solid white;
     border-radius: 24px;
-    background: rgba(76,175,80,0.5);
+    background: #2e7d32;
     color: white;
     font: inherit;
     font-weight: bold;
@@ -487,7 +492,7 @@ button {
 
 .lesson-choice.try-again {
     animation: shake 0.5s ease;
-    background: rgba(244,67,54,0.5);
+    background: #b3261e;
 }
 
 #mathlab-question {
@@ -581,7 +586,7 @@ button {
     font-weight: bold;
     color: white;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    background: rgba(76,175,80,0.45);
+    background: #2e7d32;
     border: 3px solid #7CFF9B;
     border-radius: 24px;
     cursor: pointer;
@@ -644,7 +649,7 @@ button {
 
 .eater-btn {
     font-size: clamp(2.2rem, 7vw, 4rem);
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.30);
     border: 3px solid white;
     border-radius: 50%;
     padding: 6px 10px;
@@ -806,7 +811,7 @@ button {
     font-size: 1rem;
     padding: 8px 18px;
     min-height: 44px;
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.30);
     border: 2px solid white;
     border-radius: 24px;
     color: white;
@@ -829,7 +834,7 @@ button {
 .tf-cell {
     width: clamp(24px, 6vw, 44px);
     height: clamp(24px, 6vw, 44px);
-    background: rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.18);
     border: 2px solid rgba(255,255,255,0.7);
     border-radius: 8px;
     padding: 0;
@@ -887,7 +892,7 @@ button {
     font-size: clamp(0.7rem, 2.4vw, 1rem);
     font-weight: bold;
     color: white;
-    background: rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.18);
     border: 2px solid rgba(255,255,255,0.45);
     border-radius: 8px;
     cursor: pointer;
@@ -899,7 +904,7 @@ button {
 }
 
 .nl-tick.here {
-    background: rgba(76, 175, 80, 0.65);
+    background: #2e7d32;
     border-color: #7CFF9B;
 }
 
@@ -935,11 +940,11 @@ button {
 .ol-stop {
     padding: 2px 8px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.26);
 }
 
 .ol-stop.start {
-    background: rgba(76, 175, 80, 0.5);
+    background: #2e7d32;
 }
 
 .ol-arc {
@@ -967,7 +972,7 @@ button {
     font-size: 1.1rem;
     font-weight: bold;
     color: white;
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.30);
     border: 2px solid white;
     border-radius: 24px;
     cursor: pointer;
@@ -1263,7 +1268,7 @@ button.btb-rod:active {
     min-width: 2.2em;
     border: 3px solid white;
     border-radius: 8px;
-    background: rgba(255,255,255,0.28);
+    background: rgba(0,0,0,0.32);
     color: white;
     font-weight: bold;
     font-size: clamp(0.95rem, min(3.4vw, 2.6vh), 1.5rem);
@@ -1325,7 +1330,7 @@ button.btb-rod:active {
     font-weight: bold;
     color: white;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.30);
     border: 2px solid white;
     border-radius: 24px;
     cursor: pointer;
@@ -1362,7 +1367,7 @@ button.btb-rod:active {
     font-size: 1.6rem;
     min-width: 56px;
     min-height: 56px;
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.30);
     border: 2px solid white;
     border-radius: 50%;
     cursor: pointer;
@@ -1404,7 +1409,7 @@ button.btb-rod:active {
     padding: 4px 16px;
     border: 3px solid rgba(255,255,255,0.72);
     border-radius: 24px;
-    background: rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.20);
     font-size: min(14vw, 16vh, 6rem);
     line-height: 1;
     cursor: pointer;
@@ -1438,7 +1443,7 @@ button.btb-rod:active {
     place-items: center;
     width: clamp(58px, 12vw, 88px);
     min-height: clamp(58px, 10vh, 82px);
-    background: rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.26);
     border-radius: 15px;
     color: white;
     font-size: clamp(1.7rem, 6vw, 3rem);
@@ -1457,7 +1462,7 @@ button.btb-rod:active {
 }
 
 .word-sound-box.placed {
-    background: rgba(76,175,80,0.5);
+    background: #2e7d32;
     border-color: #4CAF50;
 }
 
@@ -1498,7 +1503,7 @@ button.btb-rod:active {
     min-height: 50px;
     border: 3px solid white;
     border-radius: 18px;
-    background: rgba(255,255,255,0.22);
+    background: rgba(0,0,0,0.28);
     color: white;
     font-size: clamp(1.1rem, 4.5vw, 2rem);
     font-weight: bold;
@@ -1668,6 +1673,137 @@ button.btb-rod:active {
     pointer-events: none;
 }
 
+/* ---------- Patterns ---------- */
+
+#patterns-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: safe center;
+    gap: clamp(8px, 2vh, 18px);
+    z-index: 10;
+    padding: 0 10px;
+    max-height: 100%;
+    min-height: 0;
+}
+
+#patterns-container.active {
+    display: flex;
+}
+
+#pattern-sequence,
+#pattern-choices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(6px, 1.6vw, 12px);
+    max-width: 94vw;
+}
+
+.pattern-tile {
+    display: grid;
+    place-items: center;
+    width: clamp(48px, 11vw, 76px);
+    height: clamp(48px, 11vw, 76px);
+    border-radius: 16px;
+    background: rgba(0,0,0,0.24);
+    font-size: clamp(1.6rem, 6vw, 2.6rem);
+    line-height: 1;
+}
+
+.pattern-tile.is-slot {
+    border: 3px dashed rgba(255,255,255,0.8);
+    background: rgba(0,0,0,0.34);
+}
+
+/* Walks the row while the pattern is read aloud, so the structure is shown
+   as well as said — and still shown when speech is off or unavailable. */
+.pattern-tile.is-reading {
+    outline: 4px solid #ffeb3b;
+    outline-offset: 2px;
+}
+
+.pattern-tile.is-filled {
+    animation: pop 0.35s ease-out;
+}
+
+.pattern-choice {
+    display: grid;
+    place-items: center;
+    width: clamp(56px, 14vw, 92px);
+    height: clamp(56px, 14vw, 92px);
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 3px solid white;
+    border-radius: 20px;
+    background: rgba(0,0,0,0.28);
+    font-size: clamp(1.8rem, 7vw, 3rem);
+    line-height: 1;
+    cursor: pointer;
+}
+
+.pattern-choice:disabled {
+    cursor: default;
+    opacity: 0.55;
+}
+
+.pattern-choice.is-chosen {
+    border-color: #ffeb3b;
+    background: #2e7d32;
+    opacity: 1;
+}
+
+/* A shake, not a red cross. Nothing here is marked wrong: the tile simply
+   comes back and the pattern is read again. */
+.pattern-choice.is-wrong {
+    animation: pattern-nudge 0.4s ease-out;
+}
+
+@keyframes pattern-nudge {
+    25% { transform: translateX(-7px); }
+    75% { transform: translateX(7px); }
+}
+
+.pattern-prompt-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#pattern-prompt {
+    color: white;
+    font-size: clamp(1.1rem, 4vw, 1.8rem);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+#pattern-next-btn {
+    min-width: 44px;
+    min-height: 48px;
+    padding: 10px 22px;
+    border: 2px solid white;
+    border-radius: 24px;
+    background: #2e7d32;
+    color: white;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#pattern-next-btn[hidden] {
+    display: none;
+}
+
+.pattern-choice:focus-visible,
+#pattern-next-btn:focus-visible {
+    outline: 4px solid #ffeb3b;
+    outline-offset: 3px;
+}
+
 /* ---------- Letter Land & Number Fun ---------- */
 
 #letters-container,
@@ -1683,6 +1819,33 @@ button.btb-rod:active {
 #letters-container.active,
 #numbers-container.active {
     display: flex;
+}
+
+/* Both own their box rather than growing past it, the way Math Lab does.
+   "safe" centring falls back to start-aligned instead of pushing a tall stack
+   up underneath the top bar. */
+/* Scoped to the tracing state on purpose. P8's plain Letters layout is left
+   exactly as it shipped: constraining the container's height changed where
+   #letter-display's 1.2x "pop" lands relative to #letter-example, and a tap
+   meant for the example word started replaying the letter name instead. Space
+   is only scarce while the worksheet is open, so only that state pays for it. */
+#letters-container.is-tracing {
+    justify-content: safe center;
+    gap: clamp(6px, 1.5vh, 14px);
+    max-height: 100%;
+    min-height: 0;
+}
+
+/* Making the letter is a focused activity: the numeral-sized display shrinks
+   and the example word steps aside so the worksheet and its controls fit a
+   phone with the letter keyboard open. Pressing any letter brings the example
+   straight back. */
+#letters-container.is-tracing #letter-display {
+    font-size: min(10vw, 15vh);
+}
+
+#letters-container.is-tracing #letter-example {
+    display: none;
 }
 
 /* Owns its box rather than growing past it, the way Math Lab does. "safe"
@@ -1728,7 +1891,7 @@ button.btb-rod:active {
     padding: 10px 20px;
     border: 3px solid rgba(255,255,255,0.7);
     border-radius: 24px;
-    background: rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.20);
     font-size: clamp(1.45rem, 5.2vw, 3rem);
     font-weight: bold;
     color: white;
@@ -1743,16 +1906,143 @@ button.btb-rod:active {
     text-underline-offset: 0.1em;
 }
 
-#letter-sound-btn {
+#letter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+#letter-sound-btn,
+#letter-make-btn,
+#letter-watch-btn {
+    min-width: 44px;
     min-height: 48px;
     padding: 10px 18px;
     border: 2px solid white;
     border-radius: 24px;
-    background: rgba(76, 175, 80, 0.55);
+    background: rgba(0,0,0,0.30);
     color: white;
     font-size: clamp(1rem, 3vw, 1.25rem);
     font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     cursor: pointer;
+}
+
+#letter-sound-btn {
+    background: #2e7d32;
+}
+
+/* ---------- Making the letter (P13) ----------
+   The letter is an SVG worksheet with an absolutely positioned dot per
+   waypoint. The dots are placed in percentages over the same square the SVG
+   viewBox covers, so the two layers stay registered at any size without any
+   measurement in JS. */
+
+#letter-trace {
+    position: relative;
+    width: min(48vw, 24vh);
+    aspect-ratio: 1;
+    margin: 0 auto;
+}
+
+#letter-trace[hidden] {
+    display: none;
+}
+
+#letter-trace-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.trace-guide {
+    fill: none;
+    stroke: rgba(255,255,255,0.34);
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 4 7;
+}
+
+.trace-ink {
+    fill: none;
+    stroke: #ffeb3b;
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#letter-trace.is-complete .trace-ink {
+    animation: count-settle 0.4s ease-out;
+}
+
+/* The dot layer sits inside the same box as the SVG; the SVG viewBox is inset
+   by 6 units on each side (-6 -6 112 112), so a waypoint at x% of the 0-100
+   coordinate space lands at (6 + x * 100/112)% of the box. */
+#letter-waypoints {
+    position: absolute;
+    inset: 5.36%;
+}
+
+.trace-dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 2px solid rgba(255,255,255,0.55);
+    border-radius: 50%;
+    background: rgba(0,0,0,0.34);
+    color: rgba(255,255,255,0.85);
+    font-size: 0.8rem;
+    font-weight: bold;
+    line-height: 1;
+    cursor: default;
+    /* Inert dots are worksheet markings, not targets. This matters beyond
+       tidiness: the end of one stroke and the start of the next sit on the
+       same point in L, Y, Z and G, so a marking would otherwise stack on top
+       of the live dot and swallow the tap. */
+    pointer-events: none;
+}
+
+/* Only the live dot is a real target, so it is the only one that has to reach
+   44px — which is also what keeps a dozen dots from competing for a toddler's
+   aim on a crowded letter like S. */
+.trace-dot.is-active {
+    z-index: 2;
+    pointer-events: auto;
+    width: 46px;
+    height: 46px;
+    border-color: white;
+    background: #b3261e;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    /* The pulse is a glow, not a scale. An infinite transform animation keeps
+       the element's box moving forever, which makes it permanently "unstable"
+       to any pointer-actionability check — including a child's aim on a moving
+       target. */
+    animation: trace-pulse 1.4s ease-in-out infinite;
+}
+
+.trace-dot.is-done {
+    border-color: #ffeb3b;
+    background: rgba(255, 235, 59, 0.55);
+    color: #3a2c00;
+}
+
+.trace-dot:focus-visible {
+    outline: 4px solid #ffeb3b;
+    outline-offset: 3px;
+}
+
+@keyframes trace-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0.75); }
+    50% { box-shadow: 0 0 0 10px rgba(255, 235, 59, 0); }
 }
 
 #letter-display:focus-visible,
@@ -1953,7 +2243,7 @@ button.btb-rod:active {
     padding: 10px 18px;
     border: 2px solid white;
     border-radius: 24px;
-    background: rgba(255,255,255,0.18);
+    background: rgba(0,0,0,0.24);
     color: white;
     font-size: clamp(1rem, 3vw, 1.25rem);
     font-weight: bold;
@@ -1962,7 +2252,7 @@ button.btb-rod:active {
 }
 
 #number-count-btn {
-    background: rgba(76, 175, 80, 0.55);
+    background: #2e7d32;
 }
 
 .number-view-btn[aria-pressed="true"] {
@@ -2134,7 +2424,7 @@ button.btb-rod:active {
     font-size: clamp(1rem, 3.5vw, 1.4rem);
     font-weight: bold;
     color: white;
-    background: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.30);
     border: 2px solid rgba(255,255,255,0.5);
     border-radius: 10px;
     cursor: pointer;
@@ -2152,7 +2442,7 @@ button.btb-rod:active {
 }
 
 .osk-key.confirm {
-    background: rgba(76, 175, 80, 0.6);
+    background: #2e7d32;
     border-color: #4CAF50;
 }
 

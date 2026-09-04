@@ -143,14 +143,17 @@ These profiles are test configurations, not learner profiles. The application cu
 | `./index.html` | Application shell, module containers, and grown-up settings markup |
 | `./css/styles.css` | Shared responsive and accessible presentation |
 | `./js/main.js` | Application startup and mode registration |
-| `./js/modes/` | Free Play, Piano, Letters, Numbers, Math, and Words controllers |
+| `./js/modes/` | Free Play, Piano, Letters, Numbers, Patterns, Math, and Words controllers |
 | `./js/math/` | Math skill graph, problem generation, lessons, manipulatives, and presentation lenses |
 | `./js/words/` | Words curriculum definitions, readiness graph, normalization, and persistence |
 | `./js/numbers/` | The Numbers observation record a grown-up can read; deliberately not a readiness ladder |
+| `./js/patterns/` | Pattern types, puzzle generation, and Patterns readiness |
 | `./js/data/` | Learning content and decorative data |
 | `./js/types.js` | Shared JSDoc contracts checked by TypeScript |
 | `./tests/` | Playwright behavior, layout, accessibility, migration, and compatibility tests |
 | `./tools/serve.js` | Local static HTTP server used by developers and Playwright |
+| `./tools/contrast.js` | WCAG check of the background palette and panel surfaces; axe cannot judge text over a gradient |
+| `./eslint.config.js` | Flat ESLint config, split across the browser-module and CommonJS parts of the repo |
 | `./docs/plans/` | Shipped design history, current roadmap, and caregiver observation material |
 | `./playwright.config.js` | Browser projects, test server, retries, traces, and reporters |
 | `./.github/workflows/ci.yml` | Pull-request and `main` branch validation |
@@ -164,6 +167,7 @@ The app stores data locally in the active browser:
 - `lls-settings` contains grown-up settings.
 - `lls-mathlab-progress` contains normalized versioned Math skill and lesson progress.
 - `lls-words-progress` contains normalized Words skill, path, lesson, and interrupted-activity progress.
+- `lls-patterns-progress` contains normalized Patterns type and readiness progress.
 - `lls-numbers-progress` contains the Numbers observation record: which numerals have been demonstrated, counted independently, and re-counted after a rearrangement. It is read only by the grown-up panel and is never written into Math progress.
 - `lls-score-<mode>` contains each scoring module's total.
 

@@ -1,17 +1,25 @@
 import { playSuccessSound } from './audio.js';
 import { celebrationEmojis } from './data/decor.js';
 
-const colors = [
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)'
+// Every stop here must clear 4.5:1 against white text, because white text is
+// painted straight onto it and this list is re-rolled on almost every keypress
+// — see docs/plans/12-readable-contrast.md. The pastel palette this replaced
+// put 83 of 90 text combinations below threshold, several at 1.2:1, which is
+// invisible rather than merely low.
+//
+// `node tools/contrast.js` checks the list, and tests/contrast.spec.js fails
+// the suite if a new gradient is added without checking it.
+export const colors = [
+    'linear-gradient(135deg, #4a3f8f 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #8e2d63 0%, #c02a5a 100%)',
+    'linear-gradient(135deg, #1565a0 0%, #0e7c86 100%)',
+    'linear-gradient(135deg, #1f6f3f 0%, #0f7355 100%)',
+    'linear-gradient(135deg, #b5442a 0%, #8a4b12 100%)',
+    'linear-gradient(135deg, #0e7c86 0%, #2f6fb8 100%)',
+    'linear-gradient(135deg, #7b2f8f 0%, #c1436f 100%)',
+    'linear-gradient(135deg, #8a4b12 0%, #a63333 100%)',
+    'linear-gradient(135deg, #6a3ec4 0%, #3a4fa0 100%)',
+    'linear-gradient(135deg, #a8306b 0%, #6a3ec4 100%)'
 ];
 
 const scoreDisplay = document.getElementById('score-display');

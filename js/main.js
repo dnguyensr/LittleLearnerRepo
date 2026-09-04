@@ -6,6 +6,7 @@ import { freeplayMode } from './modes/freeplay.js';
 import { pianoMode } from './modes/piano.js';
 import { lettersMode } from './modes/letters.js';
 import { numbersMode } from './modes/numbers.js';
+import { patternsMode } from './modes/patterns.js';
 import { mathLabMode } from './modes/mathlab.js';
 import { wordsMode } from './modes/words.js';
 
@@ -13,7 +14,7 @@ import { wordsMode } from './modes/words.js';
 // device. js/modes/math.js and #math-container are deliberately left in the
 // tree, unreferenced, so the old mode can be re-registered here if Math Lab
 // turns out to regress for a child.
-const modes = [freeplayMode, pianoMode, lettersMode, numbersMode, mathLabMode, wordsMode];
+const modes = [freeplayMode, pianoMode, lettersMode, numbersMode, patternsMode, mathLabMode, wordsMode];
 const defaultModeId = 'free';
 
 const instructions = document.getElementById('instructions');

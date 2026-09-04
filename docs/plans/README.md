@@ -7,6 +7,7 @@ Little Learner Keys is a GitHub Pages web app for pre-K through 1st grade. It is
 - **Letters & Numbers** — spoken, animated early recognition and counting.
 - **Math** — readiness-based counting and arithmetic with manipulatives and child-chosen paths.
 - **Words** — guided sound-to-spelling practice with sound boxes, child-chosen paths, and Word Stars.
+- **Patterns** — extend a repeating pattern; tap-only, no keyboard, no reading.
 
 Touch input, ES modules, responsive layouts, and automated browser coverage are shipped. The remaining roadmap grows the learning content while keeping GitHub Pages deployment simple: no build step, runtime dependencies, or backend.
 
@@ -27,6 +28,9 @@ P1–P3 and the core of P4–P10 are shipped; each linked plan records remaining
 | P9 | [Stable, meaningful counting](09-number-foundations.md) | **The shipped Numbers introduction.** Stable object slots coordinate visual and spoken one-to-one counting, then connect the final number word to the whole set's quantity. |
 | P10 | [Guided word building](10-guided-word-building.md) | **Implemented direct replacement for Words.** Spoken-word segmentation, sound boxes, authored grapheme tiles, 5-of-6 readiness, recoverable guidance, reversible paths, later spelling patterns, and Word Stars replace visible-answer copying and length tiers. Reviewed local phoneme recordings and observed-child release sessions remain pre-release gates. |
 | P11 | [Interactive counting](11-interactive-counting.md) | **Active plan.** Numbers moves from a narrated demonstration to a child-performed activity: tap-to-count with order irrelevance, conservation of number, and more than one representation of the same quantity. Supersedes P9's open follow-on notes. |
+| P12 | [Readable contrast](12-readable-contrast.md) | **Implemented.** The random background palette was failing 83 of 90 white-text contrast combinations, several at 1.2:1. Deeper gradients, dark panel surfaces instead of white washes, a deterministic contrast tool because axe cannot judge text over a gradient, and a polite live region for mode changes. |
+| P13 | [Letter formation](13-letter-formation.md) | **Implemented.** Letters gains the constructive activity it lacked: the child makes the letter by tapping numbered waypoints along its strokes, in handwriting order. Deliberately not the initial-sound match P8 proposed — Words already ships that. |
+| P14 | [Patterns](14-patterns.md) | **Implemented.** A new tap-only mode for the one pre-K mathematical skill nothing in the app touched: noticing a repeating unit and extending it. A choice that does not fit is never marked wrong — the row is read again and the choice stays open. |
 
 ## Conventions
 

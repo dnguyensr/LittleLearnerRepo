@@ -6,6 +6,9 @@ import {
 import {
     clearNumbersProgress, describeNumbersProgress, loadNumbersProgress
 } from './numbers/progress.js';
+import {
+    clearPatternsProgress, describePatternsProgress, loadPatternsProgress
+} from './patterns/progress.js';
 
 const STORAGE_KEY = 'lls-settings';
 // mathTier has no row in the panel any more: Math Lab took over as the math
@@ -19,11 +22,12 @@ const defaults = {
     mathMethod: 'singapore',
     mathLabLevel: 'auto',
     wordStage: 'auto',
-    numbersCounting: 'auto'
+    numbersCounting: 'auto',
+    patternStage: 'auto'
 };
 
 function load() {
-    let stored = {};
+    let stored;
     try {
         stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {};
     } catch (err) {
@@ -37,7 +41,7 @@ function load() {
     return { ...defaults, ...stored };
 }
 
-let settings = load();
+const settings = load();
 
 function save() {
     try {
@@ -80,6 +84,7 @@ export function initSettingsUI() {
     const labLevelSelect = select('set-mathlab-level');
     const wordStageSelect = select('set-word-stage');
     const numbersCountingSelect = select('set-numbers-counting');
+    const patternStageSelect = select('set-pattern-stage');
 
     speechBox.checked = settings.speech;
     phonicsBox.checked = settings.phonics;
@@ -87,6 +92,7 @@ export function initSettingsUI() {
     labLevelSelect.value = String(settings.mathLabLevel);
     wordStageSelect.value = String(settings.wordStage);
     numbersCountingSelect.value = String(settings.numbersCounting);
+    patternStageSelect.value = String(settings.patternStage);
 
     const methodNote = document.getElementById('math-method-note');
     const methodNotes = {
@@ -119,6 +125,8 @@ export function initSettingsUI() {
     const wordsResetBtn = document.getElementById('words-progress-reset');
     const numbersProgressLabel = document.getElementById('numbers-progress-label');
     const numbersResetBtn = document.getElementById('numbers-progress-reset');
+    const patternsProgressLabel = document.getElementById('patterns-progress-label');
+    const patternsResetBtn = document.getElementById('patterns-progress-reset');
 
     // Which voice the ranking actually landed on. The list differs per device
     // and can't be reproduced on a desktop, so on a phone this read-out is the
@@ -161,6 +169,9 @@ export function initSettingsUI() {
         numbersProgressLabel.textContent = describeNumbersProgress(loadNumbersProgress());
         numbersResetBtn.textContent = 'Start over';
         numbersResetBtn.classList.remove('armed');
+        patternsProgressLabel.textContent = describePatternsProgress(loadPatternsProgress());
+        patternsResetBtn.textContent = 'Start over';
+        patternsResetBtn.classList.remove('armed');
     }
     refreshProgressRow();
 
@@ -199,6 +210,17 @@ export function initSettingsUI() {
         refreshProgressRow();
     });
 
+    patternsResetBtn.addEventListener('click', () => {
+        if (!patternsResetBtn.classList.contains('armed')) {
+            patternsResetBtn.textContent = 'Tap again to erase';
+            patternsResetBtn.classList.add('armed');
+            return;
+        }
+        clearPatternsProgress();
+        window.dispatchEvent(new CustomEvent('lls-patterns-progress-reset'));
+        refreshProgressRow();
+    });
+
     function openPanel() {
         panel.hidden = false;
         settingsBtn.setAttribute('aria-expanded', 'true');
@@ -233,6 +255,7 @@ export function initSettingsUI() {
     });
     labLevelSelect.addEventListener('change', () => setSetting('mathLabLevel', labLevelSelect.value));
     wordStageSelect.addEventListener('change', () => setSetting('wordStage', wordStageSelect.value));
+    patternStageSelect.addEventListener('change', () => setSetting('patternStage', patternStageSelect.value));
     numbersCountingSelect.addEventListener('change', () => {
         setSetting('numbersCounting', numbersCountingSelect.value);
         refreshCountingNote();

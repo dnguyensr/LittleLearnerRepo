@@ -25,10 +25,10 @@ Goal: once npm enters the repo (dev tooling only — the deployed site stays dep
 
 - [x] `@axe-core/playwright` scan of each of the 4 modes in `tests/a11y.spec.js`; fails on serious/critical violations. **`color-contrast` rule is disabled pending the palette pass below.**
 - [x] Icon-only buttons have `aria-label`s; mode buttons expose state (`aria-pressed`).
-- [ ] Check color contrast of white text over the pastel gradients (several current gradients likely fail 4.5:1) — add a text-shadow/scrim or adjust palette, then re-enable the `color-contrast` axe rule.
+- [x] Check color contrast of white text over the pastel gradients — done in [P12](12-readable-contrast.md). It was far worse than "likely fail": 83 of 90 combinations failed, several at 1.2:1. The palette was deepened, every translucent white panel became a dark one, and the `color-contrast` axe rule is enabled again. axe returns *incomplete* for text over a gradient, so `tools/contrast.js` and `tests/contrast.spec.js` are the real guard.
 - [x] `prefers-reduced-motion`: gate the heavy animations (flying keys, star bursts, bounces) behind the media query. Done app-wide 2026-08-01: CSS media block collapses keyframes/transitions; `js/effects.js` suppresses spawned effects (bubbles, stars, flying keys) at the source. Spec in `tests/a11y.spec.js` runs with `reducedMotion: 'reduce'`.
 - [ ] Keyboard/focus: the on-screen keyboards are reachable and operable with a physical keyboard and screen reader; focus is never trapped or invisible. (Note: the app intentionally swallows all physical keydown events — needs a deliberate design for focus-based operation.)
-- [ ] Live-region announcements for mode changes and correct/incorrect feedback (`aria-live="polite"`), so the app isn't silent to screen readers.
+- [x] Live-region announcements for mode changes — `#instructions` is a polite live region ([P12](12-readable-contrast.md)). Per-answer correct/incorrect feedback already announces through each mode's own `role="status"` elements.
 
 ## CI (GitHub Actions)
 
@@ -38,6 +38,7 @@ Goal: once npm enters the repo (dev tooling only — the deployed site stays dep
 
 ## Optional / later
 
-- [ ] ESLint (flat config) + Prettier, aligned with `.editorconfig` (4-space JS/CSS/HTML, 2-space JSON/MD/YML).
+- [x] ESLint flat config (`eslint.config.js`), aligned with `.editorconfig`, split across the three environments in this repo: `js/` is browser ES modules, `tests/` and `tools/` are CommonJS under Node. It runs in CI as `npm run lint`. The whole codebase had four violations, all now fixed.
+- [ ] **Prettier: configured but deliberately not applied.** `.prettierrc.json` matches `.editorconfig` and `npm run format` is ready, but running it rewrites **62 of 80 files** — mostly line re-wrapping over hand-formatted code whose comment layout is load-bearing. That churn would bury real changes in review, so it is a one-command decision left for a moment when the tree is otherwise quiet, not something to slip into a feature branch. `npm run format:check` is not wired into CI for the same reason.
 - [ ] Code coverage from Playwright's V8 coverage API (via `c8`/`monocart-reporter`) if coverage numbers become interesting.
 - [ ] Visual regression snapshots for the piano layout and on-screen keyboards (`toHaveScreenshot`), tolerant thresholds since gradients animate.

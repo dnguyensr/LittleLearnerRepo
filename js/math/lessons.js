@@ -96,7 +96,7 @@ const subtractionIntro = {
             speak(String(eaten), { interrupt: true });
             if (eaten >= goal) {
                 eater.disabled = true;
-            const next = /** @type {HTMLButtonElement|null} */ (container.querySelector('.lesson-next'));
+                const next = /** @type {HTMLButtonElement|null} */ (container.querySelector('.lesson-next'));
                 if (next) next.disabled = false;
                 const choices = /** @type {HTMLElement|null} */ (container.querySelector('.lesson-choices'));
                 if (choices) choices.hidden = false;

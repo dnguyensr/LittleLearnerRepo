@@ -246,7 +246,7 @@ function cardinalityPhrase(n, choice) {
 // change. Saying so is the whole conservation lesson.
 function invariancePhrase(n, choice) {
     const word = NUMBER_WORDS[n];
-    if (n === 1) return `Still one. Moving it did not change how many.`;
+    if (n === 1) return 'Still one. Moving it did not change how many.';
     return `Still ${word}. Moving them did not change how many.`;
 }
 

@@ -69,7 +69,27 @@
         <div id="letters-container">
             <button id="letter-display" type="button" disabled aria-label="Choose a letter first">ABC</button>
             <button id="letter-example" type="button" disabled aria-label="Choose a letter first">Press a letter!</button>
-            <button id="letter-sound-btn" type="button" hidden aria-label="Hear how the letter sounds in the word">👂 Hear the sound</button>
+            <div id="letter-trace" hidden>
+                <svg id="letter-trace-svg" viewBox="-6 -6 112 112" aria-hidden="true" focusable="false">
+                    <path id="letter-guide" class="trace-guide" d=""></path>
+                    <path id="letter-ink" class="trace-ink" d=""></path>
+                </svg>
+                <div id="letter-waypoints" role="group" aria-label="Make the letter"></div>
+            </div>
+            <div id="letter-controls">
+                <button id="letter-sound-btn" type="button" hidden aria-label="Hear how the letter sounds in the word">👂 Hear the sound</button>
+                <button id="letter-make-btn" type="button" hidden>✏️ Make it!</button>
+                <button id="letter-watch-btn" type="button" hidden>👀 Watch me</button>
+            </div>
+        </div>
+        <div id="patterns-container">
+            <div id="pattern-sequence" role="group" aria-label="The pattern"></div>
+            <div class="pattern-prompt-row">
+                <div id="pattern-prompt" role="status" aria-live="polite">What comes next?</div>
+                <button id="pattern-speak-btn" type="button" class="speak-btn" aria-label="Hear the pattern again">🔊</button>
+            </div>
+            <div id="pattern-choices" role="group" aria-label="What comes next?"></div>
+            <button id="pattern-next-btn" type="button" hidden>➡️ Next</button>
         </div>
         <div id="numbers-container">
             <div id="number-display">123</div>
@@ -91,7 +111,9 @@
         </div>
     </main>
 
-    <p id="instructions">Tap the screen or smash the keyboard! 🎉</p>
+    <!-- A polite live region: switching mode replaces the whole screen, and this
+         line is the only thing that says what the new mode is. -->
+    <p id="instructions" role="status" aria-live="polite">Tap the screen or smash the keyboard! 🎉</p>
 
     <div id="osk" aria-hidden="true"></div>
 
@@ -117,6 +139,19 @@
             <div class="settings-row" id="numbers-progress-row">
                 <span>Counting seen: <strong id="numbers-progress-label"></strong></span>
                 <button id="numbers-progress-reset" type="button" class="reset-btn">Start over</button>
+            </div>
+            <label class="settings-row">Patterns stage
+                <select id="set-pattern-stage">
+                    <option value="auto">Learning path</option>
+                    <option value="ab">Two that take turns</option>
+                    <option value="aab">Two, then one</option>
+                    <option value="abb">One, then two</option>
+                    <option value="abc">Three in a row</option>
+                </select>
+            </label>
+            <div class="settings-row" id="patterns-progress-row">
+                <span>Patterns progress: <strong id="patterns-progress-label"></strong></span>
+                <button id="patterns-progress-reset" type="button" class="reset-btn">Start over</button>
             </div>
             <label class="settings-row">Math method
                 <select id="set-math-method">

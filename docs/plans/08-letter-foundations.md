@@ -47,6 +47,12 @@ The studies do not directly compare the exact spoken strings used by this applic
 
 ## Follow-on observations
 
+> The active-practice note below was taken up in
+> [P13 — Letter formation](13-letter-formation.md), but **not** as an
+> initial-sound match: Words already ships that as its first-sound skills, so a
+> second copy here would compete with the curriculum module. P13 builds letter
+> formation instead, which nothing else in the app covers.
+
 - Test the wording with children across the 2½–5 age range; note whether they attend to the letter or mainly name the picture.
 - Consider small local recordings for isolated phonemes. Browser text-to-speech has no phoneme control, so generated approximations such as “buh” cannot be treated as pronunciation-quality audio.
 - If children are ready for active practice, beta-test a no-score initial-sound match such as “Which picture starts like apple?” without changing the exploratory default.
