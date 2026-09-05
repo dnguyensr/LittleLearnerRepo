@@ -61,9 +61,11 @@ test.describe('Keyboard can reach the app', () => {
         // reason given above: after a click in the play area there is nothing
         // tabbable left in the document, so Tab exits to the browser. Where the
         // walk starts is a browser behaviour; that it walks at all is ours.
-        await page.locator('#free-btn').focus();
+        // P16 put the learning modes first, so the walk starts at Letters and
+        // Free Play is now the last mode button rather than the first.
+        await page.locator('#letters-btn').focus();
 
-        expect(await tabUntil(page, id => id === 'patterns-btn')).not.toBeNull();
+        expect(await tabUntil(page, id => id === 'free-btn')).not.toBeNull();
         expect(await tabUntil(page, id => id === 'settings-btn')).not.toBeNull();
     });
 
@@ -188,7 +190,7 @@ test.describe('Keyboard can operate the app', () => {
         await expect(page.locator('.word-tile')).not.toHaveCount(0);
 
         const target = await page.evaluate(async () => {
-            const progress = JSON.parse(localStorage.getItem('lls-words-progress'));
+            const progress = JSON.parse(localStorage.getItem('edamame-words-progress'));
             const path = '/js/words/curriculum.js';
             const curriculum = await import(path);
             const word = curriculum.wordByID(progress.currentActivity.wordId);

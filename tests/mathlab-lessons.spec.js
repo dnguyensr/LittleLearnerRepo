@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const { gotoApp, seedSettings } = require('./helpers');
 
-const PROGRESS_KEY = 'lls-mathlab-progress';
+const PROGRESS_KEY = 'edamame-mathlab-progress';
 const FOUNDATION = [
     'count5', 'subitize', 'count10', 'numeralMatch',
     'addWithin5', 'countOn', 'addWithin10'

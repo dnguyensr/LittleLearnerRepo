@@ -14,7 +14,11 @@ import { wordsMode } from './modes/words.js';
 // device. js/modes/math.js and #math-container are deliberately left in the
 // tree, unreferenced, so the old mode can be re-registered here if Math Lab
 // turns out to regress for a child.
-const modes = [freeplayMode, pianoMode, lettersMode, numbersMode, patternsMode, mathLabMode, wordsMode];
+// Button order, not importance order: the learning modes lead so that a
+// grown-up sizing the app up sees Letters and Numbers first rather than the
+// two play modes. Free Play is still where the app opens (defaultModeId) and
+// still where tapping an active mode's button returns to.
+const modes = [lettersMode, numbersMode, wordsMode, patternsMode, mathLabMode, pianoMode, freeplayMode];
 const defaultModeId = 'free';
 
 const instructions = document.getElementById('instructions');

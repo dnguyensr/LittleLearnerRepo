@@ -1,10 +1,10 @@
-# Little Learner Keys — Technical README
+# Edamame — Technical README
 
 This guide covers local development, repository structure, testing, browser/device profiles, and deployment. For the application overview and live site, see the [main README](README.md).
 
 ## Technical model
 
-Little Learner Keys is a static HTML, CSS, and JavaScript application built with native ES modules. There is no application build step, framework, backend, or runtime package dependency. Files in the repository are served directly by GitHub Pages.
+Edamame is a static HTML, CSS, and JavaScript application built with native ES modules. There is no application build step, framework, backend, or runtime package dependency. Files in the repository are served directly by GitHub Pages.
 
 npm packages are development tools only:
 
@@ -185,12 +185,12 @@ The original `./js/modes/math.js` module is intentionally unregistered. The ship
 
 The app stores data locally in the active browser:
 
-- `lls-settings` contains grown-up settings.
-- `lls-mathlab-progress` contains normalized versioned Math skill and lesson progress.
-- `lls-words-progress` contains normalized Words skill, path, lesson, and interrupted-activity progress.
-- `lls-patterns-progress` contains normalized Patterns type and readiness progress.
-- `lls-numbers-progress` contains the Numbers observation record: which numerals have been demonstrated, counted independently, and re-counted after a rearrangement. It is read only by the grown-up panel and is never written into Math progress.
-- `lls-score-<mode>` contains each scoring module's total.
+- `edamame-settings` contains grown-up settings.
+- `edamame-mathlab-progress` contains normalized versioned Math skill and lesson progress.
+- `edamame-words-progress` contains normalized Words skill, path, lesson, and interrupted-activity progress.
+- `edamame-patterns-progress` contains normalized Patterns type and readiness progress.
+- `edamame-numbers-progress` contains the Numbers observation record: which numerals have been demonstrated, counted independently, and re-counted after a rearrangement. It is read only by the grown-up panel and is never written into Math progress.
+- `edamame-score-<mode>` contains each scoring module's total.
 
 Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`; Words readiness and recovery are covered in `./tests/words.spec.js`; the Numbers record and its two-tap reset are covered in `./tests/numbers.spec.js`.
 
@@ -209,7 +209,7 @@ Each active mode exports a mode controller from `./js/modes/`. Register shipped 
 
 For shared Math contracts, update `./js/types.js` and keep curriculum skills independent from presentation lenses. New guided lessons belong in `./js/math/lessons.js`; readiness and persistence changes belong in `./js/math/ladder.js`.
 
-Words keeps authored phonemes, graphemes, spelling patterns, and word pools in `./js/words/curriculum.js`. Its 5-of-6 readiness history and recoverable activity state live in `./js/words/progress.js`; the interaction shell lives in `./js/modes/words.js`. The lifetime `lls-score-words` value is celebratory history only and must never be migrated into readiness.
+Words keeps authored phonemes, graphemes, spelling patterns, and word pools in `./js/words/curriculum.js`. Its 5-of-6 readiness history and recoverable activity state live in `./js/words/progress.js`; the interaction shell lives in `./js/modes/words.js`. The lifetime `edamame-score-words` value is celebratory history only and must never be migrated into readiness.
 
 Before handing off a change, run at minimum:
 

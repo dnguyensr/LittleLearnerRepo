@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { gotoApp, seedSettings, openSettings } = require('./helpers');
 
-const PROGRESS_KEY = 'lls-mathlab-progress';
+const PROGRESS_KEY = 'edamame-mathlab-progress';
 const FOUNDATION = [
     'count5', 'subitize', 'count10', 'numeralMatch',
     'addWithin5', 'countOn', 'addWithin10'

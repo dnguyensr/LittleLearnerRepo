@@ -253,8 +253,8 @@ test.describe('Math Lab — settings plumbing', () => {
     test('scores under its own key, not the old Math mode\'s', async ({ page }) => {
         await seedSettings(page, { mathLabLevel: 'count10' });
         await page.addInitScript(() => {
-            localStorage.setItem('lls-score-math', '7');
-            localStorage.setItem('lls-score-mathlab', '3');
+            localStorage.setItem('edamame-score-math', '7');
+            localStorage.setItem('edamame-score-mathlab', '3');
         });
         await gotoApp(page);
 

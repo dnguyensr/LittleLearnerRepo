@@ -541,7 +541,7 @@ numberObjects.addEventListener('click', event => {
     if (slot) handleObjectTap(/** @type {HTMLElement} */ (slot));
 });
 
-window.addEventListener('lls-numbers-progress-reset', () => {
+window.addEventListener('edamame-numbers-progress-reset', () => {
     progress = loadNumbersProgress();
     modeledThisSession.clear();
 });

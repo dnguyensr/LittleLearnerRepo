@@ -21,7 +21,7 @@ async function ensureOskVisible(page) {
 // a spec can pin a mode/level without driving the panel.
 async function seedSettings(page, settings) {
     await page.addInitScript(value => {
-        localStorage.setItem('lls-settings', JSON.stringify(value));
+        localStorage.setItem('edamame-settings', JSON.stringify(value));
     }, settings);
 }
 

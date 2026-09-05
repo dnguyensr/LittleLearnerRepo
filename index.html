@@ -3,16 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Little Learner Keys</title>
+    <title>Edamame — letters, numbers, and sounds</title>
+    <meta name="description" content="A free browser app for pre-K through early first grade. Play with letters, numbers, words, patterns, and early math. No accounts, no ads, and nothing collected.">
+
+    <!-- #2e7d32 is not a fresh choice: it is the confirm/active green already
+         validated against white text in tools/contrast.js (see P12). -->
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="./manifest.json">
+
+    <!-- Safari ignores the manifest when adding to the home screen; these are
+         what it reads instead, and apple-touch-icon must be a PNG. -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Edamame">
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+
+    <!-- Open Graph needs absolute URLs, so this is the one place the deployed
+         origin is hardcoded. Everything the app actually loads stays relative. -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Edamame">
+    <meta property="og:description" content="Letters, numbers, and sounds to play with — a free learning app for pre-K through early first grade.">
+    <meta property="og:image" content="https://dnguyensr.github.io/edamame-play/assets/icon-512.png">
+    <meta property="og:url" content="https://dnguyensr.github.io/edamame-play/">
+
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <header id="top-bar">
         <div id="title-block">
-            <h1 id="app-title">🎹 Little Learner Keys</h1>
-            <p id="tagline">The marginally educational keyboard smasher</p>
+            <h1 id="app-title">🫛 Edamame</h1>
+            <p id="tagline">Letters, numbers, and sounds to play with</p>
         </div>
         <div class="top-buttons">
+            <!-- P16 tried moving this down next to the board it opens. It cost
+                 ~54px of vertical space and broke the mobile-Safari fit tests
+                 for Numbers and Math Lab, so it stays here: it already sits
+                 between the modes and the grown-up controls rather than among
+                 them. See docs/plans/16-rebrand-edamame.md. -->
             <button id="keyboard-btn" type="button" class="top-btn" aria-pressed="false" aria-label="Toggle on-screen keyboard">⌨️<span class="btn-label"> Keyboard</span></button>
             <button id="fullscreen-btn" type="button" class="top-btn" aria-label="Fullscreen">🖥️<span class="btn-label"> Fullscreen</span></button>
             <button id="settings-btn" type="button" class="top-btn" aria-label="Grown-up settings" aria-controls="settings-panel" aria-expanded="false">⚙️<span class="btn-label"> Grown-ups</span></button>
@@ -213,8 +241,8 @@
         if (location.protocol === 'file:') {
             document.addEventListener('DOMContentLoaded', function () {
                 document.body.innerHTML = '<div id="file-protocol-help">'
-                    + '<h1>🎹 Almost there!</h1>'
-                    + '<p>Little Learner Keys needs a web server. Browsers block ES modules '
+                    + '<h1>🫛 Almost there!</h1>'
+                    + '<p>Edamame needs a web server. Browsers block ES modules '
                     + 'opened straight from a <code>file://</code> path, so double-clicking '
                     + '<code>index.html</code> cannot work.</p>'
                     + '<p>From the repo root, run:</p>'

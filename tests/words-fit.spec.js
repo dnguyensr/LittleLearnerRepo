@@ -61,7 +61,7 @@ test.describe('Words stage layout and accessibility', () => {
                 'firstSoundsContinuous', 'firstSoundsStops', 'finalSounds', 'segmentSounds',
                 'missingLetter', 'continuousCvc', 'shortVowelCvc'
             ]) skills[skill] = { recentIndependent: [true, true, true, true, true, true], mastered: true };
-            localStorage.setItem('lls-words-progress', JSON.stringify({
+            localStorage.setItem('edamame-words-progress', JSON.stringify({
                 version: 1, currentSkill: 'shortVowelCvc', selectedPath: 'soundBuilding',
                 currentActivity: null, skills,
                 lessons: {

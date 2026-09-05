@@ -472,7 +472,7 @@ onSettingChange(key => {
 // The settings panel clears stored progress via ladder.js and announces it
 // with this event (importing the mode from settings.js would be a cycle). If
 // the child is mid-session behind the panel, re-deal from the bottom rung.
-window.addEventListener('lls-mathlab-progress-reset', () => {
+window.addEventListener('edamame-mathlab-progress-reset', () => {
     progress = loadProgress();
     if (container.classList.contains('active')) newProblem();
 });
@@ -480,7 +480,7 @@ window.addEventListener('lls-mathlab-progress-reset', () => {
 /** @type {Mode} */
 export const mathLabMode = {
     // The id stays 'mathlab' even though it now presents as plain "Math": it
-    // keys the saved score (lls-score-mathlab) and the ladder progress, and
+    // keys the saved score (edamame-score-mathlab) and the ladder progress, and
     // renaming it would throw away every child's climbing.
     id: 'mathlab',
     label: 'Math',

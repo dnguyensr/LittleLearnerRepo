@@ -25,7 +25,7 @@ test.describe('Letter names are spoken, not described', () => {
 
     test('Letters phonics setting emphasizes the sound relationship', async ({ page }) => {
         await page.addInitScript(() => {
-            localStorage.setItem('lls-settings', JSON.stringify({ phonics: true }));
+            localStorage.setItem('edamame-settings', JSON.stringify({ phonics: true }));
         });
         await gotoApp(page);
         await page.locator('#letters-btn').click();

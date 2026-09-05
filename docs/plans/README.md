@@ -1,6 +1,6 @@
-# Little Learner Keys — Roadmap
+# Edamame — Roadmap
 
-Little Learner Keys is a GitHub Pages web app for pre-K through 1st grade. It is a plain-ES-module app with Free Play, Piano, Letters, Numbers, Math, and Words modes:
+Edamame is a GitHub Pages web app for pre-K through 1st grade. It is a plain-ES-module app with Free Play, Piano, Letters, Numbers, Math, and Words modes:
 
 - **Free Play** — keyboard/touch play with tones and visual effects.
 - **Piano** — touch and physical-key piano.
@@ -13,7 +13,7 @@ Touch input, ES modules, responsive layouts, and automated browser coverage are 
 
 ## Priorities
 
-P1–P3 and the core of P4–P15 are shipped; each linked plan records remaining follow-up work.
+P1–P3 and the core of P4–P16 are shipped; each linked plan records remaining follow-up work.
 
 | Priority | Plan | Why this order |
 | --- | --- | --- |
@@ -32,6 +32,7 @@ P1–P3 and the core of P4–P15 are shipped; each linked plan records remaining
 | P13 | [Letter formation](13-letter-formation.md) | **Implemented.** Letters gains the constructive activity it lacked: the child makes the letter by tapping numbered waypoints along its strokes, in handwriting order. Deliberately not the initial-sound match P8 proposed — Words already ships that. |
 | P14 | [Patterns](14-patterns.md) | **Implemented.** A new tap-only mode for the one pre-K mathematical skill nothing in the app touched: noticing a repeating unit and extending it. A choice that does not fit is never marked wrong — the row is read again and the choice stays open. |
 | P15 | [Keyboard access](15-keyboard-access.md) | **Implemented.** Nothing in the play area can be reached or activated by a keyboard — the app swallows every keydown on purpose, for good kiosk reasons. Resolves the conflict by routing on focus rather than compromising either side. |
+| P16 | [Rebrand to Edamame](16-rebrand-edamame.md) | **Implemented.** The name still sold a keyboard smasher while eight learning modes shipped behind it. Renamed the product, added the favicon/manifest/meta identity that never existed, and led the mode buttons with Letters and Numbers. The `lls-` storage prefix is renamed to `edamame-` in the same pass, taken now because pre-release was the last moment it was free. Moving the keyboard toggle out of the top bar was tried and reverted: it cost vertical space the child's activity needs. |
 
 ## Conventions
 

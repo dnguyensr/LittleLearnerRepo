@@ -10,7 +10,7 @@ import {
     clearPatternsProgress, describePatternsProgress, loadPatternsProgress
 } from './patterns/progress.js';
 
-const STORAGE_KEY = 'lls-settings';
+const STORAGE_KEY = 'edamame-settings';
 // mathTier has no row in the panel any more: Math Lab took over as the math
 // mode, so it is only read by the unregistered js/modes/math.js. It remains in
 // the stored contract so re-registering that legacy mode would preserve its
@@ -184,7 +184,7 @@ export function initSettingsUI() {
             return;
         }
         clearProgress();
-        window.dispatchEvent(new CustomEvent('lls-mathlab-progress-reset'));
+        window.dispatchEvent(new CustomEvent('edamame-mathlab-progress-reset'));
         refreshProgressRow();
     });
 
@@ -195,7 +195,7 @@ export function initSettingsUI() {
             return;
         }
         clearWordsProgress();
-        window.dispatchEvent(new CustomEvent('lls-words-progress-reset'));
+        window.dispatchEvent(new CustomEvent('edamame-words-progress-reset'));
         refreshProgressRow();
     });
 
@@ -206,7 +206,7 @@ export function initSettingsUI() {
             return;
         }
         clearNumbersProgress();
-        window.dispatchEvent(new CustomEvent('lls-numbers-progress-reset'));
+        window.dispatchEvent(new CustomEvent('edamame-numbers-progress-reset'));
         refreshProgressRow();
     });
 
@@ -217,7 +217,7 @@ export function initSettingsUI() {
             return;
         }
         clearPatternsProgress();
-        window.dispatchEvent(new CustomEvent('lls-patterns-progress-reset'));
+        window.dispatchEvent(new CustomEvent('edamame-patterns-progress-reset'));
         refreshProgressRow();
     });
 

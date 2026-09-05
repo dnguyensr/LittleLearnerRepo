@@ -17,7 +17,7 @@ The curriculum and interaction decisions are grounded in [the early-spelling evi
 - Do not retain the visible-answer interaction as a child-selectable legacy mode.
 - Keep the picture as a meaning cue, but always speak its intended label and audit ambiguous emoji associations.
 - Use text-to-speech for whole words and ordinary prompts. Use small, bundled local clips for isolated phonemes and graphemes so pronunciation does not depend on browser TTS.
-- Preserve `lls-score-words` as a playful lifetime completion total, but never use the old score to infer curriculum readiness.
+- Preserve `edamame-score-words` as a playful lifetime completion total, but never use the old score to infer curriculum readiness.
 
 ## Fresh learner experience
 
@@ -141,7 +141,7 @@ Parent settings gain a Words stage selector with **Learning path** as the defaul
 
 ## Progress storage and compatibility
 
-Add a normalized local-only `lls-words-progress` structure:
+Add a normalized local-only `edamame-words-progress` structure:
 
 ```js
 {
@@ -159,7 +159,7 @@ Add a normalized local-only `lls-words-progress` structure:
 }
 ```
 
-- Preserve the existing `lls-score-words` value as a historical celebration count.
+- Preserve the existing `edamame-score-words` value as a historical celebration count.
 - Do not convert that score or the old session tier into mastery because visible-answer completions did not measure independent encoding.
 - Normalize corrupt, partial, and unknown versions safely.
 - Add a two-step **Start Words Over** action that clears word skill, activity, and lesson progress while retaining other modules.

@@ -171,7 +171,7 @@ conceptual, it has no right answer to type, and it cannot be drilled.
 
 ## Phase 4 — What the grown-up can see
 
-- [x] Persist a small observation record in `lls-numbers-progress`: per numeral,
+- [x] Persist a small observation record in `edamame-numbers-progress`: per numeral,
       whether it has been modeled, counted independently, and re-counted after a
       rearrangement.
 - [x] Surface it in the grown-up panel as a readout, alongside the existing Math

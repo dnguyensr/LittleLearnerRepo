@@ -1,12 +1,13 @@
 {
-  "name": "little-learner-keys",
+  "name": "edamame-play",
   "version": "1.0.0",
   "private": true,
-  "description": "Toddler learning web app for GitHub Pages. No build step; npm is dev tooling only.",
+  "description": "Edamame — early-learning web app for GitHub Pages. No build step; npm is dev tooling only.",
   "scripts": {
     "serve": "node tools/serve.js",
     "typecheck": "tsc -p jsconfig.json",
     "contrast": "node tools/contrast.js",
+    "icons": "node tools/icons.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

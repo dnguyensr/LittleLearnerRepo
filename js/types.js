@@ -221,7 +221,7 @@
 
 /**
  * Persisted Words readiness, path choice, lessons, and interrupted activity.
- * Historical `lls-score-words` is deliberately separate and never migrates
+ * Historical `edamame-score-words` is deliberately separate and never migrates
  * into mastery.
  *
  * @typedef {object} WordsProgress

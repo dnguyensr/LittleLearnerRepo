@@ -5,7 +5,7 @@ import {
 
 /** @typedef {import('../types.js').WordsProgress} WordsProgress */
 
-export const WORDS_PROGRESS_KEY = 'lls-words-progress';
+export const WORDS_PROGRESS_KEY = 'edamame-words-progress';
 export const WORD_MASTERY_WINDOW = 6;
 export const WORD_MASTERY_REQUIRED = 5;
 

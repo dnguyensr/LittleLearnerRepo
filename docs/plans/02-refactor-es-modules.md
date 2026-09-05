@@ -30,7 +30,7 @@ js/data/math-items.js   # mathItems list
 - [x] Introduce a mode-registry pattern: each mode module exports `{ id, label, icon, oskLayout, instructions, activate(), deactivate(), onKey(key, source), onTap?(x, y) }`; `js/main.js` drives activation. The `currentMode`/`learnMode`/`mathMode` boolean tangle is gone.
 - [x] Mode buttons in the top bar are generated from the registry (so P3/P4 modes are one-line additions).
 - [x] `js/input.js` owns all event listeners (physical keys, on-screen keyboard, tap-anywhere) and forwards to the active mode's `onKey`/`onTap`.
-- [x] Use **relative** paths everywhere (`./js/main.js`, `./css/styles.css`) — the Pages site is served from `/LittleLearnerRepo/`, so absolute paths break.
+- [x] Use **relative** paths everywhere (`./js/main.js`, `./css/styles.css`) — the Pages site is served from `/edamame-play/`, so absolute paths break.
 - [x] Add a note to the repo README: ES modules don't load over `file://`; develop with a local static server.
 
 ## Behavior-preserving smoke checklist (run before and after)

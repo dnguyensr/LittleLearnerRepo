@@ -1,10 +1,10 @@
-# Little Learner Keys
+# Edamame
 
-Little Learner Keys is a playful, browser-based learning app for pre-K through early first grade. Children can use a physical keyboard, touchscreen, or the built-in on-screen keyboard to explore letters, numbers, music, spelling, and early math.
+Edamame is a playful, browser-based learning app for pre-K through early first grade. Children can use a physical keyboard, touchscreen, or the built-in on-screen keyboard to explore letters, numbers, music, spelling, and early math.
 
 ## Try it
 
-Open **[Little Learner Keys](https://dnguyensr.github.io/LittleLearnerRepo/)** in a modern browser. Nothing needs to be installed and no account is required.
+Open **[Edamame](https://dnguyensr.github.io/edamame-play/)** in a modern browser. Nothing needs to be installed and no account is required.
 
 For the best experience, turn on sound and use a tablet, phone, or computer with a keyboard. A fullscreen button is available in the app.
 
@@ -41,6 +41,6 @@ Progress and preferences are saved only in that browser's local storage. The app
 
 ## Project information
 
-Little Learner Keys is a static GitHub Pages application. Its current and planned learning work is recorded in the [project roadmap](docs/plans/README.md).
+Edamame is a static GitHub Pages application. Its current and planned learning work is recorded in the [project roadmap](docs/plans/README.md).
 
 Developers and contributors should use the [Technical README](TECHNICAL_README.md) for setup, architecture, testing, browser profiles, and deployment details.

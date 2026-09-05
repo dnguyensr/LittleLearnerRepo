@@ -8,7 +8,7 @@
 // mastery earned in a different module against different evidence would break
 // the contract. A grown-up who wants to act on this pins a Math stage by hand.
 
-export const NUMBERS_PROGRESS_KEY = 'lls-numbers-progress';
+export const NUMBERS_PROGRESS_KEY = 'edamame-numbers-progress';
 
 /** @returns {NumbersProgress} */
 export function emptyNumbersProgress() {

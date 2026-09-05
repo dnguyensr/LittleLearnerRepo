@@ -583,7 +583,7 @@ onSettingChange(key => {
     beginActivity();
 });
 
-window.addEventListener('lls-words-progress-reset', () => {
+window.addEventListener('edamame-words-progress-reset', () => {
     progress = loadWordsProgress();
     activity = null;
     if (active) beginActivity();

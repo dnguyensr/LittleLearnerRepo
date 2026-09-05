@@ -181,7 +181,7 @@ test.describe('Patterns — readiness', () => {
         }
 
         const stored = await page.evaluate(() =>
-            JSON.parse(localStorage.getItem('lls-patterns-progress') || 'null'));
+            JSON.parse(localStorage.getItem('edamame-patterns-progress') || 'null'));
         expect(stored.types.ab.mastered).toBe(true);
         expect(stored.currentType).toBe('aab');
     });
@@ -199,7 +199,7 @@ test.describe('Patterns — readiness', () => {
         }
 
         const stored = await page.evaluate(() =>
-            JSON.parse(localStorage.getItem('lls-patterns-progress') || 'null'));
+            JSON.parse(localStorage.getItem('edamame-patterns-progress') || 'null'));
         expect(stored.types.ab.mastered).toBe(false);
         expect(stored.currentType).toBe('ab');
     });
@@ -228,14 +228,14 @@ test.describe('Patterns — readiness', () => {
         await reset.click();
         await expect(reset).toHaveText('Tap again to erase');
         await reset.click();
-        const stored = await page.evaluate(() => localStorage.getItem('lls-patterns-progress'));
+        const stored = await page.evaluate(() => localStorage.getItem('edamame-patterns-progress'));
         expect(stored).toBeNull();
     });
 
     test('corrupt stored progress normalizes instead of breaking the mode', async ({ page }) => {
         await page.addInitScript(() => {
-            localStorage.setItem('lls-patterns-progress', '{"version":1,"currentType":"nope","types":"broken"}');
-            localStorage.setItem('lls-settings', JSON.stringify({ speech: false }));
+            localStorage.setItem('edamame-patterns-progress', '{"version":1,"currentType":"nope","types":"broken"}');
+            localStorage.setItem('edamame-settings', JSON.stringify({ speech: false }));
         });
         await gotoApp(page);
         await openPatterns(page);

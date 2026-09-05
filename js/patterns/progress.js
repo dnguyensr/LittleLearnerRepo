@@ -6,7 +6,7 @@ import { PATTERN_TYPES } from './curriculum.js';
 // three modules agreeing on what "ready" means is worth more than each one
 // tuning its own threshold, and a grown-up only has to learn the rule once.
 
-export const PATTERNS_PROGRESS_KEY = 'lls-patterns-progress';
+export const PATTERNS_PROGRESS_KEY = 'edamame-patterns-progress';
 export const PATTERN_MASTERY_WINDOW = 6;
 export const PATTERN_MASTERY_REQUIRED = 5;
 

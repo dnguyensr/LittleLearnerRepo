@@ -34,7 +34,7 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // Each scoring mode keeps its own persistent score in localStorage.
 export function setScoreMode(modeId) {
-    scoreStorageKey = `lls-score-${modeId}`;
+    scoreStorageKey = `edamame-score-${modeId}`;
     try {
         score = Number(localStorage.getItem(scoreStorageKey)) || 0;
     } catch (err) {

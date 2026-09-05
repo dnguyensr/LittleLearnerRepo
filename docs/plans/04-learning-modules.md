@@ -41,6 +41,6 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 ## Shared infrastructure
 
 - [x] One `celebrate()` helper in `js/effects.js` used by every scoring module (done in P2).
-- [x] Per-mode score persisted in `localStorage` (`lls-score-<mode>`; survives reloads, no accounts, no network).
+- [x] Per-mode score persisted in `localStorage` (`edamame-score-<mode>`; survives reloads, no accounts, no network).
 - [x] Grown-up settings panel (`⚙️ Grown-ups`, one tap to open): speech on/off, phonics emphasis, and Math/Words presentation and stage controls. Destructive progress resets retain a separate two-tap confirmation. *(volume control and per-module visibility still open)*
 - [x] `js/speech.js` wrapping `speechSynthesis`: cancel on mode switch, prefers an English/child-friendly voice, no-op if unsupported or disabled.

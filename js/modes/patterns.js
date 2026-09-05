@@ -215,7 +215,7 @@ choicesEl.addEventListener('click', event => {
 speakBtn.addEventListener('click', () => readPattern());
 nextBtn.addEventListener('click', () => nextPuzzle());
 
-window.addEventListener('lls-patterns-progress-reset', () => {
+window.addEventListener('edamame-patterns-progress-reset', () => {
     progress = loadPatternsProgress();
     nextPuzzle({ announce: false });
 });

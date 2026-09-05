@@ -52,7 +52,7 @@ export const LEGACY_STAGE = {
     1: 'counting', 2: 'adding10', 3: 'subtracting10', 4: 'twodigit'
 };
 
-const PROGRESS_KEY = 'lls-mathlab-progress';
+const PROGRESS_KEY = 'edamame-mathlab-progress';
 const PATH_IDS = Object.keys(PATHS);
 const LESSON_IDS = Object.values(LESSON_FOR_PATH);
 

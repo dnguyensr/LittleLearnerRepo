@@ -66,7 +66,7 @@ function closeServer(server) {
 
 if (require.main === module) {
     startServer().then(server => {
-        console.log(`Little Learner Keys on http://localhost:${defaultPort}/`);
+        console.log(`Edamame on http://localhost:${defaultPort}/`);
         let closing = false;
         const shutdown = () => {
             if (closing) return;

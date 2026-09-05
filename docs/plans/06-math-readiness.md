@@ -69,7 +69,7 @@ local-only observation protocol.
 
 ## Persistence and compatibility
 
-`lls-mathlab-progress` now stores:
+`edamame-mathlab-progress` now stores:
 
 ```text
 {

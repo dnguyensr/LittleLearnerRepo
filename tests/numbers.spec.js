@@ -512,7 +512,7 @@ test.describe('Number Fun — what the grown-up can see', () => {
         await expect(page.locator('#score-display')).toBeHidden();
 
         const stored = await page.evaluate(() =>
-            JSON.parse(localStorage.getItem('lls-numbers-progress') || 'null'));
+            JSON.parse(localStorage.getItem('edamame-numbers-progress') || 'null'));
         expect(stored.digits['3'].counted).toBe(1);
 
         await page.locator('#settings-btn').click();

@@ -8,7 +8,7 @@ async function openWords(page) {
 
 async function activityData(page) {
     return page.evaluate(async () => {
-        const progress = JSON.parse(localStorage.getItem('lls-words-progress'));
+        const progress = JSON.parse(localStorage.getItem('edamame-words-progress'));
         const curriculumPath = '/js/words/curriculum.js';
         const curriculum = await import(curriculumPath);
         const activity = progress.currentActivity;
@@ -37,11 +37,11 @@ async function solveCurrent(page) {
 
 async function pinStage(page, stage) {
     await page.evaluate(async value => {
-        localStorage.removeItem('lls-words-progress');
+        localStorage.removeItem('edamame-words-progress');
         const settingsPath = '/js/settings.js';
         const settings = await import(settingsPath);
         settings.setSetting('wordStage', value);
-        window.dispatchEvent(new CustomEvent('lls-words-progress-reset'));
+        window.dispatchEvent(new CustomEvent('edamame-words-progress-reset'));
     }, stage);
     await expect(page.locator('#word-container')).toHaveClass(/active/);
 }
@@ -95,7 +95,7 @@ test.describe('Guided Words replacement', () => {
         await expect(page.locator('#word-reveal')).toBeVisible();
         await expect(page.locator('#word-next-actions')).toBeVisible();
         await expect(page.locator('#word-count')).toHaveText('1');
-        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('lls-words-progress')));
+        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('edamame-words-progress')));
         expect(saved.skills.firstSoundsContinuous.recentIndependent).toEqual([false]);
     });
 
@@ -198,7 +198,7 @@ test.describe('Guided Words replacement', () => {
     });
 
     test('the historical Words score is preserved but never used as readiness', async ({ page }) => {
-        await page.evaluate(() => localStorage.setItem('lls-score-words', '41'));
+        await page.evaluate(() => localStorage.setItem('edamame-score-words', '41'));
         await page.locator('#free-btn').click();
         await openWords(page);
         await expect(page.locator('#word-count')).toHaveText('41');
@@ -217,7 +217,7 @@ test.describe('Guided Words replacement', () => {
                 'firstSoundsContinuous', 'firstSoundsStops', 'finalSounds', 'segmentSounds',
                 'missingLetter', 'continuousCvc', 'shortVowelCvc'
             ]) mastered[skill] = { recentIndependent: [true, true, true, true, true, true], mastered: true };
-            localStorage.setItem('lls-words-progress', JSON.stringify({
+            localStorage.setItem('edamame-words-progress', JSON.stringify({
                 version: 1, currentSkill: 'shortVowelCvc', selectedPath: 'soundBuilding',
                 currentActivity: null, skills: mastered,
                 lessons: {
@@ -235,13 +235,13 @@ test.describe('Guided Words replacement', () => {
         await expect(page.locator('#word-paths-btn')).toBeVisible();
         await page.locator('#word-paths-btn').click();
         await page.getByRole('button', { name: /Keep Building/ }).click();
-        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('lls-words-progress')));
+        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('edamame-words-progress')));
         expect(saved.selectedPath).toBe('practice');
         expect(saved.skills.shortVowelCvc.mastered).toBe(true);
     });
 
     test('corrupt progress normalizes safely and Words reset takes two taps', async ({ page }) => {
-        await page.evaluate(() => localStorage.setItem('lls-words-progress', '{bad json'));
+        await page.evaluate(() => localStorage.setItem('edamame-words-progress', '{bad json'));
         await page.reload();
         await expect(page.locator('#free-btn')).toBeVisible();
         await openWords(page);
@@ -251,9 +251,9 @@ test.describe('Guided Words replacement', () => {
         const reset = page.locator('#words-progress-reset');
         await reset.click();
         await expect(reset).toHaveText('Tap again to erase');
-        expect(await page.evaluate(() => localStorage.getItem('lls-words-progress'))).not.toBeNull();
+        expect(await page.evaluate(() => localStorage.getItem('edamame-words-progress'))).not.toBeNull();
         await reset.click();
-        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('lls-words-progress')));
+        const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('edamame-words-progress')));
         expect(saved.currentSkill).toBe('firstSoundsContinuous');
         expect(saved.skills).toEqual({});
     });
@@ -263,7 +263,7 @@ test.describe('Guided Words replacement', () => {
         await page.reload();
         await expect(page.locator('#free-btn')).toBeVisible();
         await page.evaluate(async () => {
-            localStorage.removeItem('lls-words-progress');
+            localStorage.removeItem('edamame-words-progress');
             const settingsPath = '/js/settings.js';
             const settings = await import(settingsPath);
             settings.setSetting('speech', true);
