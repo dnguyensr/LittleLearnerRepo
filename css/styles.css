@@ -77,7 +77,9 @@ button {
     border-radius: 30px;
     color: white;
     cursor: pointer;
-    transition: all 0.3s ease;
+    /* Not `all`: that includes outline-width, so the focus ring animated in
+       from nothing instead of appearing. A focus indicator has to be instant. */
+    transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
     white-space: nowrap;
 }
 
@@ -286,7 +288,8 @@ button {
 
 .math-emoji {
     display: inline-block;
-    transition: all 0.3s ease;
+    /* See .top-btn: `all` would animate the focus ring in. */
+    transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
 }
 
 .math-emoji.eaten {
@@ -1671,6 +1674,41 @@ button.btb-rod:active {
     color: #b00;
     font-weight: bold;
     pointer-events: none;
+}
+
+/* ---------- Focus (P15) ----------
+   One ring, used everywhere, so "the keyboard is here" always looks the same.
+   These selectors are the ones that had no focus style at all until keyboard
+   navigation could actually reach them. The per-module rings defined elsewhere
+   already match this pattern and are left alone. */
+
+.top-btn:focus-visible,
+.osk-key:focus-visible,
+.piano-key:focus-visible,
+.speak-btn:focus-visible,
+.reset-btn:focus-visible,
+.math-path-card:focus-visible,
+.lab-check:focus-visible,
+.eater-btn:focus-visible,
+.tf-cell:focus-visible,
+.nl-tick:focus-visible,
+.ol-stop:focus-visible,
+.ol-hop:focus-visible,
+.dot:focus-visible,
+.nb-part:focus-visible,
+#letter-make-btn:focus-visible,
+#letter-watch-btn:focus-visible,
+#pattern-speak-btn:focus-visible,
+#settings-card select:focus-visible,
+#settings-card input:focus-visible {
+    outline: 4px solid #ffeb3b;
+    outline-offset: 3px;
+}
+
+/* A piano key is tall and narrow and sits flush against its neighbours, so an
+   outset ring would be clipped by the next key. */
+.piano-key:focus-visible {
+    outline-offset: -6px;
 }
 
 /* ---------- Patterns ---------- */

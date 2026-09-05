@@ -13,7 +13,7 @@ Touch input, ES modules, responsive layouts, and automated browser coverage are 
 
 ## Priorities
 
-P1–P3 and the core of P4–P10 are shipped; each linked plan records remaining follow-up work. P11 is the active plan.
+P1–P3 and the core of P4–P15 are shipped; each linked plan records remaining follow-up work.
 
 | Priority | Plan | Why this order |
 | --- | --- | --- |
@@ -31,6 +31,7 @@ P1–P3 and the core of P4–P10 are shipped; each linked plan records remaining
 | P12 | [Readable contrast](12-readable-contrast.md) | **Implemented.** The random background palette was failing 83 of 90 white-text contrast combinations, several at 1.2:1. Deeper gradients, dark panel surfaces instead of white washes, a deterministic contrast tool because axe cannot judge text over a gradient, and a polite live region for mode changes. |
 | P13 | [Letter formation](13-letter-formation.md) | **Implemented.** Letters gains the constructive activity it lacked: the child makes the letter by tapping numbered waypoints along its strokes, in handwriting order. Deliberately not the initial-sound match P8 proposed — Words already ships that. |
 | P14 | [Patterns](14-patterns.md) | **Implemented.** A new tap-only mode for the one pre-K mathematical skill nothing in the app touched: noticing a repeating unit and extending it. A choice that does not fit is never marked wrong — the row is read again and the choice stays open. |
+| P15 | [Keyboard access](15-keyboard-access.md) | **Implemented.** Nothing in the play area can be reached or activated by a keyboard — the app swallows every keydown on purpose, for good kiosk reasons. Resolves the conflict by routing on focus rather than compromising either side. |
 
 ## Conventions
 

@@ -3,7 +3,12 @@ import { speak, speakEach } from '../speech.js';
 // Reusable tap-first widgets, built as DOM + CSS (no canvas, no libraries).
 // Every tappable part is a real <button>: js/input.js skips play-area taps that
 // land on a button, so widget taps never double-fire, and the widgets stay
-// operable by keyboard and screen reader for free.
+// carry their own role and name for a screen reader.
+//
+// A real button is what makes keyboard operation *possible*; it is not what
+// makes it work. Until P15 the app swallowed every keydown, so none of these
+// could be reached or activated by a keyboard at all — js/input.js now routes
+// on focus (docs/plans/15-keyboard-access.md).
 //
 // Phase A ships the counter widgets the classical method needs; Phase C adds
 // the Common Core set (ten frame, number line, open number line, base-ten

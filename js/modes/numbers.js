@@ -165,8 +165,9 @@ function prepareSet(n, choice) {
 
 /**
  * One object. A real <button>, so js/input.js skips it when routing play-area
- * taps (no double-fire) and it is keyboard- and screen-reader-operable for
- * free.
+ * taps (no double-fire) and it carries its own role and name for a screen
+ * reader. Reaching and activating it with a keyboard takes the focus routing in
+ * js/input.js as well (docs/plans/15-keyboard-access.md).
  */
 function makeSlot(index, choice) {
     const slot = document.createElement('button');
