@@ -15,14 +15,36 @@ export function emptyNumbersProgress() {
     return { version: /** @type {1} */ (1), digits: {} };
 }
 
+function observationCount(value) {
+    const count = Number(value);
+    return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+}
+
+function normalizeDigits(value) {
+    const digits = {};
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return digits;
+
+    for (const [key, entry] of Object.entries(value)) {
+        if (!/^[0-9]$/.test(key) || !entry || typeof entry !== 'object' || Array.isArray(entry)) {
+            continue;
+        }
+        digits[key] = {
+            modeled: entry.modeled === true,
+            counted: observationCount(entry.counted),
+            conserved: observationCount(entry.conserved)
+        };
+    }
+    return digits;
+}
+
 /** @returns {NumbersProgress} */
 export function loadNumbersProgress() {
     try {
         const stored = JSON.parse(localStorage.getItem(NUMBERS_PROGRESS_KEY) || 'null');
-        if (!stored || stored.version !== 1 || typeof stored.digits !== 'object') {
+        if (!stored || stored.version !== 1) {
             return emptyNumbersProgress();
         }
-        return { version: 1, digits: stored.digits || {} };
+        return { version: 1, digits: normalizeDigits(stored.digits) };
     } catch (err) {
         return emptyNumbersProgress();
     }
@@ -43,7 +65,8 @@ export function clearNumbersProgress() {
 
 function entryFor(progress, digit) {
     const key = String(digit);
-    if (!progress.digits[key]) {
+    const entry = progress.digits[key];
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
         progress.digits[key] = { modeled: false, counted: 0, conserved: 0 };
     }
     return progress.digits[key];

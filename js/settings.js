@@ -96,10 +96,10 @@ export function initSettingsUI() {
 
     const methodNote = document.getElementById('math-method-note');
     const methodNotes = {
-        singapore: 'Build it, see it, then write it.',
-        classical: 'Count, practise facts, and use column math.',
+        singapore: 'Use objects and pictures, then connect them to numbers.',
+        classical: 'Practise with countable objects and written columns.',
         commoncore: 'Use ten frames, number lines, and blocks.',
-        mix: 'Rotate through all three ways of seeing the same skill.'
+        mix: 'Rotate through the three ways of seeing the same skill.'
     };
     const countingNote = document.getElementById('numbers-counting-note');
     const countingNotes = {

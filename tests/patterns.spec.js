@@ -96,11 +96,14 @@ test.describe('Patterns', () => {
     });
 
     test('the right choice fills the slot and completes the row', async ({ page }) => {
+        await expect(page.locator('#score-display')).toBeHidden();
         const next = await tapCorrect(page);
         await expect(page.locator('#pattern-slot')).toHaveText(next);
         await expect(page.locator('#pattern-slot')).toHaveClass(/is-filled/);
         await expect(page.locator('#pattern-prompt')).toHaveText('It keeps going!');
         await expect(page.locator('#pattern-next-btn')).toBeVisible();
+        await expect(page.locator('#score-display')).toBeHidden();
+        expect(await page.evaluate(() => localStorage.getItem('edamame-score-patterns'))).toBeNull();
     });
 
     // The central promise of this mode.

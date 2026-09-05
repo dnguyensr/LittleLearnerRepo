@@ -11,14 +11,15 @@ Math separates three concerns:
 
 - **Skills:** a shared developmental sequence and three reversible paths.
 - **Instruction:** short concrete → visual → symbolic lessons at new-concept gates.
-- **Presentation:** Singapore mastery, Traditional practice, Visual strategies,
-  or Balanced mix. The stored ids remain `singapore`, `classical`,
+- **Presentation:** Build, See & Write; Practice & Columns; Frames & Number
+  Lines; or Variety. The stored ids remain `singapore`, `classical`,
   `commoncore`, and `mix` for compatibility.
 
-Singapore mastery is the default for new installations. Existing stored method
-choices are preserved. The term “Common Core” is no longer presented as a
-teaching method; Common Core is a standards framework, while the renderer in
-this app is a collection of visual strategies.
+Build, See & Write is the default for new installations. Existing stored method
+choices are preserved. National programs and standards no longer name
+child-facing presentation choices: Common Core is a standards framework, while
+the corresponding renderer in this app is a collection of frames, number
+lines, and blocks.
 
 ## Readiness graph
 

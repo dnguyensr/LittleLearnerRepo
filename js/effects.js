@@ -122,13 +122,16 @@ export function setScoreVisible(visible) {
     scoreDisplay.classList.toggle('active', visible);
 }
 
-export function celebrate() {
-    score++;
-    scoreCountEl.textContent = String(score);
-    if (scoreStorageKey) {
-        try {
-            localStorage.setItem(scoreStorageKey, String(score));
-        } catch (err) { /* ignore */ }
+/** Keep the sensory celebration available to score-free learning modules. */
+export function celebrate({ scorePoint = true } = {}) {
+    if (scorePoint) {
+        score++;
+        scoreCountEl.textContent = String(score);
+        if (scoreStorageKey) {
+            try {
+                localStorage.setItem(scoreStorageKey, String(score));
+            } catch (err) { /* ignore */ }
+        }
     }
 
     playSuccessSound();

@@ -100,7 +100,7 @@ function peekButton() {
 /** @type {MathMethod} */
 export const commonCoreMethod = {
     id: 'commoncore',
-    label: 'Visual strategies',
+    label: 'Frames & Number Lines',
 
     render(problem, container) {
         container.innerHTML = '';

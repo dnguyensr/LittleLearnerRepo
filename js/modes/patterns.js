@@ -1,5 +1,5 @@
 import { playKeyTone } from '../audio.js';
-import { celebrate, setScoreVisible, setScoreMode, randomBackground } from '../effects.js';
+import { celebrate, setScoreVisible, randomBackground } from '../effects.js';
 import { speak, speakPaced, cancelSpeech } from '../speech.js';
 import { getSetting } from '../settings.js';
 import { closestEl } from '../dom.js';
@@ -168,7 +168,7 @@ function acceptAnswer(btn) {
     const result = recordPatternResult(progress, puzzle.type.id, !usedHelp);
     savePatternsProgress(progress);
 
-    celebrate();
+    celebrate({ scorePoint: false });
     promptEl.textContent = 'It keeps going!';
     nextBtn.hidden = false;
 
@@ -232,8 +232,7 @@ export const patternsMode = {
 
     activate() {
         container.classList.add('active');
-        setScoreMode('patterns');
-        setScoreVisible(true);
+        setScoreVisible(false);
         progress = loadPatternsProgress();
         nextPuzzle();
     },

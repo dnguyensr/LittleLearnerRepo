@@ -76,7 +76,7 @@ function resetLetter() {
 
 /* ---------- Making the letter (P13) ----------
  *
- * A handwriting worksheet, made tappable. The letter's stroke paths come from
+ * A guided stroke-order path, made tappable. The letter paths come from
  * js/data/letter-paths.js as waypoints in a 0-100 box; the child taps them in
  * order and the letter draws itself under their finger.
  *
@@ -211,7 +211,7 @@ function completeTrace() {
     traceWrap.classList.add('is-complete');
     createBubble();
     randomStar();
-    speak(`You made ${spokenLetter(currentInfo.letter)}!`);
+    speak(`You followed the path for ${spokenLetter(currentInfo.letter)}!`);
 }
 
 function handleDotTap(dot) {
@@ -293,7 +293,7 @@ function showLetter(letter) {
     const traceable = !!pathFor(info.letter);
     makeBtn.hidden = !traceable;
     watchBtn.hidden = true;
-    makeBtn.setAttribute('aria-label', `Make the letter ${info.letter}`);
+    makeBtn.setAttribute('aria-label', `Follow the stroke path for ${info.letter}`);
 
     playKeyTone(letter);
     // Names remain in both variants: combined name-and-sound instruction has
@@ -325,7 +325,7 @@ makeBtn.addEventListener('click', () => {
     if (!currentInfo) return;
     watchBtn.hidden = false;
     watchBtn.setAttribute('aria-label', `Watch how ${currentInfo.letter} is made`);
-    // The first visit to a letter is modelled; after that, tapping Make it
+    // The first visit to a letter is modelled; after that, tapping Follow
     // goes straight to the child's turn.
     if (modelledThisSession.has(currentInfo.letter)) {
         startTracing();
@@ -348,7 +348,7 @@ export const lettersMode = {
     label: 'Letters',
     icon: '🔤',
     oskLayout: 'letters',
-    instructions: 'Press a letter, hear it, then make it yourself! 🔤',
+    instructions: 'Press a letter, hear it, then follow its stroke path! 🔤',
 
     activate() {
         lettersContainer.classList.add('active');

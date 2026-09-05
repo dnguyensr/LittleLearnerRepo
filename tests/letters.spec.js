@@ -195,6 +195,6 @@ test.describe('Letter formation — what it says', () => {
 
         // "ell" is how js/data/letters.js spells L for the speech engine, so the
         // engine names the letter instead of describing the character.
-        expect((await spokenTexts(page)).at(-1)).toBe('You made ell!');
+        expect((await spokenTexts(page)).at(-1)).toBe('You followed the path for ell!');
     });
 });

@@ -127,7 +127,7 @@ function columnSum(problem) {
 /** @type {MathMethod} */
 export const classicalMethod = {
     id: 'classical',
-    label: 'Traditional practice',
+    label: 'Practice & Columns',
 
     render(problem, container) {
         container.innerHTML = '';

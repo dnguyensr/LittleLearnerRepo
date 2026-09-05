@@ -14,7 +14,7 @@ For the best experience, turn on sound and use a tablet, phone, or computer with
 | --- | --- |
 | **Free Play** | Press or tap keys to make sounds, colors, and celebratory effects. |
 | **Piano** | Play an on-screen piano with touch or mapped physical keys. |
-| **Letters** | See and hear letter names or phonics sounds with familiar examples, then make the letter by tapping its strokes in handwriting order. |
+| **Letters** | See and hear letter names or phonics sounds with familiar examples, then follow the letter's stroke path in handwriting order. |
 | **Numbers** | Connect numerals with spoken numbers and visible quantities. The app counts the first set out loud, then hands the counting over: children touch each object themselves, in any order, and can rearrange a set to discover that moving things does not change how many there are. The same quantity can also be shown as dots or in a ten frame. |
 | **Math** | Build counting and addition readiness, then choose continued addition, subtraction, or Big Addition paths. Interactive objects, visual strategies, and optional guided lessons support new concepts. |
 | **Patterns** | Watch a repeating pattern and choose what comes next. Tap-only — no keyboard and no reading. A choice that does not fit is never marked wrong; the pattern is simply read again. |

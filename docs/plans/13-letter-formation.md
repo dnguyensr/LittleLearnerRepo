@@ -1,7 +1,10 @@
 # P13 — Letter formation: making the letter, not picking it
 
-> **Status (2026-09-03): Implemented.** Extends the shipped Letters introduction in
+> **Status (2026-09-05): Implemented as guided stroke-order practice.** It
+> extends the shipped Letters introduction in
 > [08-letter-foundations.md](08-letter-foundations.md) rather than replacing it.
+> Because the child taps waypoints and the app draws the segments, the shipped
+> interaction does not claim to be handwriting practice.
 
 ## Why this, and why not the obvious thing
 
@@ -16,7 +19,8 @@ The real gap is the same one Numbers had before
 shows a letter and offers three replay buttons. Everything on screen is the app
 talking.
 
-The move is **formation** — the child makes the letter. It is the one alphabet
+The move is **stroke-order practice** — the child follows how the letter is
+formed. It is the one alphabet
 skill that is constructive rather than selective, it is not covered anywhere in
 the app, and it does not overlap Words. "Which of these four is a B?" would be a
 recognition drill; drawing a B is not a drill at all, because there is nothing to
@@ -43,7 +47,9 @@ decisions derived from these, not prescriptions from any of them.
 
 ## The interaction
 
-A handwriting worksheet, made tappable.
+A guided stroke path, made tappable. It introduces order and direction but does
+not substitute for producing a letter with a pencil, stylus, or continuous
+finger movement.
 
 - The letter appears large as a faint outline with numbered waypoints along its
   strokes, in the order a hand would draw them.
@@ -53,7 +59,7 @@ A handwriting worksheet, made tappable.
   than corrected after the fact.
 - Each tap draws the segment from the previous waypoint, so the letter builds up
   under the child's finger.
-- Finishing draws the whole letter solid and says so: "You made B!"
+- Finishing draws the whole letter solid and says, “You followed the path for B!”
 - `👀 Watch me` animates the full path first. On a letter's first visit the
   animation plays automatically, then hands over — the same rule Numbers uses.
 - Nothing is scored, nothing can be wrong, and the activity is always

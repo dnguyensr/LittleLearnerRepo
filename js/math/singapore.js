@@ -110,7 +110,7 @@ function combineButton(label, which) {
 /** @type {MathMethod} */
 export const singaporeMethod = {
     id: 'singapore',
-    label: 'Singapore mastery',
+    label: 'Build, See & Write',
 
     render(problem, container, session) {
         container.innerHTML = '';

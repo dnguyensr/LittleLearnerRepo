@@ -538,3 +538,21 @@ test.describe('Number Fun — what the grown-up can see', () => {
         await expect(page.locator('#numbers-progress-label')).toHaveText('nothing yet');
     });
 });
+
+test('malformed nested Numbers progress cannot stop app startup', async ({ page }) => {
+    await page.addInitScript(() => {
+        localStorage.setItem('edamame-numbers-progress', JSON.stringify({
+            version: 1,
+            digits: {
+                4: null,
+                7: { modeled: true, counted: '2.9', conserved: -4 },
+                12: { modeled: true, counted: 99, conserved: 99 }
+            }
+        }));
+    });
+
+    await gotoApp(page);
+    await expect(page.locator('#free-btn')).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('#settings-btn').click();
+    await expect(page.locator('#numbers-progress-label')).toHaveText('counted alone: 7');
+});

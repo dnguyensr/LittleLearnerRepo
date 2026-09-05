@@ -190,7 +190,8 @@ The app stores data locally in the active browser:
 - `edamame-words-progress` contains normalized Words skill, path, lesson, and interrupted-activity progress.
 - `edamame-patterns-progress` contains normalized Patterns type and readiness progress.
 - `edamame-numbers-progress` contains the Numbers observation record: which numerals have been demonstrated, counted independently, and re-counted after a rearrangement. It is read only by the grown-up panel and is never written into Math progress.
-- `edamame-score-<mode>` contains each scoring module's total.
+- `edamame-score-<mode>` contains each scoring module's total. Math and Words
+  score; Letters, Numbers, and Patterns deliberately do not.
 
 Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`; Words readiness and recovery are covered in `./tests/words.spec.js`; the Numbers record and its two-tap reset are covered in `./tests/numbers.spec.js`.
 

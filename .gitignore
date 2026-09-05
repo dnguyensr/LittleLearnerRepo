@@ -19,4 +19,5 @@ Desktop.ini
 
 # Editors
 .idea/
+.claude/
 *.swp
