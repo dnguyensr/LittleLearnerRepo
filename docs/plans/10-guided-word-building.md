@@ -1,6 +1,6 @@
 # P10 — Guided Word Building
 
-> **Status (2026-08-30): Implemented; pre-release observation pending.** The sound-led interaction now directly replaces the visible-answer length tiers. Curriculum, readiness, recovery, paths, parent controls, later patterns, Word Stars, mobile fit, axe coverage, and teardown-safe tests are implemented. Reviewed repository-local human phoneme recordings and the three observed-child sessions remain release gates; the current build safely falls back to authored speech cues and documents that limitation.
+> **Status (2026-09-05): Implemented; batched pre-release observation pending.** The sound-led interaction now directly replaces the visible-answer length tiers. Curriculum, readiness, recovery, paths, parent controls, later patterns, Word Stars, mobile fit, axe coverage, and teardown-safe tests are implemented. Reviewed repository-local human phoneme recordings remain a release gate; Words observation is consolidated into the single [P18 release-candidate round](18-batched-child-observation.md). The current build safely falls back to authored speech cues and documents that limitation.
 
 ## Goal
 

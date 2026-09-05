@@ -1,10 +1,12 @@
 # Guided Learn — caregiver observation checklist
 
-Use one checklist for each observed lesson session. Do not record the child's
-name, voice, image, or other personal data.
+Use this short sheet only within the consolidated
+[P18 release-candidate round](18-batched-child-observation.md), not as a request
+for separate testing after each lesson. Do not record the child's name, voice,
+image, or other personal data.
 
 - Date/device: ____________________
-- Lesson: First Addition / Subtraction / Big Addition
+- Lesson: Compare Groups / First Addition / Subtraction / Big Addition
 - Approximate readiness band: pre-K / kindergarten / first grade
 - Did the child understand what to tap without reading? Yes / Not yet
 - Did the child complete each guided action? Yes / Not yet
@@ -16,9 +18,11 @@ name, voice, image, or other personal data.
 
 ## Observation target
 
-For every new or materially changed lesson, seek at least three sessions in which
-appropriately ready children complete it with no more than one adult prompt,
-recover from a wrong action, make an intentional path choice, and encounter no
-navigation dead end. The current first-addition, subtraction, and place-value
-lessons are part of the main Math path; this checklist now guides continued
-refinement rather than a runtime beta switch.
+Across the one P18 round, seek at least three usable observations for each new or
+materially changed lesson. Distribute lessons across children rather than asking
+each child to complete the whole product. Appropriately ready children should
+complete a lesson with no more than one adult prompt, recover from a wrong action,
+make an intentional choice, and encounter no navigation dead end. Comparison,
+first-addition, subtraction, and place-value lessons are part of the main Math
+path; the checklist guides one consolidated refinement pass rather than a runtime
+beta switch or repeated testing rounds.

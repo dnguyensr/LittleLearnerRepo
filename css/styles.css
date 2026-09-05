@@ -498,6 +498,96 @@ button {
     background: #b3261e;
 }
 
+[data-lesson-compare].try-again {
+    animation: shake 0.5s ease;
+    background: #b3261e;
+}
+
+.lesson-talk-wrap {
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+}
+
+.lesson-talk {
+    background: rgba(0,0,0,0.28);
+    font-size: clamp(0.8rem, 2.4vw, 1rem);
+}
+
+.lesson-talk-prompt {
+    max-width: min(88vw, 620px);
+    font-size: clamp(0.78rem, 2.3vw, 1rem);
+    line-height: 1.25;
+    text-align: center;
+}
+
+.comparison-board {
+    width: min(94vw, 720px);
+}
+
+.comparison-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(8px, 2vw, 18px);
+    width: 100%;
+}
+
+.comparison-group,
+.comparison-same {
+    border: 3px solid white;
+    border-radius: 20px;
+    background: rgba(0,0,0,0.28);
+    color: white;
+    font: inherit;
+}
+
+button.comparison-group {
+    min-height: 88px;
+    padding: clamp(6px, 1.5vw, 12px);
+    cursor: pointer;
+}
+
+.comparison-side {
+    display: block;
+    margin-bottom: 5px;
+    font-size: clamp(0.75rem, 2.3vw, 1rem);
+    font-weight: bold;
+}
+
+.comparison-slots {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(22px, 1fr));
+    gap: 3px;
+}
+
+.comparison-slot {
+    display: grid;
+    place-items: center;
+    min-width: 22px;
+    min-height: 36px;
+    border: 2px solid rgba(255,255,255,0.38);
+    border-radius: 9px;
+    font-size: clamp(1rem, min(5vw, 4vh), 2.2rem);
+}
+
+.comparison-slot:not(.filled) {
+    background: rgba(0,0,0,0.12);
+}
+
+.comparison-same {
+    min-width: 150px;
+    min-height: 48px;
+    padding: 6px 16px;
+    cursor: pointer;
+}
+
+.comparison-group.selected,
+.comparison-same.selected {
+    outline: 5px solid #ffeb3b;
+    outline-offset: 2px;
+    background: rgba(0,0,0,0.5);
+}
+
 #mathlab-question {
     font-size: clamp(0.95rem, min(3.2vw, 2.2vh), 1.6rem);
     color: rgba(255,255,255,0.9);

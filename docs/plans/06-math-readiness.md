@@ -1,9 +1,10 @@
 # Math: readiness paths and guided learning
 
-> **Status (2026-09-05):** Math Lab and its first-addition, subtraction, and
-> place-value Guided Learn lessons ship as one main Math experience. The former
-> beta preference is ignored for compatibility, so an older stored “off” value
-> cannot hide the instruction from a child entering a new relationship or path.
+> **Status (2026-09-05):** Math Lab and its comparison, first-addition,
+> subtraction, and place-value Guided Learn lessons ship as one main Math
+> experience. The former beta preference is ignored for compatibility, so an
+> older stored “off” value cannot hide instruction from a child entering a new
+> relationship or path.
 
 ## Product model
 
@@ -35,9 +36,10 @@ The shared foundation is:
 2. Quantity recognition (subitizing)
 3. Counting to 10
 4. Numeral-to-quantity matching
-5. Adding to 5
-6. Counting on
-7. Adding to 10
+5. Comparing groups as more, fewer, or the same
+6. Adding to 5
+7. Counting on
+8. Adding to 10
 
 After addition to 10 is ready in recent practice, the child chooses:
 
@@ -66,14 +68,16 @@ field name remains `mastered` until a versioned migration removes it.
 
 ## Guided Learn lessons
 
-The first automatic entry into addition within 5, subtraction, or Big Addition
-opens a three-scene inline lesson. Lesson scenes are tap-first, persist across
-reloads, award no score, and may be replayed through **Learn Together** after two
-misses. A completed lesson is skipped on later visits unless the child
-intentionally chooses the replay support. Existing learners whose saved
-readiness predates the addition lesson are grandfathered as complete rather than
+The first automatic entry into comparison, addition within 5, subtraction, or
+Big Addition opens a three-scene inline lesson. Lesson scenes are tap-first,
+persist across reloads, award no score, and may be replayed through **Learn
+Together** after two misses. A completed lesson is skipped on later visits unless
+the child intentionally chooses the replay support. Existing learners whose
+saved progress predates a new foundation lesson are grandfathered rather than
 being moved backward.
 
+- **Compare Groups:** align two groups in equal-width rows, name more/fewer/same,
+  make a guided comparison, then identify equal groups independently.
 - **Introduction to Addition:** see two parts make a whole, add one object to a
   group, then put two small groups together independently.
 - **Introduction to Subtraction:** watch a group shrink, remove a requested
@@ -81,9 +85,12 @@ being moved backward.
 - **Place Value & Two-Digit Addition:** identify tens and ones, combine two
   block groups, then solve one no-regroup sum.
 
-The reusable `LessonDefinition` contract keeps new lessons out of the Math mode
-shell. See [math-learn-observation-checklist.md](math-learn-observation-checklist.md) for the
-local-only observation protocol.
+Every lesson's final scene includes an optional, non-scored **Talk together**
+prompt. Solo use remains unblocked. The reusable `LessonDefinition` contract
+keeps new lessons out of the Math mode shell. See the
+[batched observation plan](18-batched-child-observation.md) and its short
+[Math lesson sheet](math-learn-observation-checklist.md) for the local-only,
+single-round protocol.
 
 ## Persistence and compatibility
 

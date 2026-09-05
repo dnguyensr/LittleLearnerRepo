@@ -5,7 +5,7 @@ const { gotoApp, seedSettings } = require('./helpers');
 const PROGRESS_KEY = 'edamame-mathlab-progress';
 const FOUNDATION = [
     'count5', 'subitize', 'count10', 'numeralMatch',
-    'addWithin5', 'countOn', 'addWithin10'
+    'compareSets5', 'addWithin5', 'countOn', 'addWithin10'
 ];
 
 function forkReady() {
@@ -29,11 +29,12 @@ function readyForFirstAddition() {
         version: 2,
         selectedPath: null,
         currentSkill: 'addWithin5',
-        skills: Object.fromEntries(FOUNDATION.slice(0, 4).map(skill => [skill, {
+        skills: Object.fromEntries(FOUNDATION.slice(0, 5).map(skill => [skill, {
             recentIndependent: [true, true, true, true, true, true],
             mastered: true
         }])),
         lessons: {
+            comparisonIntro: { status: 'complete', scene: 0 },
             additionIntro: { status: 'unseen', scene: 0 },
             subtractionIntro: { status: 'unseen', scene: 0 },
             placeValueAdditionIntro: { status: 'unseen', scene: 0 }
@@ -87,6 +88,7 @@ test('subtraction lesson completes all three scenes without scoring', async ({ p
     await page.locator('.lesson-next').click();
 
     await page.locator('[data-lesson-eater]').dispatchEvent('pointerdown', { pointerId: 1 });
+    await expect(page.locator('.lesson-talk')).toBeVisible();
     await page.locator('.lesson-choice[data-correct="true"]').click();
     await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subWithin5');
     await expect(page.locator('#word-count')).toHaveText('0');
@@ -104,6 +106,9 @@ test('first addition is modeled and guided before independent practice', async (
     await page.locator('.lesson-add-one').click();
     await expect(page.locator('.lesson-equation')).toHaveText('2 + 1 = 3');
     await page.locator('.lesson-next').click();
+    await page.locator('.lesson-talk').click();
+    await expect(page.locator('.lesson-talk-prompt')).toBeVisible();
+    await expect(page.locator('#mathlab-prompt')).toHaveText('Step 3 of 3');
     await page.locator('.lesson-choice[data-correct="true"]').click();
 
     await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'addWithin5');
@@ -126,6 +131,8 @@ test('first-addition lesson scenes fit and pass serious accessibility checks', a
 
     await page.locator('.lesson-add-one').click();
     await page.locator('.lesson-next').click();
+    await page.locator('.lesson-talk').click();
+    await expect(page.locator('.lesson-talk-prompt')).toBeVisible();
     await expectInsidePlayArea(page, page.locator('.lesson-scene'));
     results = await new AxeBuilder({ page }).analyze();
     expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact))).toEqual([]);
@@ -137,6 +144,7 @@ test('place-value lesson completes all three scenes without scoring', async ({ p
     await page.locator('.lesson-next').click();
     await page.locator('.lesson-combine').click();
     await page.locator('.lesson-next').click();
+    await expect(page.locator('.lesson-talk')).toBeVisible();
     await page.locator('.lesson-choice[data-correct="true"]').click();
 
     await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'tensAndOnes');

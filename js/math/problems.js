@@ -70,6 +70,37 @@ function counting(skill, max) {
     });
 }
 
+function compareSets() {
+    const item = pick(mathItems);
+    const comparisonWord = pick(['more', 'fewer']);
+    const same = Math.random() < 0.25;
+    const a = rand(1, 5);
+    let b = same ? a : rand(1, 5);
+    while (!same && b === a) b = rand(1, 5);
+
+    const answer = a === b
+        ? 0
+        : comparisonWord === 'more'
+            ? (a > b ? 1 : 2)
+            : (a < b ? 1 : 2);
+    const side = answer === 1 ? 'left' : 'right';
+    return make({
+        skill: 'compareSets5',
+        task: 'compareSets',
+        op: 'compare',
+        a,
+        b,
+        answer,
+        answerText: answer === 0
+            ? 'Both groups have the same number'
+            : `The ${side} group has ${comparisonWord}`,
+        comparisonWord,
+        item,
+        questionText: `Which group has <strong>${comparisonWord}</strong>?`,
+        speakText: `Which group has ${comparisonWord}? Tap a group, or tap same number.`
+    });
+}
+
 // "What comes before 7?" — counting backwards as its own idea, not subtraction.
 function countBack() {
     const item = pick(mathItems);
@@ -291,9 +322,10 @@ export const skills = {
     // Counting
     count5: { label: 'Counting to 5', stage: 'counting', generate: () => counting('count5', 5) },
     count10: { label: 'Counting to 10', stage: 'counting', generate: () => counting('count10', 10) },
-    subitize: { label: 'How many did you see?', stage: 'counting', generate: () => counting('subitize', 10) },
+    subitize: { label: 'How many did you see?', stage: 'counting', generate: () => counting('subitize', 3) },
     countBack: { label: 'Counting backwards', stage: 'counting', generate: countBack },
     numeralMatch: { label: 'Matching numerals', stage: 'counting', generate: () => counting('numeralMatch', 10) },
+    compareSets5: { label: 'More, fewer, or same', stage: 'counting', generate: compareSets },
 
     // Adding to 10
     addWithin5: { label: 'Adding to 5', stage: 'adding10', generate: () => addition('addWithin5', { maxSum: 5 }) },

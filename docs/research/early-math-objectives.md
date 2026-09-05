@@ -85,14 +85,14 @@ locked behind arithmetic completion:
 
 This table records what exists now; it is not a release claim.
 
-| Objective                                             | Current product state                                                                | Next requirement                                                                                      |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `one-to-one-5`, `cardinality-5`, `numeral-quantity-5` | Substantial support in Numbers and Math                                              | Connect the two modules through varied checks without sharing readiness silently.                     |
-| `quantity-recognize-3`, `number-relations-10`         | Partial support in Math subitizing/counting                                          | Bound true subitizing checks to small structured sets and separate them from counting-to-10 evidence. |
-| `compare-sets-5`                                      | Missing                                                                              | Build the first model → guided → independent comparison lesson.                                       |
-| Composition and operations objectives                 | Interactive representations exist; first addition and subtraction have entry lessons | Add lessons for decomposition, counting on, story structures, and making ten.                         |
-| Place-value objectives                                | Place-value entry lesson and manipulatives exist                                     | Clarify the early-first boundary and add varied confirmation before broadening the path.              |
-| Parallel strands                                      | Pattern extension exists; shapes and measurement are missing                         | Expand Patterns and build Shapes & Space before later arithmetic.                                     |
+| Objective                                             | Current product state                                                                | Next requirement                                                                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `one-to-one-5`, `cardinality-5`, `numeral-quantity-5` | Substantial support in Numbers and Math                                              | Connect the two modules through varied checks without sharing readiness silently.                                |
+| `quantity-recognize-3`, `number-relations-10`         | Subitizing is bounded to structured sets of 1–3; counting continues separately to 10 | Add varied small-set structures and observe whether the brief display supports recognition rather than guessing. |
+| `compare-sets-5`                                      | Modeled, guided, and independently practiced with aligned sets through 5             | Observe wording and control comprehension; later vary spacing and add numeral comparison.                        |
+| Composition and operations objectives                 | Interactive representations exist; first addition and subtraction have entry lessons | Add lessons for decomposition, counting on, story structures, and making ten.                                    |
+| Place-value objectives                                | Place-value entry lesson and manipulatives exist                                     | Clarify the early-first boundary and add varied confirmation before broadening the path.                         |
+| Parallel strands                                      | Pattern extension exists; shapes and measurement are missing                         | Expand Patterns and build Shapes & Space before later arithmetic.                                                |
 
 ## Source register
 

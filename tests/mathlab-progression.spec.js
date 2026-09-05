@@ -4,7 +4,7 @@ const { gotoApp, seedSettings, openSettings } = require('./helpers');
 const PROGRESS_KEY = 'edamame-mathlab-progress';
 const FOUNDATION = [
     'count5', 'subitize', 'count10', 'numeralMatch',
-    'addWithin5', 'countOn', 'addWithin10'
+    'compareSets5', 'addWithin5', 'countOn', 'addWithin10'
 ];
 
 function mastered() {
@@ -35,6 +35,7 @@ function forkReady(overrides = {}) {
 
 function completedLessons() {
     return {
+        comparisonIntro: { status: 'complete', scene: 0 },
         subtractionIntro: { status: 'complete', scene: 0 },
         placeValueAdditionIntro: { status: 'complete', scene: 0 }
     };
@@ -138,12 +139,24 @@ test.describe('Math readiness graph', () => {
     });
 
     test('historical first-addition readiness does not trigger a newly added entry lesson', async ({ page }) => {
-        const skills = Object.fromEntries(FOUNDATION.slice(0, 5).map(skill => [skill, mastered()]));
+        const skills = Object.fromEntries(FOUNDATION.slice(0, 6).map(skill => [skill, mastered()]));
         await seedProgress(page, v2({ skills, currentSkill: 'countOn' }));
         await openLab(page);
 
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'countOn');
         await expect(page.locator('#mathlab-workspace')).not.toHaveAttribute('data-lesson', 'additionIntro');
+    });
+
+    test('progress from before comparison was added stays at its later foundation skill', async ({ page }) => {
+        const oldFoundation = [
+            'count5', 'subitize', 'count10', 'numeralMatch', 'addWithin5'
+        ];
+        const skills = Object.fromEntries(oldFoundation.map(skill => [skill, mastered()]));
+        await seedProgress(page, v2({ skills, currentSkill: 'countOn' }));
+        await openLab(page);
+
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'countOn');
+        await expect(page.locator('#mathlab-workspace')).not.toHaveAttribute('data-lesson', 'comparisonIntro');
     });
 
     test('a corrected answer is assisted and does not complete mastery', async ({ page }) => {

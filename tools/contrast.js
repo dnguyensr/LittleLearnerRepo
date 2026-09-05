@@ -79,7 +79,10 @@ const DARK_SURFACES = [
     { alpha: 0.20, name: '#letter-example, .emoji-group' },
     { alpha: 0.24, name: '#number-controls button, .number-view-btn' },
     { alpha: 0.26, name: '.top-btn, .ol-stop, .word-sound-box' },
-    { alpha: 0.28, name: '.math-path-card, .word-tile, .bm-seg' },
+    {
+        alpha: 0.28,
+        name: '.math-path-card, .word-tile, .bm-seg, .comparison-group, .comparison-same, .lesson-talk'
+    },
     { alpha: 0.30, name: '.osk-key, .speak-btn, .eater-btn' },
     { alpha: 0.34, name: '.history-key' },
     { alpha: 0.42, name: '.top-btn:hover' }

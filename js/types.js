@@ -46,13 +46,15 @@
  *
  * @typedef {object} Problem
  * @property {string} skill              skill id from the table in problems.js
- * @property {'countSet'|'recognizeQuantity'|'buildQuantity'|'numberSequence'|'combine'|'separate'|'findPart'|'placeValue'} task
+ * @property {'countSet'|'recognizeQuantity'|'buildQuantity'|'numberSequence'|'compareSets'|'combine'|'separate'|'findPart'|'placeValue'} task
  *   semantic goal shared by every presentation lens
- * @property {'count'|'add'|'sub'|'missing'} op
+ * @property {'count'|'compare'|'add'|'sub'|'missing'} op
  * @property {number} a                  first operand, or the number to count
  * @property {number|null} b             second operand; null when counting or missing-addend
  * @property {number|null} total         for `missing`: the whole in `a + ? = total`
  * @property {number} answer
+ * @property {string} [answerText]       spoken instead of an internal numeric answer code
+ * @property {'more'|'fewer'} [comparisonWord]
  * @property {MathItem} item
  * @property {string|null} equation      horizontal form, or null when counting
  * @property {string} questionText       may contain HTML

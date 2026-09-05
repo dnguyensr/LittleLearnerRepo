@@ -7,7 +7,7 @@ export const MASTERY_REQUIRED = 5;
 
 export const FOUNDATION = [
     'count5', 'subitize', 'count10', 'numeralMatch',
-    'addWithin5', 'countOn', 'addWithin10'
+    'compareSets5', 'addWithin5', 'countOn', 'addWithin10'
 ];
 
 export const PATHS = {
@@ -32,6 +32,7 @@ export const LESSON_FOR_PATH = {
 };
 
 export const LESSON_FOR_SKILL = {
+    compareSets5: 'comparisonIntro',
     addWithin5: 'additionIntro'
 };
 
@@ -283,6 +284,12 @@ function migrateLegacy(raw) {
         }
     }
     progress.currentSkill = SPINE[index];
+    if (index >= SPINE.indexOf('addWithin5')) {
+        progress.skills.compareSets5 = {
+            recentIndependent: Array(MASTERY_WINDOW).fill(true), mastered: true,
+            confirmed: true
+        };
+    }
     progress.selectedPath = isForkUnlocked(progress) ? inferPath(progress.currentSkill) : null;
     return progress;
 }
@@ -329,6 +336,17 @@ export function normalizeProgress(raw) {
                 scene: Math.max(0, Math.floor(Number(value.scene) || 0))
             };
         }
+    }
+    const comparisonIndex = FOUNDATION.indexOf('compareSets5');
+    const requestedIndex = FOUNDATION.indexOf(raw.currentSkill);
+    const hasLaterFoundationEvidence = FOUNDATION.slice(comparisonIndex + 1)
+        .some(skillId => progress.skills[skillId]?.mastered);
+    if (!raw.skills?.compareSets5
+        && (requestedIndex > comparisonIndex || hasLaterFoundationEvidence || isForkUnlocked(progress))) {
+        progress.skills.compareSets5 = {
+            recentIndependent: Array(MASTERY_WINDOW).fill(true), mastered: true,
+            confirmed: true
+        };
     }
     // This lesson was added after version 2 shipped. Existing learners who
     // already reached recent readiness for first addition should not be sent

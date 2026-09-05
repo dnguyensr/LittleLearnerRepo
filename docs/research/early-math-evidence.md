@@ -16,16 +16,18 @@ recoverable errors and independent versus assisted work.
 The largest educational gap is instructional coherence. Presentation renderers
 often rotate without explicitly connecting their representations, and several
 new concepts first appear as scored questions rather than modeled relationships.
-The curriculum is also much deeper in arithmetic than in comparison, spatial
-reasoning, shapes, measurement, and mathematical conversation.
+The curriculum is still much deeper in arithmetic than in comparison, spatial
+reasoning, shapes, measurement, and mathematical conversation. A first aligned-
+set comparison sequence now covers more, fewer, and same through five; its scope
+is intentionally narrow pending the consolidated observation round.
 
 The next Math work should therefore:
 
 1. Define standards-neutral learning objectives and prerequisites.
 2. Model each new relationship before independent practice.
 3. Connect objects, pictures, language, and notation explicitly.
-4. Add quantity comparison and mathematical language before more advanced
-   arithmetic.
+4. Validate and extend quantity comparison and mathematical language before more
+   advanced arithmetic.
 5. Treat short-run app performance as recent readiness, then confirm it later
    with changed examples or representations.
 6. Add caregiver conversation and physical-world extensions.
@@ -126,6 +128,8 @@ should not require the adult to operate controls for the child.
   rearrangement.
 - Objects, dots, and a ten frame provide multiple representations of quantities
   zero through nine.
+- Math keeps brief subitizing checks to structured quantities one through three,
+  separate from its counting-to-ten objective.
 - Math separates problem generation from presentation renderers.
 - Assisted and corrected completions celebrate without counting as independent
   readiness.
@@ -137,8 +141,8 @@ should not require the adult to operate controls for the child.
 
 - The Math foundation has no equivalent of the Words module's evidence review
   until this document.
-- Counting and operations dominate. Direct comparison of sets/numerals,
-  shape/space, and measurement are absent.
+- Counting and operations dominate. Aligned set comparison through five is newly
+  implemented; numeral comparison, shape/space, and measurement are absent.
 - Counting on, decomposition, making ten, and fact relationships lack guided
   introductions. First addition now has a short entry lesson.
 - “Mix” rotates renderers but does not state how two representations encode the
@@ -192,7 +196,7 @@ or fluency expectation.
 | Count objects and produce a requested set                      | K.CC.B.5                                      | Partial: quantities and arrangements are narrower                 |
 | Count sequence and count forward from a given number           | K.CC.A.1–2                                    | Partial: no complete sequence-to-100 experience                   |
 | Connect numerals 0–20 to quantities                            | K.CC.A.3                                      | Partial: app range and numeral-writing differ                     |
-| Compare sets and written numerals                              | K.CC.C.6–7                                    | Missing                                                           |
+| Compare sets and written numerals                              | K.CC.C.6–7                                    | Partial: aligned sets through 5; written numerals missing         |
 | Represent joining and separating within 10                     | K.OA.A.1–2                                    | Partial: limited problem structures                               |
 | Decompose numbers to 10 in multiple ways                       | K.OA.A.3                                      | Partial: number bonds exist but coverage is not systematic        |
 | Find the partner that makes 10                                 | K.OA.A.4                                      | Supported as a later Math objective                               |

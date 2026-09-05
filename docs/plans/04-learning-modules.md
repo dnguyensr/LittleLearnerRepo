@@ -36,7 +36,7 @@ Goal: make Math and Words genuinely useful for pre-K through 1st grade, then add
 - [ ] **Shapes & Colors**: "Tap the red circle!" — a few shapes on screen, tap the right one; spoken prompts, no keyboard needed at all. _(Still open. [P14](14-patterns.md) took Patterns first and records why: as written this is a recognition drill, and the version worth building needs a design of its own.)_
 - [x] **Sight Words / Word Stars** (K–1st): shipped as the regular/irregular high-frequency branch inside Words rather than a competing top-level module; see [P10](10-guided-word-building.md).
 - [x] **Patterns** (`js/modes/patterns.js`): what comes next — 🔴🔵🔴🔵❓ with 2–3 tappable choices, an ab/aab/abb/abc ladder, and the same 5-of-6 readiness window Math and Words use. See [14-patterns.md](14-patterns.md).
-- [x] **Math Lab**: readiness-based skill paths with Build, See & Write; Practice & Columns; Frames & Number Lines; and Variety presentation lenses; guided first-addition, subtraction, and place-value lessons are part of the main path — see [06-math-readiness.md](06-math-readiness.md).
+- [x] **Math Lab**: readiness-based skill paths with Build, See & Write; Practice & Columns; Frames & Number Lines; and Variety presentation lenses; guided comparison, first-addition, subtraction, and place-value lessons are part of the main path — see [06-math-readiness.md](06-math-readiness.md).
 
 ## Shared infrastructure
 

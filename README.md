@@ -16,7 +16,7 @@ For the best experience, turn on sound and use a tablet, phone, or computer with
 | **Piano**     | Play an on-screen piano with touch or mapped physical keys.                                                                                                                                                                                                                                                                                      |
 | **Letters**   | See and hear letter names or phonics sounds with familiar examples, then follow the letter's stroke path in handwriting order.                                                                                                                                                                                                                   |
 | **Numbers**   | Connect numerals with spoken numbers and visible quantities. The app counts the first set out loud, then hands the counting over: children touch each object themselves, in any order, and can rearrange a set to discover that moving things does not change how many there are. The same quantity can also be shown as dots or in a ten frame. |
-| **Math**      | Build counting and addition readiness, then choose continued addition, subtraction, or Big Addition paths. Interactive objects, visual strategies, and optional guided lessons support new concepts.                                                                                                                                             |
+| **Math**      | Build counting, comparison, and addition readiness, then choose continued addition, subtraction, or Big Addition paths. Interactive objects, visual strategies, and optional guided lessons support new concepts.                                                                                                                                |
 | **Patterns**  | Watch a repeating pattern and choose what comes next. Tap-only — no keyboard and no reading. A choice that does not fit is never marked wrong; the pattern is simply read again.                                                                                                                                                                 |
 | **Words**     | Hear familiar words, find their sounds, and build them with letter and grapheme tiles. Children begin with first sounds, move into regular short words, and later choose continued practice, new spelling patterns, or Word Stars.                                                                                                               |
 
@@ -31,7 +31,7 @@ Tap the **⚙️ Grown-ups** button to open the grown-up panel. From there, a ca
 - review which numerals a child has watched, counted alone, or re-counted after a rearrangement, with a protected two-tap reset;
 - choose a Math presentation style;
 - allow automatic Math progression or pin a practice stage;
-- review Math presentation and stage choices; guided lessons are included automatically before first addition and when a child starts subtraction or Big Addition;
+- review Math presentation and stage choices; guided lessons are included automatically before comparison and first addition and when a child starts subtraction or Big Addition;
 - choose a Words learning stage for observation or extra support;
 - choose a Patterns stage, and review or reset Patterns progress;
 - review or reset Math and Words progress with protected two-tap confirmations; and

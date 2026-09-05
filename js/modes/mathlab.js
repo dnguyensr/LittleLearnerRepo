@@ -15,6 +15,7 @@ import { closestEl } from '../dom.js';
 import { classicalMethod } from '../math/classical.js';
 import { commonCoreMethod } from '../math/common-core.js';
 import { singaporeMethod } from '../math/singapore.js';
+import { comparisonMethod } from '../math/comparison.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
 /** @typedef {import('../types.js').MathMethod} MathMethod */
@@ -247,8 +248,8 @@ function newProblem() {
         beginLesson(entryLessonId);
         return;
     }
-    method = resolveMethod();
     problem = generateProblem(skillId);
+    method = problem.task === 'compareSets' ? comparisonMethod : resolveMethod();
     steps = method.steps(problem);
     stepIndex = 0;
     buffer = '';
@@ -320,7 +321,7 @@ function advanceStep() {
 function finish() {
     locked = true;
     celebrate();
-    speak(`${problem.answer}! Great job!`, { interrupt: true });
+    speak(`${problem.answerText || problem.answer}! Great job!`, { interrupt: true });
 
     const step = currentStep();
     if (!markStepDone(step)) {
@@ -440,8 +441,7 @@ function judgeIfDecided() {
     }
 }
 
-container.addEventListener('pointerdown', e => {
-    const target = closestEl(e.target, 'button');
+function activateControl(target) {
     if (!target || target === speakBtn) return;
     if (target === pathsBtn) {
         showPathChooser();
@@ -482,6 +482,19 @@ container.addEventListener('pointerdown', e => {
     // not have to leave it to find one — so a method can render its own and the
     // shell treats a tap on it as ✓.
     if (closestEl(target, '.lab-check')) submitAnswer();
+}
+
+container.addEventListener('pointerdown', e => {
+    activateControl(closestEl(e.target, 'button'));
+});
+
+// Native keyboard activation dispatches `click`, not `pointerdown`. Pointer
+// clicks have detail > 0 and were already handled above; detail 0 covers Enter,
+// Space, switch control, and programmatic activation without double-running a
+// touch or mouse action.
+container.addEventListener('click', e => {
+    if (e.detail !== 0) return;
+    activateControl(closestEl(e.target, 'button'));
 });
 
 speakBtn.addEventListener('click', () => {

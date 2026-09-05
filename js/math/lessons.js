@@ -1,6 +1,7 @@
 import { speak } from '../speech.js';
 import { closestEl } from '../dom.js';
 import { el, tapCounter, eaterButton, eatOne, baseTenBlocks } from './manipulatives.js';
+import { comparisonPair } from './comparison.js';
 
 /** @typedef {import('../types.js').LessonDefinition} LessonDefinition */
 
@@ -24,6 +25,91 @@ function choice(value, correct) {
     button.dataset.correct = String(correct);
     return button;
 }
+
+function talkTogether(prompt) {
+    const wrap = el('div', 'lesson-talk-wrap');
+    const button = actionButton('💬 Talk together', 'lesson-talk');
+    button.setAttribute('aria-expanded', 'false');
+    const text = el('div', 'lesson-talk-prompt', prompt);
+    text.hidden = true;
+    button.addEventListener('click', () => {
+        text.hidden = false;
+        button.setAttribute('aria-expanded', 'true');
+        speak(prompt, { interrupt: true });
+    });
+    wrap.append(button, text);
+    return wrap;
+}
+
+function comparisonChoices(left, right, correctValue) {
+    const board = el('div', 'comparison-board');
+    const pair = comparisonPair('🍎', 'apple', 'apples', left, right, { interactive: true });
+    for (const group of pair.querySelectorAll('[data-compare-value]')) {
+        group.dataset.lessonCompare = 'true';
+        group.dataset.correct = String(Number(group.dataset.compareValue) === correctValue);
+    }
+    board.appendChild(pair);
+    const same = actionButton('= Same number', 'comparison-same');
+    same.dataset.lessonCompare = 'true';
+    same.dataset.compareValue = '0';
+    same.dataset.correct = String(correctValue === 0);
+    board.appendChild(same);
+    return board;
+}
+
+/** @type {LessonDefinition} */
+const comparisonIntro = {
+    id: 'comparisonIntro',
+    skill: 'compareSets5',
+    title: 'Compare Groups',
+    sceneCount: 3,
+
+    render(sceneIndex, container) {
+        container.textContent = '';
+        if (sceneIndex === 0) {
+            const wrap = scene('Line up the groups', 'Each box in one row matches a box in the other row.');
+            wrap.appendChild(comparisonPair('🍎', 'apple', 'apples', 2, 4));
+            wrap.appendChild(el('div', 'lesson-equation', '2 is fewer than 4'));
+            wrap.appendChild(actionButton('I see it!'));
+            container.appendChild(wrap);
+            return {
+                html: 'Four is more than two. Two is fewer than four.',
+                speak: 'Line up the groups. Four apples is more than two apples. Two is fewer than four.'
+            };
+        }
+
+        if (sceneIndex === 1) {
+            const wrap = scene('You compare', 'Tap the group that has more.');
+            wrap.appendChild(comparisonChoices(2, 3, 2));
+            container.appendChild(wrap);
+            return {
+                html: 'Which group has more?',
+                speak: 'Your turn. Which group has more? Tap that group.'
+            };
+        }
+
+        const wrap = scene('Show what you know', 'These groups might match.');
+        wrap.appendChild(comparisonChoices(3, 3, 0));
+        wrap.appendChild(talkTogether('How do you know the two groups have the same number?'));
+        container.appendChild(wrap);
+        return {
+            html: 'Which group has fewer, or are they the same?',
+            speak: 'Which group has fewer, or do both groups have the same number?'
+        };
+    },
+
+    onTap(sceneIndex, target) {
+        if (closestEl(target, '.lesson-next')) return { advance: true };
+        const picked = closestEl(target, '[data-lesson-compare]');
+        if (!picked) return {};
+        if (picked.dataset.correct === 'true') return { advance: true };
+        picked.classList.add('try-again');
+        speak(sceneIndex === 1
+            ? 'Match the boxes in the two rows. Which row has an apple left over?'
+            : 'Count each row. Do they have the same number?', { interrupt: true });
+        return {};
+    }
+};
 
 /** @type {LessonDefinition} */
 const additionIntro = {
@@ -75,6 +161,7 @@ const additionIntro = {
         const choices = el('div', 'lesson-choices');
         choices.append(choice(3, false), choice(4, true), choice(5, false));
         wrap.appendChild(choices);
+        wrap.appendChild(talkTogether('Can you show four another way using two parts?'));
         container.appendChild(wrap);
         return {
             html: 'How many altogether?',
@@ -159,6 +246,7 @@ const subtractionIntro = {
         choices.hidden = true;
         choices.append(choice(2, false), choice(3, true), choice(4, false));
         wrap.appendChild(choices);
+        wrap.appendChild(talkTogether('Can you show the whole group, the part that left, and the part that stayed?'));
         container.appendChild(wrap);
         return {
             html: 'What is left?',
@@ -241,6 +329,7 @@ const placeValueAdditionIntro = {
         const choices = el('div', 'lesson-choices');
         choices.append(choice(33, false), choice(34, true), choice(44, false));
         wrap.appendChild(choices);
+        wrap.appendChild(talkTogether('How do the tens and ones blocks show thirty four?'));
         container.appendChild(wrap);
         return {
             html: 'How many altogether?',
@@ -273,6 +362,7 @@ const placeValueAdditionIntro = {
 };
 
 export const lessons = {
+    comparisonIntro,
     additionIntro,
     subtractionIntro,
     placeValueAdditionIntro

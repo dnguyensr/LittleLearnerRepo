@@ -87,8 +87,8 @@ runtime behavior needs to consume it.
   Core, Florida B.E.S.T., Virginia SOL, Texas TEKS, or another framework without
   changing how the child learns it.
 - Report support at the objective level. Do not claim complete framework
-  alignment while geometry, measurement, comparison, writing numerals, or other
-  required domains are absent.
+  alignment while geometry, measurement, written-numeral comparison, writing
+  numerals, or other required domains are absent.
 - Review mappings against the primary standards publications and include the
   edition/year.
 
@@ -167,9 +167,11 @@ runtime behavior needs to consume it.
 - [ ] Expand story structures beyond result-unknown joining and separating:
       unknown change, unknown start, part-part-whole, and comparison.
 - [ ] Add and invite precise language: more, fewer, same, part, whole, before,
-      after, equal, tens, and ones.
+      after, equal, tens, and ones. The comparison sequence now explicitly teaches
+      more/fewer/same; remaining language connections are pending.
 - [ ] Add optional **Talk together** prompts such as “How do you know?” and
-      physical follow-ups using household objects.
+      physical follow-ups using household objects. Optional prompts now ship in
+      every current Math lesson; the physical extensions remain pending.
 - [ ] Move carrying, borrowing, and arbitrary two-digit subtraction out of the
       stated early-first core until their scope, prerequisites, and lessons are
       explicit.
@@ -202,7 +204,8 @@ runtime behavior needs to consume it.
       `assets/phonemes/README.md`.
 - [ ] Review dialect coverage and avoid presenting accent differences as errors.
 - [ ] Complete the Words observed-child release checklist with at least three
-      appropriately ready children; record no analytics or identifying data.
+      appropriately ready children during the consolidated P18 round; record no
+      analytics or identifying data.
 - [x] Change Letter Formation copy to **Follow the stroke path** while the child
       taps waypoints.
 - [ ] Prototype forgiving drag tracing separately. Claim handwriting practice
@@ -224,7 +227,8 @@ runtime behavior needs to consume it.
 - [ ] Establish a Prettier baseline or remove `format:check` from the advertised
       validation workflow until it is expected to pass.
 - [ ] Add focused unit tests for curriculum generators and normalization so every
-      data defect does not require a full browser run.
+      data defect does not require a full browser run. Direct subitizing-boundary
+      and comparison-answer generator checks now provide the first coverage.
 - [ ] Refresh roadmap counts and statuses that still describe earlier test/module
       states.
 
@@ -244,12 +248,18 @@ For each instructional objective:
 - standards mappings are versioned, secondary metadata and make no efficacy
   claim.
 
+Scarce child access is consolidated under
+[P18](18-batched-child-observation.md): freeze the curriculum candidate first,
+then distribute objectives across short sessions in one coordinated round rather
+than requesting a new round for each feature.
+
 ## Recommended delivery order
 
 1. Finish Phase 1 correctness and deployment gates.
 2. Ship the Phase 2 readiness vocabulary/data migration before adding new
    curriculum, so new modules do not copy the current permanence problem.
 3. Complete the Math evidence review and foundational lessons.
-4. Add comparison and Shapes & Space before advanced arithmetic.
+4. Validate the first comparison sequence and add Shapes & Space before advanced
+   arithmetic.
 5. Finish phoneme audio and letter-formation claim corrections.
 6. Remove legacy code and close validation/tooling debt.
