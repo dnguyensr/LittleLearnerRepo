@@ -78,6 +78,63 @@ test.describe('Math readiness graph', () => {
 
         const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
         expect(stored.skills.count5.mastered).toBe(true);
+        expect(stored.skills.count5.confirmed).toBe(false);
+        expect(stored.skills.count5.readyAt).toBeGreaterThan(0);
+        expect(stored.skills.count5.readySession).toEqual(expect.any(String));
+    });
+
+    test('recent readiness receives one independent confirmation in a later page session', async ({ page }) => {
+        await seedProgress(page, v2({
+            skills: { count5: {
+                recentIndependent: [true, true, true, true, true, true],
+                mastered: true,
+                readyAt: 1,
+                readySession: 'earlier-session',
+                confirmed: false
+            } },
+            currentSkill: 'subitize'
+        }));
+        await openLab(page);
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'count5');
+        await solveClassicalCount(page);
+
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subitize', { timeout: 6000 });
+        const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
+        expect(stored.skills.count5.confirmed).toBe(true);
+        expect(stored.skills.count5.confirmedAt).toBeGreaterThan(0);
+    });
+
+    test('an assisted later check is deferred without blocking the current path', async ({ page }) => {
+        await seedProgress(page, v2({
+            skills: { count5: {
+                recentIndependent: [true, true, true, true, true, true],
+                mastered: true,
+                readyAt: 1,
+                readySession: 'earlier-session',
+                confirmed: false
+            } },
+            currentSkill: 'subitize'
+        }));
+        await openLab(page);
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'count5');
+
+        await page.keyboard.press('0');
+        await page.waitForTimeout(900);
+        await solveClassicalCount(page);
+
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subitize', { timeout: 6000 });
+        const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
+        expect(stored.skills.count5.confirmed).toBe(false);
+        expect(stored.skills.count5.lastConfirmationSession).toEqual(expect.any(String));
+    });
+
+    test('historical mastered records are grandfathered without a surprise review', async ({ page }) => {
+        await seedProgress(page, v2({
+            skills: { count5: mastered() },
+            currentSkill: 'subitize'
+        }));
+        await openLab(page);
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subitize');
     });
 
     test('a corrected answer is assisted and does not complete mastery', async ({ page }) => {

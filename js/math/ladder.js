@@ -74,7 +74,15 @@ export function emptyProgress() {
 
 function skillState(progress, skillId) {
     if (!progress.skills[skillId]) {
-        progress.skills[skillId] = { recentIndependent: [], mastered: false };
+        progress.skills[skillId] = {
+            recentIndependent: [],
+            mastered: false,
+            readyAt: null,
+            readySession: null,
+            confirmed: false,
+            confirmedAt: null,
+            lastConfirmationSession: null
+        };
     }
     return progress.skills[skillId];
 }
@@ -111,8 +119,39 @@ export function selectPath(progress, pathId) {
     return progress;
 }
 
-export function recordSkillResult(progress, skillId, independent) {
+export function confirmationSkillFor(progress, sessionId) {
+    if (!sessionId) return null;
+    return Object.keys(skills).find(skillId => {
+        const state = progress.skills[skillId];
+        return state?.mastered
+            && !state.confirmed
+            && state.readySession !== sessionId
+            && state.lastConfirmationSession !== sessionId;
+    }) || null;
+}
+
+export function recordSkillResult(progress, skillId, independent, options = {}) {
     const state = skillState(progress, skillId);
+    const sessionId = typeof options.sessionId === 'string' ? options.sessionId : null;
+    const suppliedNow = Number(options.now);
+    const now = Number.isFinite(suppliedNow) ? suppliedNow : Date.now();
+
+    if (options.confirmation && state.mastered) {
+        state.lastConfirmationSession = sessionId;
+        const becameConfirmed = !!independent && !state.confirmed;
+        if (becameConfirmed) {
+            state.confirmed = true;
+            state.confirmedAt = now;
+        }
+        return {
+            becameMastered: false,
+            becameConfirmed,
+            forkReady: false,
+            pathComplete: false,
+            nextSkill: currentSkillForProgress(progress)
+        };
+    }
+
     const wasMastered = state.mastered;
     state.recentIndependent.push(!!independent);
     state.recentIndependent = state.recentIndependent.slice(-MASTERY_WINDOW);
@@ -120,6 +159,10 @@ export function recordSkillResult(progress, skillId, independent) {
         && state.recentIndependent.length === MASTERY_WINDOW
         && state.recentIndependent.filter(Boolean).length >= MASTERY_REQUIRED) {
         state.mastered = true;
+        state.readyAt = now;
+        state.readySession = sessionId;
+        state.confirmed = false;
+        state.confirmedAt = null;
     }
 
     const becameMastered = !wasMastered && state.mastered;
@@ -134,6 +177,7 @@ export function recordSkillResult(progress, skillId, independent) {
     }
     return {
         becameMastered,
+        becameConfirmed: false,
         forkReady,
         pathComplete,
         nextSkill: currentSkillForProgress(progress)
@@ -216,7 +260,8 @@ function migrateLegacy(raw) {
 
     for (const skill of SPINE.slice(0, index)) {
         progress.skills[skill] = {
-            recentIndependent: Array(MASTERY_WINDOW).fill(true), mastered: true
+            recentIndependent: Array(MASTERY_WINDOW).fill(true), mastered: true,
+            confirmed: true
         };
     }
     for (const list of Object.values(raw?.done || {})) {
@@ -224,7 +269,8 @@ function migrateLegacy(raw) {
         for (const skill of list) {
             if (skill in skills) {
                 progress.skills[skill] = {
-                    recentIndependent: Array(MASTERY_WINDOW).fill(true), mastered: true
+                    recentIndependent: Array(MASTERY_WINDOW).fill(true), mastered: true,
+                    confirmed: true
                 };
             }
         }
@@ -245,8 +291,23 @@ export function normalizeProgress(raw) {
             const recent = Array.isArray(value.recentIndependent)
                 ? value.recentIndependent.filter(item => typeof item === 'boolean').slice(-MASTERY_WINDOW)
                 : [];
+            const mastered = !!value.mastered;
+            const readyAt = typeof value.readyAt === 'number' && Number.isFinite(value.readyAt)
+                ? Math.max(0, Math.floor(value.readyAt)) : null;
+            const hasNewReadinessRecord = readyAt !== null;
             progress.skills[skillId] = {
-                recentIndependent: recent, mastered: !!value.mastered
+                recentIndependent: recent,
+                mastered,
+                readyAt,
+                readySession: typeof value.readySession === 'string' ? value.readySession : null,
+                // Mastered records written before this additive schema are
+                // grandfathered as confirmed rather than surprising an existing
+                // learner with a new review requirement.
+                confirmed: mastered && (value.confirmed === true || !hasNewReadinessRecord),
+                confirmedAt: typeof value.confirmedAt === 'number' && Number.isFinite(value.confirmedAt)
+                    ? Math.max(0, Math.floor(value.confirmedAt)) : null,
+                lastConfirmationSession: typeof value.lastConfirmationSession === 'string'
+                    ? value.lastConfirmationSession : null
             };
         }
     }
@@ -274,7 +335,15 @@ export function describeProgress(progress) {
     const skillId = currentSkillForProgress(progress) || progress.currentSkill;
     const state = progress.skills[skillId];
     const ready = state?.recentIndependent?.filter(Boolean).length || 0;
-    return `${labelOf(skillId)} (${Math.min(ready, MASTERY_REQUIRED)} of ${MASTERY_REQUIRED} ready)`;
+    const pending = Object.keys(skills).find(id => {
+        const candidate = progress.skills[id];
+        return candidate?.mastered && !candidate.confirmed;
+    });
+    const pendingText = pending ? ` · ${labelOf(pending)} later check pending` : '';
+    const status = state?.mastered
+        ? 'ready in recent practice'
+        : `${Math.min(ready, MASTERY_REQUIRED)} of ${MASTERY_REQUIRED} recent independent`;
+    return `${labelOf(skillId)} (${status})${pendingText}`;
 }
 
 export function skillsInStage(stageId) {

@@ -81,7 +81,11 @@
  * @property {2} version
  * @property {null|'additionPractice'|'subtraction'|'bigAddition'} selectedPath
  * @property {string} currentSkill
- * @property {Record<string, {recentIndependent: boolean[], mastered: boolean}>} skills
+ * @property {Record<string, {
+ *   recentIndependent: boolean[], mastered: boolean, readyAt?: number|null,
+ *   readySession?: string|null, confirmed?: boolean, confirmedAt?: number|null,
+ *   lastConfirmationSession?: string|null
+ * }>} skills
  * @property {Record<string, {status: 'unseen'|'inProgress'|'complete', scene: number}>} lessons
  */
 

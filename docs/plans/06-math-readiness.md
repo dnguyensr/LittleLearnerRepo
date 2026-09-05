@@ -7,6 +7,12 @@
 
 ## Product model
 
+The curriculum rationale, evidence strength, standards crosswalk boundaries,
+and next objective order are maintained in
+[the early-Math evidence review](../research/early-math-evidence.md). Stable,
+standards-neutral goals and prerequisites are defined in the
+[early-Math objective map](../research/early-math-objectives.md).
+
 Math separates three concerns:
 
 - **Skills:** a shared developmental sequence and three reversible paths.
@@ -47,9 +53,16 @@ automatic path until they have guided lessons.
 
 Each skill stores the last six completed outcomes. An outcome is independent
 only when the problem is solved before any miss and without a hint. Five
-independent outcomes among the latest six permanently master the skill.
-Corrected and hinted work still scores and celebrates, but is recorded as
-assisted. An unfinished problem is ignored.
+independent outcomes among the latest six mark the skill ready in recent
+practice and allow the path to continue. Corrected and hinted work still scores
+and celebrates, but is recorded as assisted. An unfinished problem is ignored.
+
+New readiness records also store the browser session and time. On a later page
+session, Math mixes in one pending check without moving the learner backward or
+blocking the current path. An independent result confirms that the skill
+remained ready; assisted work defers confirmation to another session. Historical
+`mastered` records are grandfathered as confirmed for compatibility. The stored
+field name remains `mastered` until a versioned migration removes it.
 
 ## Guided Learn lessons
 
@@ -77,7 +90,8 @@ local-only observation protocol.
   version: 2,
   selectedPath,
   currentSkill,
-  skills: { [skillId]: { recentIndependent, mastered } },
+  skills: { [skillId]: { recentIndependent, mastered, readyAt, readySession,
+                         confirmed, confirmedAt, lastConfirmationSession } },
   lessons: { [lessonId]: { status, scene } }
 }
 ```

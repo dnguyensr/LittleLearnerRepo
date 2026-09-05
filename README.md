@@ -39,6 +39,19 @@ Tap the **⚙️ Grown-ups** button to open the grown-up panel. From there, a ca
 
 Progress and preferences are saved only in that browser's local storage. The app has no accounts, analytics, advertising, or collection of personal data.
 
+Use one browser profile per learner for now. Progress is shared within a browser,
+so siblings should use separate browser profiles until local learner profiles
+ship.
+
+## Learning evidence and current limits
+
+Edamame is an evidence-informed learning supplement, not a replacement for a
+teacher, caregiver, physical manipulatives, conversation, or handwriting.
+Implemented activities are tested for browser behavior and accessibility, while
+instructional effectiveness still requires observed-child validation. Words
+currently uses authored speech cues; licensed, human-reviewed phoneme recordings
+and its planned observed-child sessions remain pre-release gates.
+
 ## Project information
 
 Edamame is a static GitHub Pages application. Its current and planned learning work is recorded in the [project roadmap](docs/plans/README.md).

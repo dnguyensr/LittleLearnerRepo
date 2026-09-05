@@ -50,4 +50,15 @@ test.describe('Math Lab settings', () => {
         await openSettings(page);
         await expect(page.locator('#set-mathlab-level')).toHaveValue('subtracting10');
     });
+
+    test('two-digit work is named by its concept, not by child status', async ({ page }) => {
+        await seedSettings(page, {
+            mathLabLevel: 'twodigitadd', mathMethod: 'classical', speech: false
+        });
+        await gotoApp(page);
+        await page.locator('#mathlab-btn').click();
+
+        await expect(page.locator('#mathlab-question')).toContainText('Add the tens and ones:');
+        await expect(page.locator('#mathlab-question')).not.toContainText(/big kid/i);
+    });
 });

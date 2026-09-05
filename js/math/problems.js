@@ -251,7 +251,7 @@ function twoDigitAdd(skill, { regroup, tensOnly = false }) {
         item,
         twoDigit: true,
         equation: `${a} + ${b} = ?`,
-        questionText: `Big kid math! ${a} + ${b}`,
+        questionText: `Add the tens and ones: ${a} + ${b}`,
         speakText: `${a} plus ${b}.`
     });
 }
@@ -274,7 +274,7 @@ function twoDigitSub(skill, { regroup }) {
         item,
         twoDigit: true,
         equation: `${a} − ${b} = ?`,
-        questionText: `Big kid math! ${a} − ${b}`,
+        questionText: `Take away with tens and ones: ${a} − ${b}`,
         speakText: `${a} take away ${b}.`
     });
 }

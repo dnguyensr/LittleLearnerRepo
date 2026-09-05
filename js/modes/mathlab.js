@@ -6,6 +6,7 @@ import { generateProblem, rand } from '../math/problems.js';
 import {
     emptyProgress, loadProgress, saveProgress, skillsForSetting, stageOf, labelOf,
     currentSkillForProgress, recordSkillResult, practicePool, isForkUnlocked,
+    confirmationSkillFor,
     selectPath, LESSON_FOR_PATH, lessonState, startLesson, advanceLesson
 } from '../math/ladder.js';
 import { lessons } from '../math/lessons.js';
@@ -59,6 +60,9 @@ let problemHadWrong = false;
 let hintUsed = false;
 let view = 'problem';
 let activeLessonId = null;
+const practiceSessionId = globalThis.crypto?.randomUUID?.()
+    || `${Date.now()}-${Math.random()}`;
+let confirmationSkill = null;
 
 /* ---------- Progression ----------
  *
@@ -80,7 +84,13 @@ function isAutoLevel() {
  * a parent-pinned stage still draws from its own practice pool.
  */
 function nextSkill() {
+    confirmationSkill = null;
     if (isAutoLevel()) {
+        const due = confirmationSkillFor(progress, practiceSessionId);
+        if (due) {
+            confirmationSkill = due;
+            return due;
+        }
         if (progress.selectedPath === 'additionPractice') {
             const pool = practicePool(progress);
             return pool[rand(0, pool.length - 1)];
@@ -316,21 +326,28 @@ function finish() {
     correctThisSession++;
     let transition = null;
     if (isAutoLevel()) {
-        transition = recordSkillResult(progress, problem.skill, !problemHadWrong && !hintUsed);
+        transition = recordSkillResult(progress, problem.skill, !problemHadWrong && !hintUsed, {
+            confirmation: problem.skill === confirmationSkill,
+            sessionId: practiceSessionId
+        });
         saveProgress(progress);
     }
     const unlockedLabel = transition?.becameMastered && transition.nextSkill
         ? labelOf(transition.nextSkill) : null;
-    const extra = transition?.forkReady
-        ? 'You are ready to choose your math path!'
-        : transition?.pathComplete
-            ? 'You finished this path. Choose what comes next!'
-            : unlockedLabel
-                ? `New challenge! ${unlockedLabel}.`
-                : (method.celebrationText && method.celebrationText(problem));
-    promptEl.textContent = transition?.forkReady || transition?.pathComplete
-        ? 'New paths unlocked! 🎉'
-        : unlockedLabel ? `New: ${unlockedLabel} 🎉` : '';
+    const extra = transition?.becameConfirmed
+        ? `${labelOf(problem.skill)} is still ready!`
+        : transition?.forkReady
+            ? 'You are ready to choose your math path!'
+            : transition?.pathComplete
+                ? 'You finished this path. Choose what comes next!'
+                : unlockedLabel
+                    ? `New challenge! ${unlockedLabel}.`
+                    : (method.celebrationText && method.celebrationText(problem));
+    promptEl.textContent = transition?.becameConfirmed
+        ? 'Ready after a later check! ⭐'
+        : transition?.forkReady || transition?.pathComplete
+            ? 'New paths unlocked! 🎉'
+            : unlockedLabel ? `New: ${unlockedLabel} 🎉` : '';
 
     const token = hintToken;
     if (extra) setTimeout(() => token === hintToken && speak(extra), 1400);

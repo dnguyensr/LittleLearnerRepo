@@ -193,6 +193,11 @@ The app stores data locally in the active browser:
 - `edamame-score-<mode>` contains each scoring module's total. Math and Words
   score; Letters, Numbers, and Patterns deliberately do not.
 
+Older `edamame-score-patterns` values are intentionally left inert. Reading or
+deleting an obsolete score is unnecessary for runtime correctness, and silently
+removing browser data would create a migration side effect for no learner
+benefit.
+
 Changes to stored contracts must safely normalize missing, corrupt, and legacy values. Math progress migrations and reset behavior are covered in `./tests/mathlab-progression.spec.js`; Words readiness and recovery are covered in `./tests/words.spec.js`; the Numbers record and its two-tap reset are covered in `./tests/numbers.spec.js`.
 
 When modifying the learning experience, preserve these project constraints:
