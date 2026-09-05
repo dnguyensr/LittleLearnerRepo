@@ -131,7 +131,7 @@ should not require the adult to operate controls for the child.
   readiness.
 - Number bonds, ten frames, number lines, bar models, and base-ten blocks are
   interactive rather than static decoration.
-- Subtraction and place value have short guided lesson sequences.
+- First addition, subtraction, and place value have short guided lesson sequences.
 
 ### Gaps and risks
 
@@ -139,8 +139,8 @@ should not require the adult to operate controls for the child.
   until this document.
 - Counting and operations dominate. Direct comparison of sets/numerals,
   shape/space, and measurement are absent.
-- First addition, counting on, decomposition, making ten, and fact relationships
-  lack guided introductions.
+- Counting on, decomposition, making ten, and fact relationships lack guided
+  introductions. First addition now has a short entry lesson.
 - “Mix” rotates renderers but does not state how two representations encode the
   same relationship.
 - Most arithmetic stories are result-unknown joining or separating. Unknown

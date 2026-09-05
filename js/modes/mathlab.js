@@ -7,7 +7,7 @@ import {
     emptyProgress, loadProgress, saveProgress, skillsForSetting, stageOf, labelOf,
     currentSkillForProgress, recordSkillResult, practicePool, isForkUnlocked,
     confirmationSkillFor,
-    selectPath, LESSON_FOR_PATH, lessonState, startLesson, advanceLesson
+    selectPath, LESSON_FOR_PATH, LESSON_FOR_SKILL, lessonState, startLesson, advanceLesson
 } from '../math/ladder.js';
 import { lessons } from '../math/lessons.js';
 import { handleCounterTap } from '../math/manipulatives.js';
@@ -239,6 +239,14 @@ function newProblem() {
         showPathChooser();
         return;
     }
+    const entryLessonId = LESSON_FOR_SKILL[skillId];
+    if (isAutoLevel()
+        && !confirmationSkill
+        && entryLessonId
+        && lessonState(progress, entryLessonId).status !== 'complete') {
+        beginLesson(entryLessonId);
+        return;
+    }
     method = resolveMethod();
     problem = generateProblem(skillId);
     steps = method.steps(problem);
@@ -398,9 +406,10 @@ function submitAnswer() {
     }, 800);
     if (wrongAttempts >= 2) {
         showHint();
-        const lessonId = problem.op === 'sub'
-            ? 'subtractionIntro'
-            : (problem.twoDigit && problem.op === 'add' ? 'placeValueAdditionIntro' : null);
+        const lessonId = LESSON_FOR_SKILL[problem.skill]
+            || (problem.op === 'sub'
+                ? 'subtractionIntro'
+                : (problem.twoDigit && problem.op === 'add' ? 'placeValueAdditionIntro' : null));
         if (lessonId) {
             const button = document.createElement('button');
             button.type = 'button';
@@ -515,7 +524,9 @@ export const mathLabMode = {
         correctThisSession = 0;
         mixIndex = 0;
         progress = loadProgress();
-        const resumableLesson = LESSON_FOR_PATH[progress.selectedPath];
+        const resumableLesson = Object.keys(lessons).find(id => (
+            lessonState(progress, id).status === 'inProgress'
+        ));
         const shouldResumeLesson = resumableLesson
             && isAutoLevel()
             && lessonState(progress, resumableLesson).status === 'inProgress';

@@ -24,6 +24,34 @@ function forkReady() {
     };
 }
 
+function readyForFirstAddition() {
+    return {
+        version: 2,
+        selectedPath: null,
+        currentSkill: 'addWithin5',
+        skills: Object.fromEntries(FOUNDATION.slice(0, 4).map(skill => [skill, {
+            recentIndependent: [true, true, true, true, true, true],
+            mastered: true
+        }])),
+        lessons: {
+            additionIntro: { status: 'unseen', scene: 0 },
+            subtractionIntro: { status: 'unseen', scene: 0 },
+            placeValueAdditionIntro: { status: 'unseen', scene: 0 }
+        }
+    };
+}
+
+async function openFirstAddition(page) {
+    await page.addInitScript(([key, value]) => {
+        localStorage.setItem(key, JSON.stringify(value));
+    }, [PROGRESS_KEY, readyForFirstAddition()]);
+    await seedSettings(page, {
+        mathLabLevel: 'auto', mathMethod: 'singapore', speech: false
+    });
+    await gotoApp(page);
+    await page.locator('#mathlab-btn').click();
+}
+
 async function openChooser(page) {
     await page.addInitScript(([key, value]) => {
         localStorage.setItem(key, JSON.stringify(value));
@@ -65,6 +93,42 @@ test('subtraction lesson completes all three scenes without scoring', async ({ p
 
     const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
     expect(stored.lessons.subtractionIntro).toEqual({ status: 'complete', scene: 0 });
+});
+
+test('first addition is modeled and guided before independent practice', async ({ page }) => {
+    await openFirstAddition(page);
+    await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'additionIntro');
+    await expect(page.locator('#mathlab-prompt')).toHaveText('Step 1 of 3');
+
+    await page.locator('.lesson-next').click();
+    await page.locator('.lesson-add-one').click();
+    await expect(page.locator('.lesson-equation')).toHaveText('2 + 1 = 3');
+    await page.locator('.lesson-next').click();
+    await page.locator('.lesson-choice[data-correct="true"]').click();
+
+    await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'addWithin5');
+    await expect(page.locator('#word-count')).toHaveText('0');
+    const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
+    expect(stored.lessons.additionIntro).toEqual({ status: 'complete', scene: 0 });
+});
+
+test('first-addition lesson scenes fit and pass serious accessibility checks', async ({ page }) => {
+    await openFirstAddition(page);
+
+    await expectInsidePlayArea(page, page.locator('.lesson-scene'));
+    let results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact))).toEqual([]);
+
+    await page.locator('.lesson-next').click();
+    await expectInsidePlayArea(page, page.locator('.lesson-scene'));
+    results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact))).toEqual([]);
+
+    await page.locator('.lesson-add-one').click();
+    await page.locator('.lesson-next').click();
+    await expectInsidePlayArea(page, page.locator('.lesson-scene'));
+    results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter(v => ['serious', 'critical'].includes(v.impact))).toEqual([]);
 });
 
 test('place-value lesson completes all three scenes without scoring', async ({ page }) => {

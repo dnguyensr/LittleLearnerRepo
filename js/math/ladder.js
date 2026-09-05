@@ -31,6 +31,10 @@ export const LESSON_FOR_PATH = {
     bigAddition: 'placeValueAdditionIntro'
 };
 
+export const LESSON_FOR_SKILL = {
+    addWithin5: 'additionIntro'
+};
+
 /** Kept for exact-skill settings, migration, and advanced parent stages. */
 export const SPINE = [
     'count5', 'count10', 'addWithin5', 'addWithin10', 'subWithin5', 'subWithin10',
@@ -54,7 +58,10 @@ export const LEGACY_STAGE = {
 
 const PROGRESS_KEY = 'edamame-mathlab-progress';
 const PATH_IDS = Object.keys(PATHS);
-const LESSON_IDS = Object.values(LESSON_FOR_PATH);
+const LESSON_IDS = [...new Set([
+    ...Object.values(LESSON_FOR_SKILL),
+    ...Object.values(LESSON_FOR_PATH)
+])];
 
 /** @returns {{status: 'unseen'|'inProgress'|'complete', scene: number}} */
 function emptyLesson() {
@@ -321,6 +328,14 @@ export function normalizeProgress(raw) {
                 status,
                 scene: Math.max(0, Math.floor(Number(value.scene) || 0))
             };
+        }
+    }
+    // This lesson was added after version 2 shipped. Existing learners who
+    // already reached recent readiness for first addition should not be sent
+    // backward merely because their saved record predates the lesson field.
+    for (const [skillId, lessonId] of Object.entries(LESSON_FOR_SKILL)) {
+        if (!raw.lessons?.[lessonId] && progress.skills[skillId]?.mastered) {
+            progress.lessons[lessonId] = { status: 'complete', scene: 0 };
         }
     }
     const requested = typeof raw.currentSkill === 'string' && raw.currentSkill in skills

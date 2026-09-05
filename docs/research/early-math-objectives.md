@@ -85,14 +85,14 @@ locked behind arithmetic completion:
 
 This table records what exists now; it is not a release claim.
 
-| Objective                                             | Current product state                                                   | Next requirement                                                                                      |
-| ----------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `one-to-one-5`, `cardinality-5`, `numeral-quantity-5` | Substantial support in Numbers and Math                                 | Connect the two modules through varied checks without sharing readiness silently.                     |
-| `quantity-recognize-3`, `number-relations-10`         | Partial support in Math subitizing/counting                             | Bound true subitizing checks to small structured sets and separate them from counting-to-10 evidence. |
-| `compare-sets-5`                                      | Missing                                                                 | Build the first model → guided → independent comparison lesson.                                       |
-| Composition and operations objectives                 | Interactive representations exist; only subtraction has an entry lesson | Add lessons for first addition, decomposition, counting on, story structures, and making ten.         |
-| Place-value objectives                                | Place-value entry lesson and manipulatives exist                        | Clarify the early-first boundary and add varied confirmation before broadening the path.              |
-| Parallel strands                                      | Pattern extension exists; shapes and measurement are missing            | Expand Patterns and build Shapes & Space before later arithmetic.                                     |
+| Objective                                             | Current product state                                                                | Next requirement                                                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `one-to-one-5`, `cardinality-5`, `numeral-quantity-5` | Substantial support in Numbers and Math                                              | Connect the two modules through varied checks without sharing readiness silently.                     |
+| `quantity-recognize-3`, `number-relations-10`         | Partial support in Math subitizing/counting                                          | Bound true subitizing checks to small structured sets and separate them from counting-to-10 evidence. |
+| `compare-sets-5`                                      | Missing                                                                              | Build the first model → guided → independent comparison lesson.                                       |
+| Composition and operations objectives                 | Interactive representations exist; first addition and subtraction have entry lessons | Add lessons for decomposition, counting on, story structures, and making ten.                         |
+| Place-value objectives                                | Place-value entry lesson and manipulatives exist                                     | Clarify the early-first boundary and add varied confirmation before broadening the path.              |
+| Parallel strands                                      | Pattern extension exists; shapes and measurement are missing                         | Expand Patterns and build Shapes & Space before later arithmetic.                                     |
 
 ## Source register
 

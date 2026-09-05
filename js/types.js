@@ -151,7 +151,8 @@
  *
  * @typedef {object} LessonDefinition
  * @property {string} id
- * @property {'subtraction'|'bigAddition'} path
+ * @property {'subtraction'|'bigAddition'} [path]
+ * @property {string} [skill]
  * @property {string} title
  * @property {number} sceneCount
  * @property {(scene: number, container: HTMLElement) => Question} render

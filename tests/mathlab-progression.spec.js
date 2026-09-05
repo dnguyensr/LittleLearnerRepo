@@ -137,6 +137,15 @@ test.describe('Math readiness graph', () => {
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subitize');
     });
 
+    test('historical first-addition readiness does not trigger a newly added entry lesson', async ({ page }) => {
+        const skills = Object.fromEntries(FOUNDATION.slice(0, 5).map(skill => [skill, mastered()]));
+        await seedProgress(page, v2({ skills, currentSkill: 'countOn' }));
+        await openLab(page);
+
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'countOn');
+        await expect(page.locator('#mathlab-workspace')).not.toHaveAttribute('data-lesson', 'additionIntro');
+    });
+
     test('a corrected answer is assisted and does not complete mastery', async ({ page }) => {
         await seedProgress(page, v2({
             skills: { count5: { recentIndependent: [true, true, true, true, false], mastered: false } }
@@ -211,6 +220,27 @@ test.describe('Child-facing math paths', () => {
 });
 
 test.describe('Guided Learn', () => {
+    test('two misses in first addition offer its Learn Together lesson', async ({ page }) => {
+        const skills = Object.fromEntries(FOUNDATION.slice(0, 4).map(skill => [skill, mastered()]));
+        await seedProgress(page, v2({
+            currentSkill: 'addWithin5',
+            skills,
+            lessons: {
+                additionIntro: { status: 'complete', scene: 0 },
+                subtractionIntro: { status: 'unseen', scene: 0 },
+                placeValueAdditionIntro: { status: 'unseen', scene: 0 }
+            }
+        }));
+        await openLab(page);
+        await page.keyboard.press('0');
+        await page.waitForTimeout(900);
+        await page.keyboard.press('0');
+
+        const support = page.locator('.learn-together-btn');
+        await expect(support).toBeVisible();
+        await expect(support).toHaveAttribute('data-lesson', 'additionIntro');
+    });
+
     test('subtraction path starts the inline lesson as part of the main experience', async ({ page }) => {
         await seedProgress(page, forkReady());
         await openLab(page);

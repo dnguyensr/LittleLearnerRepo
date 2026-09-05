@@ -4,7 +4,7 @@ Use one checklist for each observed lesson session. Do not record the child's
 name, voice, image, or other personal data.
 
 - Date/device: ____________________
-- Lesson: Subtraction / Big Addition
+- Lesson: First Addition / Subtraction / Big Addition
 - Approximate readiness band: pre-K / kindergarten / first grade
 - Did the child understand what to tap without reading? Yes / Not yet
 - Did the child complete each guided action? Yes / Not yet
@@ -19,6 +19,6 @@ name, voice, image, or other personal data.
 For every new or materially changed lesson, seek at least three sessions in which
 appropriately ready children complete it with no more than one adult prompt,
 recover from a wrong action, make an intentional path choice, and encounter no
-navigation dead end. The current subtraction and place-value lessons are part of
-the main Math path; this checklist now guides continued refinement rather than a
-runtime beta switch.
+navigation dead end. The current first-addition, subtraction, and place-value
+lessons are part of the main Math path; this checklist now guides continued
+refinement rather than a runtime beta switch.

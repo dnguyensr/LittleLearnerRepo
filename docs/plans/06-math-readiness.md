@@ -1,9 +1,9 @@
 # Math: readiness paths and guided learning
 
-> **Status (2026-08-30):** Math Lab and its subtraction and place-value Guided
-> Learn lessons ship as one main Math experience. The former beta preference is
-> ignored for compatibility, so an older stored “off” value cannot hide the
-> instruction from a child entering a new path.
+> **Status (2026-09-05):** Math Lab and its first-addition, subtraction, and
+> place-value Guided Learn lessons ship as one main Math experience. The former
+> beta preference is ignored for compatibility, so an older stored “off” value
+> cannot hide the instruction from a child entering a new relationship or path.
 
 ## Product model
 
@@ -39,7 +39,7 @@ The shared foundation is:
 6. Counting on
 7. Adding to 10
 
-After addition to 10 is mastered, the child chooses:
+After addition to 10 is ready in recent practice, the child chooses:
 
 - **Keep Adding:** addition-to-10 facts and strategies without forced advancement.
 - **Learn Take Away:** subtraction to 5, count-back/part-whole work, then subtraction to 10.
@@ -66,12 +66,16 @@ field name remains `mastered` until a versioned migration removes it.
 
 ## Guided Learn lessons
 
-The first entry into subtraction or Big Addition opens a three-scene inline
-lesson. Lesson scenes are tap-first, persist across reloads, award no score, and
-may be replayed through **Learn Together** after two misses. A completed lesson
-is skipped on later path changes unless the child intentionally chooses the
-replay support.
+The first automatic entry into addition within 5, subtraction, or Big Addition
+opens a three-scene inline lesson. Lesson scenes are tap-first, persist across
+reloads, award no score, and may be replayed through **Learn Together** after two
+misses. A completed lesson is skipped on later visits unless the child
+intentionally chooses the replay support. Existing learners whose saved
+readiness predates the addition lesson are grandfathered as complete rather than
+being moved backward.
 
+- **Introduction to Addition:** see two parts make a whole, add one object to a
+  group, then put two small groups together independently.
 - **Introduction to Subtraction:** watch a group shrink, remove a requested
   number of objects, then choose the amount left.
 - **Place Value & Two-Digit Addition:** identify tens and ones, combine two
@@ -115,7 +119,7 @@ clears the whole graph and lesson state after its existing two-tap confirmation.
 
 ## Next curriculum work
 
-- Guided lessons for first addition, making ten, carrying, advanced subtraction,
-  and borrowing.
+- Guided lessons for decomposition, counting on, making ten, fact relationships,
+  carrying, advanced subtraction, and borrowing.
 - Local learner profiles for families sharing a device.
 - Retire the unregistered legacy Math mode after this graph is stable in child use.

@@ -160,7 +160,8 @@ runtime behavior needs to consume it.
       comparison, composing/decomposing, addition, subtraction, and place value in
       `docs/research/early-math-objectives.md`.
 - [ ] Add model → guided → independent lessons for first addition, counting on,
-      decomposing within 5/10, making ten, and fact relationships.
+      decomposing within 5/10, making ten, and fact relationships. First addition
+      now has its entry lesson; the remaining relationships are pending.
 - [ ] Connect concrete, pictorial, verbal, and symbolic forms within the same
       activity; do not count random renderer rotation as a connection.
 - [ ] Expand story structures beyond result-unknown joining and separating:
@@ -173,7 +174,7 @@ runtime behavior needs to consume it.
       stated early-first core until their scope, prerequisites, and lessons are
       explicit.
 - [x] Replace “Big kid math” wording with concept-specific, non-hierarchical
-  language.
+      language.
 
 ### Phase 3 acceptance
 

@@ -26,6 +26,86 @@ function choice(value, correct) {
 }
 
 /** @type {LessonDefinition} */
+const additionIntro = {
+    id: 'additionIntro',
+    skill: 'addWithin5',
+    title: 'Put Groups Together',
+    sceneCount: 3,
+
+    render(sceneIndex, container) {
+        container.textContent = '';
+        if (sceneIndex === 0) {
+            const wrap = scene('Watch one join', 'We start with 2 apples. One more joins the group.');
+            const groups = el('div', 'lesson-object-row');
+            groups.appendChild(tapCounter('🍎', 2, { tappable: false }));
+            groups.appendChild(el('div', 'lesson-plus', '+'));
+            groups.appendChild(tapCounter('🍎', 1, { tappable: false }));
+            wrap.appendChild(groups);
+            wrap.appendChild(el('div', 'lesson-equation', '2 + 1 = 3'));
+            wrap.appendChild(actionButton('I see it!'));
+            container.appendChild(wrap);
+            return {
+                html: 'Addition puts parts together to make a whole.',
+                speak: 'Addition puts parts together to make a whole. Two apples and one more apple make three apples altogether.'
+            };
+        }
+
+        if (sceneIndex === 1) {
+            const wrap = scene('You put them together', 'Start with 2 apples. Tap to add 1 more.');
+            const group = tapCounter('🍎', 2, { tappable: false });
+            group.dataset.lessonAddGroup = 'true';
+            wrap.appendChild(group);
+            wrap.appendChild(el('div', 'lesson-equation', '2 + 1 = ?'));
+            const add = actionButton('Add 1 apple', 'lesson-add-one');
+            wrap.appendChild(add);
+            container.appendChild(wrap);
+            return {
+                html: 'Add one more to the group.',
+                speak: 'Your turn. Start with two apples. Tap to add one more apple.'
+            };
+        }
+
+        const wrap = scene('Show what you know', 'Put 3 apples and 1 apple together.');
+        const groups = el('div', 'lesson-object-row');
+        groups.appendChild(tapCounter('🍎', 3, { tappable: false }));
+        groups.appendChild(el('div', 'lesson-plus', '+'));
+        groups.appendChild(tapCounter('🍎', 1, { tappable: false }));
+        wrap.appendChild(groups);
+        wrap.appendChild(el('div', 'lesson-equation', '3 + 1 = ?'));
+        const choices = el('div', 'lesson-choices');
+        choices.append(choice(3, false), choice(4, true), choice(5, false));
+        wrap.appendChild(choices);
+        container.appendChild(wrap);
+        return {
+            html: 'How many altogether?',
+            speak: 'Three apples and one more apple. How many apples altogether?'
+        };
+    },
+
+    onTap(sceneIndex, target, container) {
+        if (closestEl(target, '.lesson-next')) return { advance: true };
+        const add = closestEl(target, '.lesson-add-one');
+        if (add) {
+            const group = /** @type {HTMLElement} */ (container.querySelector('[data-lesson-add-group]'));
+            group.replaceWith(tapCounter('🍎', 3, { tappable: false }));
+            const equation = /** @type {HTMLElement} */ (container.querySelector('.lesson-equation'));
+            equation.textContent = '2 + 1 = 3';
+            add.textContent = 'Now I see 3!';
+            add.className = 'lesson-action lesson-next';
+            speak('Two and one more make three altogether.', { interrupt: true });
+            return {};
+        }
+        const picked = closestEl(target, '.lesson-choice');
+        if (picked) {
+            if (picked.dataset.correct === 'true') return { advance: true };
+            picked.classList.add('try-again');
+            speak('Count both parts together.', { interrupt: true });
+        }
+        return {};
+    }
+};
+
+/** @type {LessonDefinition} */
 const subtractionIntro = {
     id: 'subtractionIntro',
     path: 'subtraction',
@@ -193,6 +273,7 @@ const placeValueAdditionIntro = {
 };
 
 export const lessons = {
+    additionIntro,
     subtractionIntro,
     placeValueAdditionIntro
 };
