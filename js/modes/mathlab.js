@@ -6,7 +6,7 @@ import { generateProblem, rand } from '../math/problems.js';
 import {
     emptyProgress, loadProgress, saveProgress, skillsForSetting, stageOf, labelOf,
     currentSkillForProgress, recordSkillResult, practicePool, isForkUnlocked,
-    confirmationSkillFor,
+    confirmationSkillFor, beginConfirmation,
     selectPath, LESSON_FOR_PATH, LESSON_FOR_SKILL, lessonState, startLesson, advanceLesson
 } from '../math/ladder.js';
 import { lessons } from '../math/lessons.js';
@@ -16,6 +16,8 @@ import { classicalMethod } from '../math/classical.js';
 import { commonCoreMethod } from '../math/common-core.js';
 import { singaporeMethod } from '../math/singapore.js';
 import { comparisonMethod } from '../math/comparison.js';
+import { bridgeMethod } from '../math/bridges.js';
+import { BRIDGE_SKILLS, confirmationProblem } from '../math/bridge-problems.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
 /** @typedef {import('../types.js').MathMethod} MathMethod */
@@ -64,6 +66,8 @@ let activeLessonId = null;
 const practiceSessionId = globalThis.crypto?.randomUUID?.()
     || `${Date.now()}-${Math.random()}`;
 let confirmationSkill = null;
+let reviewUsedThisSession = false;
+let reviewProblem = null;
 
 /* ---------- Progression ----------
  *
@@ -86,10 +90,18 @@ function isAutoLevel() {
  */
 function nextSkill() {
     confirmationSkill = null;
+    reviewProblem = null;
     if (isAutoLevel()) {
-        const due = confirmationSkillFor(progress, practiceSessionId);
+        const due = !reviewUsedThisSession && confirmationSkillFor(progress, practiceSessionId);
         if (due) {
+            const state = progress.skills[due];
+            reviewProblem = BRIDGE_SKILLS.includes(due)
+                ? confirmationProblem(due, state.readinessItem, state.taughtRepresentations)
+                : generateProblem(due);
+            reviewUsedThisSession = true;
             confirmationSkill = due;
+            beginConfirmation(progress, due, practiceSessionId);
+            saveProgress(progress);
             return due;
         }
         if (progress.selectedPath === 'additionPractice') {
@@ -199,6 +211,7 @@ function renderLesson() {
     view = 'lesson';
     locked = false;
     const state = lessonState(progress, definition.id);
+    state.scene = Math.min(state.scene, definition.sceneCount - 1);
     workspaceEl.dataset.view = 'lesson';
     workspaceEl.dataset.lesson = definition.id;
     delete workspaceEl.dataset.skill;
@@ -212,6 +225,8 @@ function renderLesson() {
 }
 
 function beginLesson(lessonId, { replay = false } = {}) {
+    hintToken++;
+    problem = null;
     activeLessonId = lessonId;
     startLesson(progress, lessonId, { replay });
     saveProgress(progress);
@@ -248,8 +263,9 @@ function newProblem() {
         beginLesson(entryLessonId);
         return;
     }
-    problem = generateProblem(skillId);
-    method = problem.task === 'compareSets' ? comparisonMethod : resolveMethod();
+    problem = reviewProblem || generateProblem(skillId);
+    method = problem.task === 'compareSets' ? comparisonMethod
+        : ['decomposeWhole', 'countOnFrom'].includes(problem.task) ? bridgeMethod : resolveMethod();
     steps = method.steps(problem);
     stepIndex = 0;
     buffer = '';
@@ -276,6 +292,26 @@ function newProblem() {
     questionEl.innerHTML = question.html;
     // Only the column algorithm still needs ✓, so only it says so.
     promptEl.textContent = steps.length > 1 ? 'Ones first, then ✓' : '';
+    workspaceEl.dataset.review = confirmationSkill ? 'true' : 'false';
+    if (confirmationSkill) {
+        promptEl.textContent = BRIDGE_SKILLS.includes(confirmationSkill) ? 'Try it another way. ' : 'Try it again. ';
+        const skip = document.createElement('button');
+        skip.type = 'button';
+        skip.className = 'bridge-button bridge-skip-review';
+        skip.textContent = 'Continue my path →';
+        if (method === bridgeMethod) {
+            skip.textContent = 'Keep going →';
+            workspaceEl.querySelector('.bridge-actions').appendChild(skip);
+        } else promptEl.appendChild(skip);
+    } else if (isAutoLevel() && progress.curriculumBypass.includes('decompose5')
+        && lessonState(progress, 'decompositionIntro').status !== 'complete') {
+        const learn = document.createElement('button');
+        learn.type = 'button';
+        learn.className = 'learn-together-btn';
+        learn.dataset.lesson = 'decompositionIntro';
+        learn.textContent = '👋 Learn Together: Parts';
+        promptEl.appendChild(learn);
+    }
     answerDisplay.style.color = 'white';
     updateDisplays();
     updatePathsButton();
@@ -337,7 +373,8 @@ function finish() {
     if (isAutoLevel()) {
         transition = recordSkillResult(progress, problem.skill, !problemHadWrong && !hintUsed, {
             confirmation: problem.skill === confirmationSkill,
-            sessionId: practiceSessionId
+            sessionId: practiceSessionId,
+            problem
         });
         saveProgress(progress);
     }
@@ -442,7 +479,11 @@ function judgeIfDecided() {
 }
 
 function activateControl(target) {
-    if (!target || target === speakBtn) return;
+    if (!target || target.disabled || target === speakBtn) return;
+    if (closestEl(target, '.bridge-skip-review')) {
+        newProblem();
+        return;
+    }
     if (target === pathsBtn) {
         showPathChooser();
         return;
@@ -468,7 +509,11 @@ function activateControl(target) {
             if (complete) {
                 speak('Lesson complete! Now let us practise.', { interrupt: true });
                 activeLessonId = null;
-                setTimeout(newProblem, 900);
+                locked = true;
+                const token = ++hintToken;
+                setTimeout(() => {
+                    if (token === hintToken && container.classList.contains('active')) newProblem();
+                }, 900);
             } else {
                 renderLesson();
             }
@@ -476,6 +521,10 @@ function activateControl(target) {
         return;
     }
     if (locked || !problem) return;
+    if (closestEl(target, '.bridge-support')) {
+        showHint();
+        return;
+    }
     handleCounterTap(target);
     if (method.onTap) method.onTap(target, problem, workspaceEl);
     // The numpad's ✓ still judges, but a child who is working the widget should

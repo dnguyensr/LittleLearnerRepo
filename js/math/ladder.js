@@ -1,13 +1,16 @@
 import { skills } from './problems.js';
+import { BRIDGE_SKILLS, itemSignature, normalizeSignature, confirmationProblem } from './bridge-problems.js';
 
 /** @typedef {import('../types.js').LabProgress} LabProgress */
 
 export const MASTERY_WINDOW = 6;
 export const MASTERY_REQUIRED = 5;
+// Product heuristic, not a calibrated retention interval.
+export const REVIEW_DELAY_MS = 24 * 60 * 60 * 1000;
 
 export const FOUNDATION = [
     'count5', 'subitize', 'count10', 'numeralMatch',
-    'compareSets5', 'addWithin5', 'countOn', 'addWithin10'
+    'compareSets5', 'decompose5', 'addWithin5', 'countOn', 'addWithin10'
 ];
 
 export const PATHS = {
@@ -33,7 +36,9 @@ export const LESSON_FOR_PATH = {
 
 export const LESSON_FOR_SKILL = {
     compareSets5: 'comparisonIntro',
-    addWithin5: 'additionIntro'
+    decompose5: 'decompositionIntro',
+    addWithin5: 'additionIntro',
+    countOn: 'countOnIntro'
 };
 
 /** Kept for exact-skill settings, migration, and advanced parent stages. */
@@ -72,7 +77,8 @@ function emptyLesson() {
 /** @returns {LabProgress} */
 export function emptyProgress() {
     return {
-        version: /** @type {2} */ (2),
+        version: /** @type {3} */ (3),
+        curriculumBypass: [],
         selectedPath: null,
         currentSkill: FOUNDATION[0],
         skills: {},
@@ -104,7 +110,7 @@ export function isForkUnlocked(progress) {
 }
 
 function firstUnmastered(route, progress) {
-    return route.find(skill => !isMastered(progress, skill)) || route[route.length - 1];
+    return route.find(skill => !isMastered(progress, skill) && !progress.curriculumBypass.includes(skill)) || route[route.length - 1];
 }
 
 export function currentSkillForProgress(progress) {
@@ -127,15 +133,26 @@ export function selectPath(progress, pathId) {
     return progress;
 }
 
-export function confirmationSkillFor(progress, sessionId) {
+export function confirmationSkillFor(progress, sessionId, now = Date.now()) {
     if (!sessionId) return null;
     return Object.keys(skills).find(skillId => {
         const state = progress.skills[skillId];
         return state?.mastered
             && !state.confirmed
             && state.readySession !== sessionId
-            && state.lastConfirmationSession !== sessionId;
+            && state.lastConfirmationSession !== sessionId
+            && typeof state.readyAt === 'number' && Number.isFinite(state.readyAt)
+            && now - Math.max(state.readyAt, state.lastConfirmationAt ?? state.readyAt) >= REVIEW_DELAY_MS
+            && (!BRIDGE_SKILLS.includes(skillId)
+                || !!confirmationProblem(skillId, state.readinessItem, state.taughtRepresentations));
     }) || null;
+}
+
+// Called when review is presented, so abandoning it also defers the next check.
+export function beginConfirmation(progress, skillId, sessionId, now = Date.now()) {
+    const state = skillState(progress, skillId);
+    state.lastConfirmationSession = sessionId;
+    state.lastConfirmationAt = now;
 }
 
 export function recordSkillResult(progress, skillId, independent, options = {}) {
@@ -146,7 +163,14 @@ export function recordSkillResult(progress, skillId, independent, options = {}) 
 
     if (options.confirmation && state.mastered) {
         state.lastConfirmationSession = sessionId;
-        const becameConfirmed = !!independent && !state.confirmed;
+        state.lastConfirmationAt = now;
+        const signature = itemSignature(options.problem);
+        const baseline = normalizeSignature(skillId, state.readinessItem);
+        const varied = !BRIDGE_SKILLS.includes(skillId) || (signature && baseline
+            && state.taughtRepresentations?.includes(signature.representation)
+            && (signature.a !== baseline.a || signature.b !== baseline.b || signature.total !== baseline.total)
+            && (signature.unknownPart !== baseline.unknownPart || signature.representation !== baseline.representation));
+        const becameConfirmed = !!independent && !!varied && !state.confirmed;
         if (becameConfirmed) {
             state.confirmed = true;
             state.confirmedAt = now;
@@ -161,6 +185,17 @@ export function recordSkillResult(progress, skillId, independent, options = {}) 
     }
 
     const wasMastered = state.mastered;
+    const signature = itemSignature(options.problem);
+    const taught = progress.lessons[LESSON_FOR_SKILL[skillId]]?.status === 'complete';
+    if (signature && independent && taught && (!state.mastered || !state.readinessItem)) {
+        state.readinessItem = signature;
+        state.taughtRepresentations = skillId === 'decompose5' ? ['trays'] : ['objects', 'numberLine'];
+        if (state.mastered) {
+            state.readyAt = now;
+            state.readySession = sessionId;
+            state.confirmed = false;
+        }
+    }
     state.recentIndependent.push(!!independent);
     state.recentIndependent = state.recentIndependent.slice(-MASTERY_WINDOW);
     if (!state.mastered
@@ -240,7 +275,7 @@ export function loadProgress() {
     try {
         const raw = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
         const progress = normalizeProgress(raw);
-        if (raw?.version !== 2 && localStorage.getItem(PROGRESS_KEY) !== null) saveProgress(progress);
+        if (raw?.version !== 3 && localStorage.getItem(PROGRESS_KEY) !== null) saveProgress(progress);
         return progress;
     } catch (err) {
         return emptyProgress();
@@ -290,13 +325,19 @@ function migrateLegacy(raw) {
             confirmed: true
         };
     }
+    const currentIndex = FOUNDATION.indexOf(progress.currentSkill);
+    progress.curriculumBypass = FOUNDATION.slice(0, currentIndex < 0 ? FOUNDATION.length : currentIndex)
+        .filter(skill => !progress.skills[skill]?.mastered);
     progress.selectedPath = isForkUnlocked(progress) ? inferPath(progress.currentSkill) : null;
-    return progress;
+    return normalizeProgress(progress);
 }
 
 export function normalizeProgress(raw) {
-    if (!raw || typeof raw !== 'object' || raw.version !== 2) return migrateLegacy(raw);
+    if (!raw || typeof raw !== 'object' || ![2, 3].includes(raw.version)) return migrateLegacy(raw);
     const progress = emptyProgress();
+    if (raw.version === 3 && Array.isArray(raw.curriculumBypass)) {
+        progress.curriculumBypass = FOUNDATION.filter(skill => raw.curriculumBypass.includes(skill));
+    }
     if (PATH_IDS.includes(raw.selectedPath)) progress.selectedPath = raw.selectedPath;
 
     if (raw.skills && typeof raw.skills === 'object') {
@@ -308,7 +349,7 @@ export function normalizeProgress(raw) {
             const mastered = !!value.mastered;
             const readyAt = typeof value.readyAt === 'number' && Number.isFinite(value.readyAt)
                 ? Math.max(0, Math.floor(value.readyAt)) : null;
-            const hasNewReadinessRecord = readyAt !== null;
+            const historicalRecord = raw.version === 2 && value.readyAt === undefined;
             progress.skills[skillId] = {
                 recentIndependent: recent,
                 mastered,
@@ -317,11 +358,20 @@ export function normalizeProgress(raw) {
                 // Mastered records written before this additive schema are
                 // grandfathered as confirmed rather than surprising an existing
                 // learner with a new review requirement.
-                confirmed: mastered && (value.confirmed === true || !hasNewReadinessRecord),
+                confirmed: mastered && (value.confirmed === true || historicalRecord)
+                    && (!BRIDGE_SKILLS.includes(skillId) || !!normalizeSignature(skillId, value.readinessItem)),
                 confirmedAt: typeof value.confirmedAt === 'number' && Number.isFinite(value.confirmedAt)
                     ? Math.max(0, Math.floor(value.confirmedAt)) : null,
                 lastConfirmationSession: typeof value.lastConfirmationSession === 'string'
-                    ? value.lastConfirmationSession : null
+                    ? value.lastConfirmationSession : null,
+                lastConfirmationAt: value.lastConfirmationAt == null ? null
+                    : typeof value.lastConfirmationAt === 'number' && Number.isFinite(value.lastConfirmationAt)
+                        ? Math.max(0, value.lastConfirmationAt) : Number.MAX_SAFE_INTEGER,
+                readinessItem: normalizeSignature(skillId, value.readinessItem),
+                taughtRepresentations: Array.isArray(value.taughtRepresentations)
+                    ? [...new Set(value.taughtRepresentations.filter(rep => (
+                        (skillId === 'decompose5' ? ['trays'] : skillId === 'countOn' ? ['objects', 'numberLine'] : []).includes(rep)
+                    )))] : []
             };
         }
     }
@@ -333,12 +383,17 @@ export function normalizeProgress(raw) {
                 ? value.status : 'unseen';
             progress.lessons[id] = {
                 status,
-                scene: Math.max(0, Math.floor(Number(value.scene) || 0))
+                scene: Number.isFinite(value.scene) ? Math.max(0, Math.floor(value.scene)) : 0
             };
         }
     }
     const comparisonIndex = FOUNDATION.indexOf('compareSets5');
     const requestedIndex = FOUNDATION.indexOf(raw.currentSkill);
+    if (raw.version === 2 && (requestedIndex >= FOUNDATION.indexOf('addWithin5')
+        || FOUNDATION.slice(FOUNDATION.indexOf('addWithin5')).some(id => progress.skills[id]?.mastered)
+        || isForkUnlocked(progress))) {
+        progress.curriculumBypass = ['decompose5'];
+    }
     const hasLaterFoundationEvidence = FOUNDATION.slice(comparisonIndex + 1)
         .some(skillId => progress.skills[skillId]?.mastered);
     if (!raw.skills?.compareSets5
@@ -352,6 +407,7 @@ export function normalizeProgress(raw) {
     // already reached recent readiness for first addition should not be sent
     // backward merely because their saved record predates the lesson field.
     for (const [skillId, lessonId] of Object.entries(LESSON_FOR_SKILL)) {
+        if (BRIDGE_SKILLS.includes(skillId)) continue;
         if (!raw.lessons?.[lessonId] && progress.skills[skillId]?.mastered) {
             progress.lessons[lessonId] = { status: 'complete', scene: 0 };
         }
@@ -372,11 +428,13 @@ export function describeProgress(progress) {
         const candidate = progress.skills[id];
         return candidate?.mastered && !candidate.confirmed;
     });
-    const pendingText = pending ? ` · ${labelOf(pending)} later check pending` : '';
+    const pendingText = pending ? ` · ${labelOf(pending)} ${BRIDGE_SKILLS.includes(pending) && !progress.skills[pending].readinessItem ? 'new lesson/practice needed before varied check' : 'later check pending'}` : '';
     const status = state?.mastered
         ? 'ready in recent practice'
         : `${Math.min(ready, MASTERY_REQUIRED)} of ${MASTERY_REQUIRED} recent independent`;
-    return `${labelOf(skillId)} (${status})${pendingText}`;
+    const confirmationText = state?.confirmed && BRIDGE_SKILLS.includes(skillId)
+        ? ' · later varied check completed' : '';
+    return `${labelOf(skillId)} (${status})${confirmationText}${pendingText}`;
 }
 
 export function skillsInStage(stageId) {

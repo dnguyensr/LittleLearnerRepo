@@ -1,6 +1,6 @@
 # Early Mathematics — Objective Map
 
-> **Version:** 2026-09-05  
+> **Version:** 2026-09-07
 > **Scope:** Product objectives for pre-K through early first grade. This is a
 > design record, not a developmental timetable or a claim of standards
 > alignment.
@@ -90,11 +90,24 @@ This table records what exists now; it is not a release claim.
 | `one-to-one-5`, `cardinality-5`, `numeral-quantity-5` | Substantial support in Numbers and Math                                              | Connect the two modules through varied checks without sharing readiness silently.                                |
 | `quantity-recognize-3`, `number-relations-10`         | Subitizing is bounded to structured sets of 1–3; counting continues separately to 10 | Add varied small-set structures and observe whether the brief display supports recognition rather than guessing. |
 | `compare-sets-5`                                      | Modeled, guided, and independently practiced with aligned sets through 5             | Observe wording and control comprehension; later vary spacing and add numeral comparison.                        |
-| Composition and operations objectives                 | Interactive representations exist; first addition and subtraction have entry lessons | Add lessons for decomposition, counting on, story structures, and making ten.                                    |
+| `compose-decompose-5` | P19: `decompose5` models changing splits and zero, guides redistribution, and checks missing parts for wholes 2–5 | Observe comprehension and optional physical probe in P18; extend decomposition through ten later. |
+| `count-on-10` | P19: `countOn` now has its own task and lesson linking known start, added counters, hops, and notation through ten | Observe prediction versus following taps; app correctness cannot establish mental strategy. |
+| Other composition and operations objectives | First addition/subtraction have entry lessons; other interactive representations exist | Add story-structure, decomposition-through-ten, partner-to-ten, and fact-relationship lessons. |
 | Place-value objectives                                | Place-value entry lesson and manipulatives exist                                     | Clarify the early-first boundary and add varied confirmation before broadening the path.                         |
 | Parallel strands                                      | Pattern extension exists; shapes and measurement are missing                         | Expand Patterns and build Shapes & Space before later arithmetic.                                                |
 
 ## Source register
+
+P19's target skills retain one bounded readiness item and taught-representation
+metadata. A later check changes quantities plus unknown-part position or taught
+representation, after a different page session and a 24-hour minimum delay.
+The timing and five-of-six threshold are product heuristics; neither is a
+validated retention or mastery measure. These new interactions await the P18
+child-observation round and physical-device checks.
+
+Runtime `bondTo10` maps to partner-to-ten objective `make-ten`. Runtime `makeTen`
+is addition across ten (11–18), a distinct strategy whose guided lesson remains
+pending; stored ids are preserved.
 
 - IES, _Teaching Math to Young Children_ (2013), practice guide 18.
 - IES, _Preparing Young Children for School_ (2022), practice guide 30.

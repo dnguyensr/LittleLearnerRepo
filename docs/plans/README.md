@@ -15,7 +15,10 @@ Touch input, ES modules, responsive layouts, and automated browser coverage are 
 
 P1–P3 and the core of P4–P16 are shipped; P17 is the active evidence and
 release-hardening plan. P18 consolidates scarce child-observation time into one
-release-candidate round. Each linked plan records remaining follow-up work.
+release-candidate round. [P19](19-math-concept-bridges.md) implements decomposition,
+counting on, and varied later checks; physical-device and child observation remain
+pending. Shapes & Space is the subsequent section. Each linked
+plan records remaining follow-up work.
 
 | Priority | Plan                                                                               | Why this order                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | -------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

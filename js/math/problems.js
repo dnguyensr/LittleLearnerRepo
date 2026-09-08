@@ -1,4 +1,5 @@
 import { mathItems } from '../data/math-items.js';
+import { generateBridgeProblem } from './bridge-problems.js';
 
 /** @typedef {import('../types.js').Problem} Problem */
 /** @typedef {import('../types.js').MathItem} MathItem */
@@ -328,8 +329,9 @@ export const skills = {
     compareSets5: { label: 'More, fewer, or same', stage: 'counting', generate: compareSets },
 
     // Adding to 10
+    decompose5: { label: 'Parts of a whole', stage: 'adding10', generate: () => generateBridgeProblem('decompose5') },
     addWithin5: { label: 'Adding to 5', stage: 'adding10', generate: () => addition('addWithin5', { maxSum: 5 }) },
-    countOn: { label: 'Counting on', stage: 'adding10', generate: () => addition('countOn', { maxSum: 9 }) },
+    countOn: { label: 'Counting on', stage: 'adding10', generate: () => generateBridgeProblem('countOn') },
     addWithin10: { label: 'Adding to 10', stage: 'adding10', generate: () => addition('addWithin10', { maxSum: 10 }) },
     doubles: { label: 'Doubles', stage: 'adding10', generate: doubles },
     factFamily: { label: 'Fact families', stage: 'adding10', generate: factFamily },

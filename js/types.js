@@ -46,7 +46,7 @@
  *
  * @typedef {object} Problem
  * @property {string} skill              skill id from the table in problems.js
- * @property {'countSet'|'recognizeQuantity'|'buildQuantity'|'numberSequence'|'compareSets'|'combine'|'separate'|'findPart'|'placeValue'} task
+ * @property {'countSet'|'recognizeQuantity'|'buildQuantity'|'numberSequence'|'compareSets'|'combine'|'separate'|'findPart'|'placeValue'|'decomposeWhole'|'countOnFrom'} task
  *   semantic goal shared by every presentation lens
  * @property {'count'|'compare'|'add'|'sub'|'missing'} op
  * @property {number} a                  first operand, or the number to count
@@ -55,6 +55,8 @@
  * @property {number} answer
  * @property {string} [answerText]       spoken instead of an internal numeric answer code
  * @property {'more'|'fewer'} [comparisonWord]
+ * @property {string|null} [unknownPart]
+ * @property {string} [representation]
  * @property {MathItem} item
  * @property {string|null} equation      horizontal form, or null when counting
  * @property {string} questionText       may contain HTML
@@ -80,13 +82,15 @@
  * all survive mode switches and reloads.
  *
  * @typedef {object} LabProgress
- * @property {2} version
+ * @property {3} version
+ * @property {string[]} curriculumBypass   preserves older routes, never evidence
  * @property {null|'additionPractice'|'subtraction'|'bigAddition'} selectedPath
  * @property {string} currentSkill
  * @property {Record<string, {
  *   recentIndependent: boolean[], mastered: boolean, readyAt?: number|null,
  *   readySession?: string|null, confirmed?: boolean, confirmedAt?: number|null,
- *   lastConfirmationSession?: string|null
+ *   lastConfirmationSession?: string|null, lastConfirmationAt?: number|null,
+ *   readinessItem?: object|null, taughtRepresentations?: string[]
  * }>} skills
  * @property {Record<string, {status: 'unseen'|'inProgress'|'complete', scene: number}>} lessons
  */

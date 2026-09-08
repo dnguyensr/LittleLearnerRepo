@@ -595,6 +595,69 @@ button.comparison-group {
     text-align: center;
 }
 
+/* Concept bridges keep prediction controls together on a phone. */
+.bridge-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: min(86vw, 520px);
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.bridge-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 4px 8px;
+    border: 2px solid white;
+    border-radius: 12px;
+    background: #245c29;
+    color: white;
+    font: inherit;
+    cursor: pointer;
+}
+.bridge-button:disabled { opacity: 0.5; cursor: default; }
+.bridge-choice { font-size: 1.3rem; }
+.bridge-choice[aria-pressed="true"] { outline: 3px solid #ffdf6a; outline-offset: -5px; }
+.bridge-trays, .bridge-groups, .bridge-actions, .bridge-choices {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.bridge-trays { width: 100%; align-items: stretch; }
+.bridge-tray {
+    border: 2px solid white;
+    border-radius: 12px;
+    background: #173526;
+    width: 50%;
+    padding: 4px;
+    text-align: center;
+}
+.bridge-right { border-style: dashed; }
+.bridge-label { display: block; font-size: 0.8rem; line-height: 1.1; }
+.bridge-movable .bridge-tray { flex-basis: 0; width: auto; min-width: 0; }
+.bridge-actions .bridge-button { min-height: 44px; padding: 4px 8px; line-height: 1.1; }
+.bridge-counters { display: flex; justify-content: center; gap: 3px; min-height: 24px; align-items: center; flex-wrap: wrap; }
+.bridge-counter { font-size: 1.3rem; line-height: 1; }
+.bridge-move { padding: 0; }
+.bridge-equation, .bridge-whole { font-size: 1.3rem; font-weight: bold; }
+.bridge-equation { line-height: 1.1; }
+.bridge-whole { font-size: 1rem; line-height: 1.1; }
+.bridge-unknown { display: block; font-size: 1.5rem; line-height: 1; }
+.bridge-bond { font-size: 0.95rem; line-height: 1.2; }
+.bridge-count-model { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.bridge-number-line { display: flex; justify-content: space-between; border-bottom: 2px solid white; padding-top: 14px; }
+.bridge-number-line[hidden] { display: none; }
+.bridge-tick { position: relative; min-width: 22px; text-align: center; border-left: 1px solid white; }
+.bridge-start { outline: 2px solid white; border-radius: 50%; }
+.bridge-hop { background: #245c29; }
+.bridge-hop-mark { position: absolute; bottom: 100%; left: -7px; }
+.bridge-counted { outline: 2px solid white; border-radius: 50%; }
+.bridge-talk-text, .bridge-feedback { color: white; text-align: center; font-size: 0.9rem; max-width: 80vw; }
+.bridge-skip-review { font-size: 0.8rem; }
+
 /* One object size for the whole workspace, not just the rows that happen to sit
    in .lab-objects — a counter or dot card dropped straight into the workspace
    (Singapore's concrete/pictorial steps, classical's plain count) used to fall

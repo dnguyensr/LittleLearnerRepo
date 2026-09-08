@@ -6,10 +6,13 @@ for separate testing after each lesson. Do not record the child's name, voice,
 image, or other personal data.
 
 - Date/device: ____________________
-- Lesson: Compare Groups / First Addition / Subtraction / Big Addition
+- Lesson: Compare Groups / Parts of a Whole / First Addition / Counting On / Subtraction / Big Addition
 - Approximate readiness band: pre-K / kindergarten / first grade
 - Did the child understand what to tap without reading? Yes / Not yet
 - Did the child complete each guided action? Yes / Not yet
+- For Parts: did the whole stay the same through a changed split, including an empty part? Yes / With support / Not observed
+- For Counting On: did each added object correspond to one hop after the known start? Yes / With support / Not observed
+- Was the independent prediction made before revealing the missing part or endpoint? Yes / With support / Not observed
 - Adult prompts needed: 0 / 1 / 2+
 - Did the child recover from a wrong tap without getting stuck? Yes / Not yet
 - Did the child intentionally choose a path? Yes / Unsure

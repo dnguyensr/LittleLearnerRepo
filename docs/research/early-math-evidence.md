@@ -1,6 +1,6 @@
 # Early Mathematics — Evidence Review
 
-> **Reviewed:** 2026-09-05  
+> **Reviewed:** 2026-09-07 (P19 implementation status update)
 > **Scope:** A local, tap-first learning supplement for children from pre-K
 > through early first grade. This review separates evidence about learning from
 > standards that describe expected outcomes.
@@ -143,10 +143,12 @@ should not require the adult to operate controls for the child.
   until this document.
 - Counting and operations dominate. Aligned set comparison through five is newly
   implemented; numeral comparison, shape/space, and measurement are absent.
-- Counting on, decomposition, making ten, and fact relationships lack guided
-  introductions. First addition now has a short entry lesson.
+- Decomposition within five and counting on through ten now have explicit P19
+  lessons. Decomposition through ten, making ten, and fact relationships still
+  lack guided introductions. First addition also has a short entry lesson.
 - “Mix” rotates renderers but does not state how two representations encode the
-  same relationship.
+  same relationship across most arithmetic. P19 connects representations within
+  its two target lessons and uses shared task renderers across preferences.
 - Most arithmetic stories are result-unknown joining or separating. Unknown
   starts/changes, part-part-whole, and comparison structures are sparse or absent.
 - Five correct responses in six immediate completions previously produced a

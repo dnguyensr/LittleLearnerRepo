@@ -92,6 +92,8 @@ const DARK_SURFACES = [
 // used translucently, which made it worse; these are the replacements.
 const OPAQUE_ACCENTS = [
     { hex: '#2e7d32', name: 'confirm / active green' },
+    { hex: '#245c29', name: 'concept bridge controls' },
+    { hex: '#173526', name: 'concept bridge trays' },
     { hex: '#b3261e', name: 'wrong-answer red' }
 ];
 

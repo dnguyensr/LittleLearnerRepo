@@ -17,7 +17,7 @@ const { gotoApp, seedSettings } = require('./helpers');
 // Every rung either curriculum can land on, including all three detour sets.
 const SKILLS = [
     'count5', 'count10', 'subitize', 'countBack', 'numeralMatch', 'compareSets5',
-    'addWithin5', 'countOn', 'addWithin10', 'doubles', 'factFamily', 'bondTo10',
+    'decompose5', 'addWithin5', 'countOn', 'addWithin10', 'doubles', 'factFamily', 'bondTo10',
     'subWithin5', 'subWithin10', 'partWhole',
     'makeTen', 'tenAndSome', 'addWithin20', 'subWithin20', 'missingAddend', 'tensAndOnes',
     'addTens', 'addWithin100', 'subWithin100', 'addRegroup', 'subRegroup'

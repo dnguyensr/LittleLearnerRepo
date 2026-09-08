@@ -2,6 +2,7 @@ import { speak } from '../speech.js';
 import { closestEl } from '../dom.js';
 import { el, tapCounter, eaterButton, eatOne, baseTenBlocks } from './manipulatives.js';
 import { comparisonPair } from './comparison.js';
+import { decompositionIntro, countOnIntro } from './bridge-lessons.js';
 
 /** @typedef {import('../types.js').LessonDefinition} LessonDefinition */
 
@@ -362,6 +363,8 @@ const placeValueAdditionIntro = {
 };
 
 export const lessons = {
+    decompositionIntro,
+    countOnIntro,
     comparisonIntro,
     additionIntro,
     subtractionIntro,

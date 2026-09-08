@@ -161,9 +161,13 @@ runtime behavior needs to consume it.
       `docs/research/early-math-objectives.md`.
 - [ ] Add model → guided → independent lessons for first addition, counting on,
       decomposing within 5/10, making ten, and fact relationships. First addition
-      now has its entry lesson; the remaining relationships are pending.
+      now has its entry lesson. P19 adds decomposition within five and counting
+      on through ten; decomposition through ten, making ten, and fact
+      relationships remain pending.
 - [ ] Connect concrete, pictorial, verbal, and symbolic forms within the same
       activity; do not count random renderer rotation as a connection.
+      P19 explicitly connects two parts to a whole/equation and counters to
+      number-line hops/addition; the wider arithmetic audit remains open.
 - [ ] Expand story structures beyond result-unknown joining and separating:
       unknown change, unknown start, part-part-whole, and comparison.
 - [ ] Add and invite precise language: more, fewer, same, part, whole, before,
@@ -171,7 +175,8 @@ runtime behavior needs to consume it.
       more/fewer/same; remaining language connections are pending.
 - [ ] Add optional **Talk together** prompts such as “How do you know?” and
       physical follow-ups using household objects. Optional prompts now ship in
-      every current Math lesson; the physical extensions remain pending.
+      every current Math lesson; P19 adds physical extensions for decomposition
+      and counting on. Other lessons' physical extensions remain pending.
 - [ ] Move carrying, borrowing, and arbitrary two-digit subtraction out of the
       stated early-first core until their scope, prerequisites, and lessons are
       explicit.
@@ -222,6 +227,11 @@ runtime behavior needs to consume it.
       check reusable where axe cannot evaluate gradients.
 - [ ] Complete manual screen-reader, switch/keyboard, zoom, speech-off, and
       physical touch-device checks using a recorded checklist.
+      P19's full regression run also reproduced an existing small-iPhone Letters
+      fit issue: `#letter-make-btn` extends outside the play area after selecting
+      W (`tests/learning.spec.js`, replay-controls fit test, `mobile-safari`).
+      The same clipping occurs when serving the original `HEAD` stylesheet;
+      it is separate from the new Math layouts and remains open.
 - [ ] Retire the unregistered legacy Math container, controller, CSS, and seven
       skipped tests after a final recovery decision.
 - [ ] Establish a Prettier baseline or remove `format:check` from the advertised

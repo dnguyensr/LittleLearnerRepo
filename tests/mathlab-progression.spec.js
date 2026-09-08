@@ -143,7 +143,7 @@ test.describe('Math readiness graph', () => {
         await seedProgress(page, v2({ skills, currentSkill: 'countOn' }));
         await openLab(page);
 
-        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'countOn');
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'countOnIntro');
         await expect(page.locator('#mathlab-workspace')).not.toHaveAttribute('data-lesson', 'additionIntro');
     });
 
@@ -155,7 +155,7 @@ test.describe('Math readiness graph', () => {
         await seedProgress(page, v2({ skills, currentSkill: 'countOn' }));
         await openLab(page);
 
-        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'countOn');
+        await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'countOnIntro');
         await expect(page.locator('#mathlab-workspace')).not.toHaveAttribute('data-lesson', 'comparisonIntro');
     });
 
@@ -203,7 +203,7 @@ test.describe('Child-facing math paths', () => {
     });
 
     test('Keep Adding never deals a subtraction problem', async ({ page }) => {
-        await seedProgress(page, forkReady());
+        await seedProgress(page, forkReady({ lessons: { ...completedLessons(), countOnIntro: { status: 'complete', scene: 0 } } }));
         await openLab(page);
         await page.locator('[data-path="additionPractice"]').click();
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-stage', 'adding10');
@@ -293,13 +293,13 @@ test.describe('Guided Learn', () => {
 });
 
 test.describe('Progress compatibility and controls', () => {
-    test('legacy spine progress migrates to version 2 at the same skill', async ({ page }) => {
+    test('legacy spine progress migrates to version 3 at the same skill', async ({ page }) => {
         await seedProgress(page, { spine: 4, streak: 2, done: {} });
         await openLab(page);
         await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-skill', 'subWithin5');
         const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);
         await expect(page.locator('#mathlab-paths-btn')).toBeVisible();
-        expect(stored.version).toBe(2);
+        expect(stored.version).toBe(3);
     });
 
     test('corrupt progress falls back safely', async ({ page }) => {

@@ -116,7 +116,7 @@ test('five of six independent comparisons record recent readiness', async ({ pag
     const { answer } = await comparisonValues(page);
     await selectAndCheck(page, answer);
 
-    await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'additionIntro', {
+    await expect(page.locator('#mathlab-workspace')).toHaveAttribute('data-lesson', 'decompositionIntro', {
         timeout: 7000
     });
     const stored = await page.evaluate(key => JSON.parse(localStorage.getItem(key)), PROGRESS_KEY);

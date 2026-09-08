@@ -1,10 +1,13 @@
 # Math: readiness paths and guided learning
 
-> **Status (2026-09-05):** Math Lab and its comparison, first-addition,
-> subtraction, and place-value Guided Learn lessons ship as one main Math
+> **Status (2026-09-07):** Math Lab and its comparison, decomposition, first-addition,
+> counting-on, subtraction, and place-value Guided Learn lessons form one main Math
 > experience. The former beta preference is ignored for compatibility, so an
 > older stored “off” value cannot hide instruction from a child entering a new
 > relationship or path.
+>
+> P19's automated Math validation is complete. Physical-device and consolidated
+> P18 child observations remain pending; this is not a learning-efficacy claim.
 
 ## Product model
 
@@ -37,9 +40,10 @@ The shared foundation is:
 3. Counting to 10
 4. Numeral-to-quantity matching
 5. Comparing groups as more, fewer, or the same
-6. Adding to 5
-7. Counting on
-8. Adding to 10
+6. Composing and decomposing wholes through 5
+7. Adding to 5
+8. Counting on through 10
+9. Adding to 10
 
 After addition to 10 is ready in recent practice, the child chooses:
 
@@ -59,17 +63,25 @@ independent outcomes among the latest six mark the skill ready in recent
 practice and allow the path to continue. Corrected and hinted work still scores
 and celebrates, but is recorded as assisted. An unfinished problem is ignored.
 
-New readiness records also store the browser session and time. On a later page
-session, Math mixes in one pending check without moving the learner backward or
-blocking the current path. An independent result confirms that the skill
-remained ready; assisted work defers confirmation to another session. Historical
-`mastered` records are grandfathered as confirmed for compatibility. The stored
-field name remains `mastered` until a versioned migration removes it.
+New readiness records store the browser session and time. Math offers at most
+one pending check per page session, after at least 24 hours from readiness or
+the previous attempt. This delay is a product heuristic. Exiting or completing
+the check returns to the current path; assistance preserves readiness and
+defers another attempt. Parent-pinned exploration does not write readiness.
+
+Decomposition and counting on store one bounded item signature and the taught
+representations. Their later check changes quantities and an unknown-part
+position or taught representation. Older counting-on results do not establish
+this new evidence: a completed lesson and an independent practice baseline are
+needed first. Other historical `mastered` records remain grandfathered as
+confirmed. The stored field name remains for compatibility; none of these
+checks establishes permanent mastery or physical-world transfer.
 
 ## Guided Learn lessons
 
-The first automatic entry into comparison, addition within 5, subtraction, or
-Big Addition opens a three-scene inline lesson. Lesson scenes are tap-first,
+The first automatic entry into comparison, decomposition, addition within 5,
+counting on, subtraction, or Big Addition opens an inline lesson. Decomposition
+has four scenes, including an empty-part model; the others have three. Scenes are tap-first,
 persist across reloads, award no score, and may be replayed through **Learn
 Together** after two misses. A completed lesson is skipped on later visits unless
 the child intentionally chooses the replay support. Existing learners whose
@@ -78,8 +90,12 @@ being moved backward.
 
 - **Compare Groups:** align two groups in equal-width rows, name more/fewer/same,
   make a guided comparison, then identify equal groups independently.
+- **Parts of a whole:** preserve five counters while changing parts, introduce
+  zero, redistribute four counters freely, then check a missing-part prediction.
 - **Introduction to Addition:** see two parts make a whole, add one object to a
   group, then put two small groups together independently.
+- **Start here, count on:** connect each new counter to one spoken number and
+  one hop from the known start, guide that action, then predict a new sum.
 - **Introduction to Subtraction:** watch a group shrink, remove a requested
   number of objects, then choose the amount left.
 - **Place Value & Two-Digit Addition:** identify tens and ones, combine two
@@ -98,17 +114,22 @@ single-round protocol.
 
 ```text
 {
-  version: 2,
+  version: 3,
+  curriculumBypass,
   selectedPath,
   currentSkill,
   skills: { [skillId]: { recentIndependent, mastered, readyAt, readySession,
-                         confirmed, confirmedAt, lastConfirmationSession } },
+                         confirmed, confirmedAt, lastConfirmationSession,
+                         lastConfirmationAt, readinessItem, taughtRepresentations } },
   lessons: { [lessonId]: { status, scene } }
 }
 ```
 
-The loader migrates the previous `{ spine, streak, done }` and four-level
+The loader migrates version 2, the previous `{ spine, streak, done }`, and four-level
 formats, preserving the current skill, completed detours, and the nearest path.
+Curriculum-bypass markers preserve older routes without inventing independent
+results for omitted prerequisites. Existing learners at or beyond first addition
+can open the new Parts lesson through Learn Together without being sent backward.
 Stored method ids and exact-skill parent settings remain valid. **Start over**
 clears the whole graph and lesson state after its existing two-tap confirmation.
 
@@ -126,7 +147,11 @@ clears the whole graph and lesson state after its existing two-tap confirmation.
 
 ## Next curriculum work
 
-- Guided lessons for decomposition, counting on, making ten, fact relationships,
+The current bounded implementation batch is recorded in
+[P19 — Math concept bridges](19-math-concept-bridges.md): decomposition within
+five, explicit counting on, and varied later checks, followed by Shapes & Space.
+
+- Guided lessons for decomposition through ten, making ten, fact relationships,
   carrying, advanced subtraction, and borrowing.
 - Local learner profiles for families sharing a device.
 - Retire the unregistered legacy Math mode after this graph is stable in child use.
