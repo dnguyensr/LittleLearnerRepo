@@ -2097,16 +2097,23 @@ button.btb-rod:active {
     text-underline-offset: 0.1em;
 }
 
+/* nowrap + equal flex, not text width, is what keeps this row inside the
+   play area: the labels' rendered width depends on whatever sans-serif the
+   platform falls back to (Comic Sans MS isn't installed on the CI runner),
+   so sizing the row from font metrics is fragile. Splitting the row evenly
+   and letting a label wrap onto a second line instead costs a little height,
+   never width, on any font. */
 #letter-controls {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 #letter-sound-btn,
 #letter-make-btn,
 #letter-watch-btn {
+    flex: 1 1 0;
     min-width: 44px;
     min-height: 48px;
     padding: 10px 10px;
